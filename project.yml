@@ -138,8 +138,20 @@ targets:
         includes:
           - "**/__Snapshots__/*"
         buildPhase: none
+      - path: AuthenticatorShared/Application/Support/Generated/Assets.swift
+        optional: true
+      - path: AuthenticatorShared/Application/Support/Generated/Localizations.swift
+        optional: true
     dependencies:
       - package: BitwardenSdk
+    preBuildScripts:
+      - name: SwiftGen
+        script: |
+            mint run swiftgen config run --config "swiftgen.yml"
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - $(SRCROOT)/AuthenticatorShared/Application/Support/Generated/Assets.swift
+          - $(SRCROOT)/AuthenticatorShared/Application/Support/Generated/Localizations.swift
   AuthenticatorSharedTests:
     type: bundle.unit-test
     platform: iOS

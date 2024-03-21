@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import UIKit
 
 // swiftlint:disable type_name
@@ -10,6 +11,9 @@ public enum UI {
 
     /// App-wide flag that allows disabling UI animations for testing.
     public static var animated = true
+
+    /// The language code at initialization.
+    public static var initialLanguageCode: String?
 
     #if DEBUG
     /// App-wide flag that allows overriding the OS level sizeCategory for testing.
@@ -40,6 +44,43 @@ public enum UI {
     ///
     public static func after(_ after: TimeInterval) -> DispatchTime {
         animated ? .now() + after : .now()
+    }
+
+    /// Sets up the default global appearances used throughout the app.
+    ///
+    public static func applyDefaultAppearances() {
+        let navigationBarAppearance = UINavigationBarAppearance()
+        navigationBarAppearance.backgroundColor = Asset.Colors.primaryContrastBitwarden.color
+        UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
+        UINavigationBar.appearance().standardAppearance = navigationBarAppearance
+
+        UIBarButtonItem.appearance().tintColor = Asset.Colors.primaryBitwarden.color
+
+        // Make the tab bar opaque.
+        let tabBarAppearance = UITabBarAppearance()
+        tabBarAppearance.configureWithOpaqueBackground()
+        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+        UITabBar.appearance().standardAppearance = tabBarAppearance
+        UITabBar.appearance().tintColor = Asset.Colors.primaryBitwarden.color
+
+        UISearchBar.appearance().tintColor = Asset.Colors.primaryBitwarden.color
+        // Explicitly tint the image so that it does not assume the tint color assigned to the entire search bar.
+        let image = Asset.Images.cancelRound.image
+        let tintedImage = image.withTintColor(Asset.Colors.textSecondary.color, renderingMode: .alwaysOriginal)
+        UISearchBar.appearance().setImage(tintedImage, for: .clear, state: .normal)
+        UISearchBar.appearance().setImage(Asset.Images.magnifyingGlass.image, for: .search, state: .normal)
+
+        // Adjust the appearance of `UITextView` for `BitwardenMultilineTextField` instances on
+        // iOS 15.
+        UITextView.appearance().isScrollEnabled = false
+        UITextView.appearance().backgroundColor = .clear
+        UITextView.appearance().textContainerInset = .zero
+        UITextView.appearance().textContainer.lineFragmentPadding = 0
+    }
+
+    /// Override SwiftGen's lookup function in order to determine the language manually.
+    public static func localizationFunction(key: String, table: String, fallbackValue: String) -> String {
+        Bundle.main.localizedString(forKey: key, value: fallbackValue, table: table)
     }
 }
 
