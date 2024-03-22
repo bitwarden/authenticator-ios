@@ -5,7 +5,6 @@
 class MockAppModule:
     AppModule,
     VaultModule {
-
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
     var vaultCoordinator = MockCoordinator<VaultRoute, AuthAction>()
 

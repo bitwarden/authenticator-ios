@@ -67,18 +67,16 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         showVault()
     }
 
-    func start() {
-        
-    }
+    func start() {}
 
     // MARK: Private Methods
 
     func showVault() {
-        let processor = VaultListProcessor(
-            coordinator: asAnyCoordinator(),
-            services: services,
-            state: VaultListState()
-        )
+//        let processor = VaultListProcessor(
+//            coordinator: asAnyCoordinator(),
+//            services: services,
+//            state: VaultListState()
+//        )
         let view = VaultListView()
         stackNavigator?.replace(view, animated: false)
     }

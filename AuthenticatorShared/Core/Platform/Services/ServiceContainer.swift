@@ -1,8 +1,6 @@
 import BitwardenSdk
 import UIKit
 
-// swiftlint:disable file_length
-
 /// The `ServiceContainer` contains the list of services used by the app. This can be injected into
 /// `Coordinator`s throughout the app which build processors. A `Processor` can define which
 /// services it needs access to by defining a typealias containing a list of services.
@@ -14,7 +12,7 @@ import UIKit
 ///             & HasExampleRepository
 ///     }
 ///
-public class ServiceContainer: Services { // swiftlint:disable:this type_body_length
+public class ServiceContainer: Services {
     // MARK: Properties
 
     /// The application instance (i.e. `UIApplication`), if the app isn't running in an extension.

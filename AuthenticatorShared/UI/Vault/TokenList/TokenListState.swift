@@ -19,7 +19,7 @@ struct TokenListState: Equatable {
 
     /// The string to use in the empty view.
     var noItemsString: String {
-        return Localizations.noItems
+        Localizations.noItems
     }
 
     /// Whether to show the add item button in the view.
@@ -31,7 +31,7 @@ struct TokenListState: Equatable {
 
     /// Whether to show the add item button in the toolbar.
     var showAddToolbarItem: Bool {
-        return true
+        true
     }
 
     /// Whether to show the special web icons.

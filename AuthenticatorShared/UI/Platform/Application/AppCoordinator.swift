@@ -100,5 +100,4 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
 // MARK: - VaultCoordinatorDelegate
 
-extension AppCoordinator: VaultCoordinatorDelegate {
-}
+extension AppCoordinator: VaultCoordinatorDelegate {}
