@@ -59,7 +59,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     func handleEvent(_ event: AppEvent, context: AnyObject?) async {
         switch event {
         case .didStart:
-            break
+            showVault(route: .onboarding)
         }
     }
 
@@ -74,4 +74,31 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         // Nothing to do here - the initial route is specified by `AppProcessor` and this
         // coordinator doesn't need to navigate within the `Navigator` since it's the root.
     }
+
+    // MARK: Private Methods
+
+    /// Shows the vault route (not in a tab). This is used within the app extensions.
+    ///
+    /// - Parameter route: The vault route to show.
+    ///
+    private func showVault(route: VaultRoute) {
+        if let coordinator = childCoordinator as? AnyCoordinator<VaultRoute, AuthAction> {
+            coordinator.navigate(to: route)
+        } else {
+            let stackNavigator = UINavigationController()
+            let coordinator = module.makeVaultCoordinator(
+                delegate: self,
+                stackNavigator: stackNavigator
+            )
+            coordinator.start()
+            coordinator.navigate(to: route)
+            childCoordinator = coordinator
+            rootNavigator?.show(child: stackNavigator)
+        }
+    }
+}
+
+// MARK: - VaultCoordinatorDelegate
+
+extension AppCoordinator: VaultCoordinatorDelegate {
 }

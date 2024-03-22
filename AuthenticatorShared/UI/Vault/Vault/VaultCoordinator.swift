@@ -63,7 +63,23 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     func handleEvent(_ event: AuthAction, context: AnyObject?) async {}
 
-    func navigate(to route: VaultRoute, context: AnyObject?) {}
+    func navigate(to route: VaultRoute, context: AnyObject?) {
+        showVault()
+    }
 
-    func start() {}
+    func start() {
+        
+    }
+
+    // MARK: Private Methods
+
+    func showVault() {
+        let processor = VaultListProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: VaultListState()
+        )
+        let view = VaultListView()
+        stackNavigator?.replace(view, animated: false)
+    }
 }

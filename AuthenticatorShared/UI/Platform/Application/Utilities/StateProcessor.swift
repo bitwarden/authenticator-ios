@@ -1,10 +1,11 @@
 import Combine
+import Foundation
 
 // MARK: - StateProcessor
 
 /// A generic `Processor` which may be subclassed to easily build a `Processor` with the typical
 /// properties, connections, and behaviors.
-open class StateProcessor<Action: Sendable, State: Sendable, Effect: Sendable>: Processor {
+open class StateProcessor<State: Sendable, Action: Sendable, Effect: Sendable>: Processor {
     // MARK: Properties
 
     /// The processor's current state.
@@ -15,7 +16,9 @@ open class StateProcessor<Action: Sendable, State: Sendable, Effect: Sendable>: 
 
     /// A publisher that publishes the processor's state when it changes.
     open var statePublisher: AnyPublisher<State, Never> {
-        stateSubject.eraseToAnyPublisher()
+        stateSubject
+            .receive(on: RunLoop.main)
+            .eraseToAnyPublisher()
     }
 
     // MARK: Private properties

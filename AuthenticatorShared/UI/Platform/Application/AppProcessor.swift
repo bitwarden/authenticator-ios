@@ -52,5 +52,15 @@ public class AppProcessor {
         initialRoute: AppRoute? = nil,
         navigator: RootNavigator,
         window: UIWindow?
-    ) async {}
+    ) async {
+        let coordinator = appModule.makeAppCoordinator(appContext: appContext, navigator: navigator)
+        coordinator.start()
+        self.coordinator = coordinator
+
+        if let initialRoute {
+            coordinator.navigate(to: initialRoute)
+        } else {
+            await coordinator.handleEvent(.didStart)
+        }
+    }
 }
