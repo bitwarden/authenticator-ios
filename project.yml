@@ -130,7 +130,7 @@ targets:
     settings:
       base:
         APPLICATION_EXTENSION_API_ONLY: true
-        INFOPLIST_FILE: AuthenticatorShared/Application/Support/Info.plist
+        INFOPLIST_FILE: AuthenticatorShared/UI/Platform/Application/Support/Info.plist
     sources:
       - path: AuthenticatorShared
         excludes:
@@ -142,9 +142,9 @@ targets:
         includes:
           - "**/__Snapshots__/*"
         buildPhase: none
-      - path: AuthenticatorShared/Application/Support/Generated/Assets.swift
+      - path: AuthenticatorShared/UI/Platform/Application/Support/Generated/Assets.swift
         optional: true
-      - path: AuthenticatorShared/Application/Support/Generated/Localizations.swift
+      - path: AuthenticatorShared/UI/Platform/Application/Support/Generated/Localizations.swift
         optional: true
     dependencies:
       - package: BitwardenSdk
@@ -155,8 +155,8 @@ targets:
             mint run swiftgen config run --config "swiftgen.yml"
         basedOnDependencyAnalysis: false
         outputFiles:
-          - $(SRCROOT)/AuthenticatorShared/Application/Support/Generated/Assets.swift
-          - $(SRCROOT)/AuthenticatorShared/Application/Support/Generated/Localizations.swift
+          - $(SRCROOT)/AuthenticatorShared/UI/Platform/Application/Support/Generated/Assets.swift
+          - $(SRCROOT)/AuthenticatorShared/UI/Platform/Application/Support/Generated/Localizations.swift
   AuthenticatorSharedTests:
     type: bundle.unit-test
     platform: iOS
@@ -164,7 +164,7 @@ targets:
       base:
         BUNDLE_LOADER: "$(TEST_HOST)"
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Authenticator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Authenticator"
-        INFOPLIST_FILE: AuthenticatorShared/Application/TestHelpers/Support/Info.plist
+        INFOPLIST_FILE: AuthenticatorShared/UI/Platform/Application/TestHelpers/Support/Info.plist
     sources:
       - path: AuthenticatorShared
         includes:

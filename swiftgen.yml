@@ -1,6 +1,6 @@
-output_dir: AuthenticatorShared/Application/Support/Generated/
+output_dir: AuthenticatorShared/UI/Platform/Application/Support/Generated/
 strings:
-  inputs: AuthenticatorShared/Application/Support/Localizations/en.lproj
+  inputs: AuthenticatorShared/UI/Platform/Application/Support/Localizations/en.lproj
   outputs:
     - templateName: structured-swift5
       output: Localizations.swift
@@ -10,8 +10,8 @@ strings:
         lookupFunction: UI.localizationFunction(key:table:fallbackValue:)
 xcassets:
   inputs:
-    - AuthenticatorShared/Application/Support/Colors.xcassets
-    - AuthenticatorShared/Application/Support/Images.xcassets
+    - AuthenticatorShared/UI/Platform/Application/Support/Colors.xcassets
+    - AuthenticatorShared/UI/Platform/Application/Support/Images.xcassets
   outputs:
     - templateName: swift5
       output: Assets.swift
