@@ -17,6 +17,12 @@ import UIKit
 public class ServiceContainer: Services { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    /// The application instance (i.e. `UIApplication`), if the app isn't running in an extension.
+    let application: Application?
+
+    /// The service used by the application to report non-fatal errors.
+    let errorReporter: ErrorReporter
+
     /// Provides the present time for TOTP Code Calculation.
     let timeProvider: TimeProvider
 
@@ -25,20 +31,35 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// Initialize a `ServiceContainer`.
     ///
     /// - Parameters:
+    ///   - application: The application instance.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - timeProvider: Provides the present time for TOTP Code Calculation.
     ///
     init(
+        application: Application?,
+        errorReporter: ErrorReporter,
         timeProvider: TimeProvider
     ) {
+        self.application = application
+        self.errorReporter = errorReporter
         self.timeProvider = timeProvider
     }
 
     /// A convenience initializer to initialize the `ServiceContainer` with the default services.
     ///
-    public convenience init() {
+    /// - Parameters:
+    ///   - application: The application instance.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///
+    public convenience init(
+        application: Application? = nil,
+        errorReporter: ErrorReporter
+    ) {
         let timeProvider = CurrentTime()
 
         self.init(
+            application: application,
+            errorReporter: errorReporter,
             timeProvider: timeProvider
         )
     }

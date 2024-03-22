@@ -1,10 +1,16 @@
+"Add" = "Add";
+"AddAnItem" = "Add an Item";
 "AnErrorHasOccurred" = "An error has occurred.";
+"Cancel" = "Cancel";
+"Close" = "Close";
 "Dark" = "Dark";
 "Default" = "Default";
 "DefaultSystem" = "Default (System)";
 "Important" = "Important";
 "Light" = "Light";
 "MasterPassword" = "Master password";
+"NoItems" = "There are no items in your vault.";
 "Ok" = "Ok";
+"Options" = "Options";
 "ValidationFieldRequired" = "The %1$@ field is required.";
 "YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Your master password cannot be recovered if you forget it! %1$@ characters minimum.";
