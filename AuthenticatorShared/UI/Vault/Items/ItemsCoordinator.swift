@@ -1,14 +1,14 @@
 import BitwardenSdk
 import SwiftUI
 
-// MARK: - TokenListCoordinator
+// MARK: - ItemsCoordinator
 
 /// A coordinator that manages navigation on the Token List screen.
 ///
-final class TokenListCoordinator: Coordinator, HasStackNavigator {
+final class ItemsCoordinator: Coordinator, HasStackNavigator {
     // MARK: - Types
 
-    typealias Module = TokenListModule
+    typealias Module = ItemsModule
 
     typealias Services = HasTimeProvider
 
@@ -27,7 +27,7 @@ final class TokenListCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: - Initialization
 
-    /// Creates a new `TokenListCoordinator`.
+    /// Creates a new `ItemsCoordinator`.
     ///
     ///  - Parameters:
     ///   - module: The module used by this coordinator to create child coordinators.
@@ -46,9 +46,9 @@ final class TokenListCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: - Methods
 
-    func handleEvent(_ event: TokenListEvent, context: AnyObject?) async {}
+    func handleEvent(_ event: ItemsEvent, context: AnyObject?) async {}
 
-    func navigate(to route: TokenListRoute, context: AnyObject?) {
+    func navigate(to route: ItemsRoute, context: AnyObject?) {
         switch route {
         case .list:
             showList()
@@ -60,13 +60,13 @@ final class TokenListCoordinator: Coordinator, HasStackNavigator {
     // MARK: - Private Methods
 
     func showList() {
-        let processor = TokenListProcessor(
+        let processor = ItemsProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: TokenListState()
+            state: ItemsState()
         )
         let store = Store(processor: processor)
-        let view = TokenListView(
+        let view = ItemsView(
             store: store,
             timeProvider: services.timeProvider
         )

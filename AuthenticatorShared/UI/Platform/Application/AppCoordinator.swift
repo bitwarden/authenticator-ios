@@ -10,7 +10,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     // MARK: Types
 
     /// The types of modules used by this coordinator.
-    typealias Module = TokenListModule
+    typealias Module = ItemsModule
 
     // MARK: Private Properties
 
@@ -59,7 +59,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     func handleEvent(_ event: AppEvent, context: AnyObject?) async {
         switch event {
         case .didStart:
-            showTokenList(route: .list)
+            showItems(route: .list)
         }
     }
 
@@ -81,12 +81,12 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     ///
     /// - Parameter route: The token list route to show.
     ///
-    private func showTokenList(route: TokenListRoute) {
-        if let coordinator = childCoordinator as? AnyCoordinator<TokenListRoute, TokenListEvent> {
+    private func showItems(route: ItemsRoute) {
+        if let coordinator = childCoordinator as? AnyCoordinator<ItemsRoute, ItemsEvent> {
             coordinator.navigate(to: route)
         } else {
             let stackNavigator = UINavigationController()
-            let coordinator = module.makeTokenListCoordinator(
+            let coordinator = module.makeItemsCoordinator(
                 stackNavigator: stackNavigator
             )
             coordinator.start()

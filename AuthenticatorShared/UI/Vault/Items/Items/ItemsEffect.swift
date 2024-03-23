@@ -1,7 +1,7 @@
-// MARK: - TokenListEffect
+// MARK: - ItemsEffect
 
-/// Effects that can be handled by a `TokenListProcessor`.
-enum TokenListEffect: Equatable {
+/// Effects that can be handled by a `ItemsProcessor`.
+enum ItemsEffect: Equatable {
     /// The vault group view appeared on screen.
     case appeared
 

@@ -1,10 +1,10 @@
 import BitwardenSdk
 import Foundation
 
-// MARK: - TokenListProcessor
+// MARK: - ItemsProcessor
 
-/// A `Processor` that can process `TokenListAction`s and `TokenListEffect`s.
-final class TokenListProcessor: StateProcessor<TokenListState, TokenListAction, TokenListEffect> {
+/// A `Processor` that can process `ItemsAction`s and `ItemsEffect`s.
+final class ItemsProcessor: StateProcessor<ItemsState, ItemsAction, ItemsEffect> {
     // MARK: Types
 
     typealias Services = HasTimeProvider
@@ -12,14 +12,14 @@ final class TokenListProcessor: StateProcessor<TokenListState, TokenListAction, 
     // MARK: Private Properties
 
     /// The `Coordinator` for this processor.
-    private var coordinator: any Coordinator<TokenListRoute, TokenListEvent>
+    private var coordinator: any Coordinator<ItemsRoute, ItemsEvent>
 
     /// The services for this processor.
     private var services: Services
 
     // MARK: Initialization
 
-    /// Creates a new `TokenListProcessor`.
+    /// Creates a new `ItemsProcessor`.
     ///
     /// - Parameters:
     ///   - coordinator: The `Coordinator` for this processor.
@@ -27,9 +27,9 @@ final class TokenListProcessor: StateProcessor<TokenListState, TokenListAction, 
     ///   - state: The initial state of this processor.
     ///
     init(
-        coordinator: any Coordinator<TokenListRoute, TokenListEvent>,
+        coordinator: any Coordinator<ItemsRoute, ItemsEvent>,
         services: Services,
-        state: TokenListState
+        state: ItemsState
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -39,7 +39,7 @@ final class TokenListProcessor: StateProcessor<TokenListState, TokenListAction, 
 
     // MARK: Methods
 
-    override func perform(_ effect: TokenListEffect) async {}
+    override func perform(_ effect: ItemsEffect) async {}
 
-    override func receive(_ action: TokenListAction) {}
+    override func receive(_ action: ItemsAction) {}
 }

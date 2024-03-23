@@ -1,9 +1,9 @@
 import Foundation
 
-// MARK: - TokenListState
+// MARK: - ItemsState
 
-/// The state of a `TokenListView`.
-struct TokenListState: Equatable {
+/// The state of a `ItemsView`.
+struct ItemsState: Equatable {
     // MARK: Properties
 
     /// Whether there is data for the vault group.

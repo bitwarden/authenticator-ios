@@ -1,7 +1,7 @@
-// MARK: - TokenListAction
+// MARK: - ItemsAction
 
-/// Actions that can be processed by a `TokenListProcessor`.
-enum TokenListAction: Equatable {
+/// Actions that can be processed by a `ItemsProcessor`.
+enum ItemsAction: Equatable {
     /// The add item button was pressed.
     ///
     case addItemPressed

@@ -4,9 +4,9 @@
 
 class MockAppModule:
     AppModule,
-    TokenListModule {
+    ItemsModule {
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
-    var tokenListCoordinator = MockCoordinator<TokenListRoute, TokenListEvent>()
+    var itemsCoordinator = MockCoordinator<ItemsRoute, ItemsEvent>()
 
     func makeAppCoordinator(
         appContext _: AppContext,
@@ -15,9 +15,9 @@ class MockAppModule:
         appCoordinator.asAnyCoordinator()
     }
 
-    func makeTokenListCoordinator(
+    func makeItemsCoordinator(
         stackNavigator _: AuthenticatorShared.StackNavigator
-    ) -> AnyCoordinator<TokenListRoute, TokenListEvent> {
-        tokenListCoordinator.asAnyCoordinator()
+    ) -> AnyCoordinator<ItemsRoute, ItemsEvent> {
+        itemsCoordinator.asAnyCoordinator()
     }
 }

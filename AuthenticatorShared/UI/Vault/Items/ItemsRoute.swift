@@ -1,14 +1,14 @@
 import BitwardenSdk
 import Foundation
 
-// MARK: - TokenListRoute
+// MARK: - ItemsRoute
 
 /// A route to a specific screen or subscreen of the Token List
-public enum TokenListRoute: Equatable, Hashable {
+public enum ItemsRoute: Equatable, Hashable {
     /// A route to the base token list screen.
     case list
 }
 
-enum TokenListEvent {
+enum ItemsEvent {
     case showSomething
 }
