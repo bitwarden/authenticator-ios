@@ -1,12 +1,4 @@
-import BitwardenSdk
 import Foundation
-
-// MARK: - VaultRoute
-
-/// A route to a specific screen in the vault tab.
-public enum VaultRoute: Equatable, Hashable {
-    case onboarding
-}
 
 @propertyWrapper
 struct AlwaysEqual<Value>: Equatable {

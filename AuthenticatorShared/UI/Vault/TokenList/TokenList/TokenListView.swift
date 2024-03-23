@@ -19,7 +19,7 @@ struct TokenListView: View {
 
     var body: some View {
         content
-            .navigationTitle("Hello")
+            .navigationTitle("Hello from the Token List View")
             .navigationBarTitleDisplayMode(.inline)
             .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
             .toolbar {

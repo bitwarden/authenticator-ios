@@ -4,9 +4,9 @@
 
 class MockAppModule:
     AppModule,
-    VaultModule {
+    TokenListModule {
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
-    var vaultCoordinator = MockCoordinator<VaultRoute, AuthAction>()
+    var tokenListCoordinator = MockCoordinator<TokenListRoute, TokenListEvent>()
 
     func makeAppCoordinator(
         appContext _: AppContext,
@@ -15,10 +15,9 @@ class MockAppModule:
         appCoordinator.asAnyCoordinator()
     }
 
-    func makeVaultCoordinator(
-        delegate _: AuthenticatorShared.VaultCoordinatorDelegate,
+    func makeTokenListCoordinator(
         stackNavigator _: AuthenticatorShared.StackNavigator
-    ) -> AuthenticatorShared.AnyCoordinator<AuthenticatorShared.VaultRoute, AuthAction> {
-        vaultCoordinator.asAnyCoordinator()
+    ) -> AnyCoordinator<TokenListRoute, TokenListEvent> {
+        tokenListCoordinator.asAnyCoordinator()
     }
 }
