@@ -19,7 +19,7 @@ struct ItemsView: View {
 
     var body: some View {
         content
-            .navigationTitle("Hello from the Token List View")
+            .navigationTitle("Verification codes")
             .navigationBarTitleDisplayMode(.inline)
             .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
             .toolbar {
@@ -35,7 +35,101 @@ struct ItemsView: View {
     // MARK: Private
 
     @ViewBuilder private var content: some View {
-        Text("Hello world")
+        LoadingView(state: store.state.loadingState) { items in
+            if items.isEmpty {
+                emptyView
+            } else {
+                groupView(with: items)
+            }
+        }
+    }
+
+    /// A view that displays an empty state for this vault group.
+    @ViewBuilder private var emptyView: some View {
+        GeometryReader { reader in
+            ScrollView {
+                VStack(spacing: 24) {
+                    Spacer()
+
+                    Text(store.state.noItemsString)
+                        .multilineTextAlignment(.center)
+                        .styleGuide(.callout)
+                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+
+                    if store.state.showAddItemButton {
+                        Button(Localizations.addAnItem) {
+                            store.send(.addItemPressed)
+                        }
+                        .buttonStyle(.tertiary())
+                    }
+
+                    Spacer()
+                }
+                .padding(.horizontal, 16)
+                .frame(minWidth: reader.size.width, minHeight: reader.size.height)
+            }
+        }
+    }
+
+    // MARK: Private Methods
+
+    /// A view that displays a list of the sections within this vault group.
+    ///
+    @ViewBuilder
+    private func groupView(with items: [VaultListItem]) -> some View {
+        ScrollView {
+            VStack(spacing: 20.0) {
+                VStack(alignment: .leading, spacing: 7) {
+                    LazyVStack(alignment: .leading, spacing: 0) {
+                        ForEach(items) { item in
+                            Button {
+                                store.send(.itemPressed(item))
+                            } label: {
+                                vaultItemRow(
+                                    for: item,
+                                    isLastInSection: true
+                                )
+                            }
+                        }
+                        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                }
+            }
+            .padding(16)
+        }
+    }
+
+    /// Creates a row in the list for the provided item.
+    ///
+    /// - Parameters:
+    ///   - item: The `VaultListItem` to use when creating the view.
+    ///   - isLastInSection: A flag indicating if this item is the last one in the section.
+    ///
+    @ViewBuilder
+    private func vaultItemRow(for item: VaultListItem, isLastInSection: Bool = false) -> some View {
+        ItemListItemRowView(
+            store: store.child(
+                state: { state in
+                    ItemListItemRowState(
+                        iconBaseURL: state.iconBaseURL,
+                        item: item,
+                        hasDivider: !isLastInSection,
+                        showWebIcons: state.showWebIcons
+                    )
+                },
+                mapAction: { action in
+                    switch action {
+                    case let .copyTOTPCode(code):
+                        return .copyTOTPCode(code)
+                    case .morePressed:
+                        return .morePressed(item)
+                    }
+                },
+                mapEffect: { .appeared }
+            ),
+            timeProvider: timeProvider
+        )
     }
 }
 
@@ -49,6 +143,47 @@ struct ItemsView: View {
                 processor: StateProcessor(
                     state: ItemsState(
                         loadingState: .loading(nil)
+                    )
+                )
+            ),
+            timeProvider: PreviewTimeProvider()
+        )
+    }
+}
+
+#Preview("Tokens") {
+    NavigationView {
+        ItemsView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ItemsState(
+                        loadingState: .data(
+                            [
+                                .init(
+                                    id: "One",
+                                    itemType: .totp(
+                                        name: "One",
+                                        totpModel: VaultListTOTP(
+                                            id: UUID().uuidString,
+                                            loginView: .init(
+                                                username: "email@example.com",
+                                                password: nil,
+                                                passwordRevisionDate: nil,
+                                                uris: nil,
+                                                totp: "asdf",
+                                                autofillOnPageLoad: nil,
+                                                fido2Credentials: nil
+                                            ),
+                                            totpCode: TOTPCodeModel(
+                                                code: "123456",
+                                                codeGenerationDate: Date(),
+                                                period: 30
+                                            )
+                                        )
+                                    )
+                                ),
+                            ]
+                        )
                     )
                 )
             ),

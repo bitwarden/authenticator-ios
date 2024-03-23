@@ -11,6 +11,7 @@ final class ItemsCoordinator: Coordinator, HasStackNavigator {
     typealias Module = ItemsModule
 
     typealias Services = HasTimeProvider
+        & ItemsProcessor.Services
 
     // MARK: - Private Properties
 

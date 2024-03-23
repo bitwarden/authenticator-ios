@@ -1,8 +1,16 @@
 import BitwardenSdk
 
 /// The services provided by the `ServiceContainer`.
-typealias Services = HasTOTPService
+typealias Services = HasErrorReporter
+    & HasTOTPService
     & HasTimeProvider
+
+/// Protocol for an object that provides an `ErrorReporter`.
+///
+protocol HasErrorReporter {
+    /// The service used by the application to report non-fatal errors.
+    var errorReporter: ErrorReporter { get }
+}
 
 /// Protocol for an object that provides a `TOTPService`.
 ///
