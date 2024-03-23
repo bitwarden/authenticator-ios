@@ -24,6 +24,9 @@ public class ServiceContainer: Services {
     /// Provides the present time for TOTP Code Calculation.
     let timeProvider: TimeProvider
 
+    /// The service used by the application to validate TOTP keys and produce TOTP values.
+    let totpService: TOTPService
+
     // MARK: Initialization
 
     /// Initialize a `ServiceContainer`.
@@ -32,15 +35,18 @@ public class ServiceContainer: Services {
     ///   - application: The application instance.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - timeProvider: Provides the present time for TOTP Code Calculation.
+    ///   - totpService: The service used by the application to validate TOTP keys and produce TOTP values.
     ///
     init(
         application: Application?,
         errorReporter: ErrorReporter,
-        timeProvider: TimeProvider
+        timeProvider: TimeProvider,
+        totpService: TOTPService
     ) {
         self.application = application
         self.errorReporter = errorReporter
         self.timeProvider = timeProvider
+        self.totpService = totpService
     }
 
     /// A convenience initializer to initialize the `ServiceContainer` with the default services.
@@ -55,10 +61,13 @@ public class ServiceContainer: Services {
     ) {
         let timeProvider = CurrentTime()
 
+        let totpService = DefaultTOTPService()
+
         self.init(
             application: application,
             errorReporter: errorReporter,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
+            totpService: totpService
         )
     }
 }

@@ -7,12 +7,14 @@ extension ServiceContainer {
     static func withMocks(
         application: Application? = nil,
         errorReporter: ErrorReporter = MockErrorReporter(),
-        timeProvider: TimeProvider = MockTimeProvider(.currentTime)
+        timeProvider: TimeProvider = MockTimeProvider(.currentTime),
+        totpService: TOTPService = MockTOTPService()
     ) -> ServiceContainer {
         ServiceContainer(
             application: application,
             errorReporter: errorReporter,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
+            totpService: totpService
         )
     }
 }
