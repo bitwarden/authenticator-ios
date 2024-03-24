@@ -72,6 +72,13 @@ final class ItemsProcessor: StateProcessor<ItemsState, ItemsAction, ItemsEffect>
     ///
     private func refreshTOTPCodes(for items: [VaultListItem]) async {
         guard case let .data(currentSections) = state.loadingState else { return }
+        do {
+            let refreshedItems = try await services.itemRepository.refreshTOTPCodes(for: items)
+            groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: refreshedItems)
+            state.loadingState = .data(refreshedItems)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Stream the items list.

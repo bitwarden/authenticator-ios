@@ -55,6 +55,15 @@ extension DefaultItemRepository: ItemRepository {
     }
     
     func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem] {
+//        await items.asyncMap { item in
+//            guard case let .totp(name, model) = item.itemType,
+//                  let key = model.loginView.totp,
+//                  let code = try? await cl
+//
+//        }
+//        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+//
+//
         return items
     }
     
