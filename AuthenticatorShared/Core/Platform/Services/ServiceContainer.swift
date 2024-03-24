@@ -21,6 +21,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 
+    /// The repository used by the application to manage item data for the UI layer.
+    let itemRepository: ItemRepository
+
     /// Provides the present time for TOTP Code Calculation.
     let timeProvider: TimeProvider
 
@@ -34,17 +37,20 @@ public class ServiceContainer: Services {
     /// - Parameters:
     ///   - application: The application instance.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - itemRepository: The repository used by the application to manage vault data for the UI layer.
     ///   - timeProvider: Provides the present time for TOTP Code Calculation.
     ///   - totpService: The service used by the application to validate TOTP keys and produce TOTP values.
     ///
     init(
         application: Application?,
         errorReporter: ErrorReporter,
+        itemRepository: ItemRepository,
         timeProvider: TimeProvider,
         totpService: TOTPService
     ) {
         self.application = application
         self.errorReporter = errorReporter
+        self.itemRepository = itemRepository
         self.timeProvider = timeProvider
         self.totpService = totpService
     }
@@ -59,6 +65,8 @@ public class ServiceContainer: Services {
         application: Application? = nil,
         errorReporter: ErrorReporter
     ) {
+        let itemRepository = DefaultItemRepository()
+
         let timeProvider = CurrentTime()
 
         let totpService = DefaultTOTPService()
@@ -66,6 +74,7 @@ public class ServiceContainer: Services {
         self.init(
             application: application,
             errorReporter: errorReporter,
+            itemRepository: itemRepository,
             timeProvider: timeProvider,
             totpService: totpService
         )

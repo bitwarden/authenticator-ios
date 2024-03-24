@@ -2,6 +2,7 @@ import BitwardenSdk
 
 /// The services provided by the `ServiceContainer`.
 typealias Services = HasErrorReporter
+    & HasItemRepository
     & HasTOTPService
     & HasTimeProvider
 
@@ -10,6 +11,13 @@ typealias Services = HasErrorReporter
 protocol HasErrorReporter {
     /// The service used by the application to report non-fatal errors.
     var errorReporter: ErrorReporter { get }
+}
+
+/// Protocol for an object that provides an `ItemRepository`.
+///
+protocol HasItemRepository {
+    /// The repository used by the application to manage item data for the UI layer.
+    var itemRepository: ItemRepository { get }
 }
 
 /// Protocol for an object that provides a `TOTPService`.

@@ -8,6 +8,7 @@ final class ItemsProcessor: StateProcessor<ItemsState, ItemsAction, ItemsEffect>
     // MARK: Types
 
     typealias Services = HasErrorReporter
+        & HasItemRepository
         & HasTimeProvider
 
     // MARK: Private Properties
@@ -52,7 +53,16 @@ final class ItemsProcessor: StateProcessor<ItemsState, ItemsAction, ItemsEffect>
 
     // MARK: Methods
 
-    override func perform(_ effect: ItemsEffect) async {}
+    override func perform(_ effect: ItemsEffect) async {
+        switch effect {
+        case .appeared:
+            await streamItemList()
+        case .refresh:
+            await streamItemList()
+        case .streamVaultList:
+            await streamItemList()
+        }
+    }
 
     override func receive(_ action: ItemsAction) {}
 
@@ -64,6 +74,17 @@ final class ItemsProcessor: StateProcessor<ItemsState, ItemsAction, ItemsEffect>
         guard case let .data(currentSections) = state.loadingState else { return }
     }
 
+    /// Stream the items list.
+    private func streamItemList() async {
+        do {
+            for try await vaultList in try await services.itemRepository.vaultListPublisher() {
+                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: vaultList)
+                state.loadingState = .data(vaultList)
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
 }
 
 /// A class to manage TOTP code expirations for the ItemsProcessor and batch refresh calls.
