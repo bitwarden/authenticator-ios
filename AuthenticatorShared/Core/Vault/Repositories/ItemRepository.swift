@@ -36,7 +36,35 @@ public protocol ItemRepository: AnyObject {
 }
 
 class DefaultItemRepository {
+    // MARK: Properties
 
+    /// The client used by the application to handle vault encryption and decryption tasks.
+    private let clientVault: ClientVaultService
+
+    /// The service used by the application to report non-fatal errors.
+    private let errorReporter: ErrorReporter
+
+    /// The service used to get the present time.
+    private let timeProvider: TimeProvider
+
+    // MARK: Initialization
+
+    /// Initialize a `DefaultItemRepository`.
+    ///
+    /// - Parameters:
+    ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - timeProvider: The service used to get the present time.
+    ///
+    init(
+        clientVault: ClientVaultService,
+        errorReporter: ErrorReporter,
+        timeProvider: TimeProvider
+    ) {
+        self.clientVault = clientVault
+        self.errorReporter = errorReporter
+        self.timeProvider = timeProvider
+    }
 }
 
 extension DefaultItemRepository: ItemRepository {
@@ -55,16 +83,23 @@ extension DefaultItemRepository: ItemRepository {
     }
     
     func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem] {
-//        await items.asyncMap { item in
-//            guard case let .totp(name, model) = item.itemType,
-//                  let key = model.loginView.totp,
-//                  let code = try? await cl
-//
-//        }
-//        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-//
-//
-        return items
+        await items.asyncMap { item in
+            guard case let .totp(name, model) = item.itemType,
+                  let key = model.loginView.totp,
+                  let code = try? await clientVault.generateTOTPCode(for: key, date: timeProvider.presentTime)
+            else {
+                errorReporter.log(error: TOTPServiceError
+                    .unableToGenerateCode("Unable to refresh TOTP code for item: \(item.id)"))
+                return item
+            }
+            var updatedModel = model
+            updatedModel.totpCode = code
+            return .init(
+                id: item.id,
+                itemType: .totp(name: name, totpModel: updatedModel)
+            )
+        }
+        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
     
     func updateItem(_ item: BitwardenSdk.CipherView) async throws {}

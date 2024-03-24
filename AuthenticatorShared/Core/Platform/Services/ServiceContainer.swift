@@ -18,6 +18,9 @@ public class ServiceContainer: Services {
     /// The application instance (i.e. `UIApplication`), if the app isn't running in an extension.
     let application: Application?
 
+    /// The service used by the application to handle encryption and decryption tasks.
+    let clientService: ClientService
+
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 
@@ -36,6 +39,7 @@ public class ServiceContainer: Services {
     ///
     /// - Parameters:
     ///   - application: The application instance.
+    ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - itemRepository: The repository used by the application to manage vault data for the UI layer.
     ///   - timeProvider: Provides the present time for TOTP Code Calculation.
@@ -43,12 +47,14 @@ public class ServiceContainer: Services {
     ///
     init(
         application: Application?,
+        clientService: ClientService,
         errorReporter: ErrorReporter,
         itemRepository: ItemRepository,
         timeProvider: TimeProvider,
         totpService: TOTPService
     ) {
         self.application = application
+        self.clientService = clientService
         self.errorReporter = errorReporter
         self.itemRepository = itemRepository
         self.timeProvider = timeProvider
@@ -65,14 +71,20 @@ public class ServiceContainer: Services {
         application: Application? = nil,
         errorReporter: ErrorReporter
     ) {
-        let itemRepository = DefaultItemRepository()
+        let clientService = DefaultClientService()
 
         let timeProvider = CurrentTime()
 
         let totpService = DefaultTOTPService()
 
+        let itemRepository = DefaultItemRepository(
+            clientVault: clientService.clientVault(),
+            errorReporter: errorReporter,
+            timeProvider: timeProvider)
+
         self.init(
             application: application,
+            clientService: clientService,
             errorReporter: errorReporter,
             itemRepository: itemRepository,
             timeProvider: timeProvider,
