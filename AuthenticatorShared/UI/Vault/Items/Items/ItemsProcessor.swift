@@ -64,7 +64,14 @@ final class ItemsProcessor: StateProcessor<ItemsState, ItemsAction, ItemsEffect>
         }
     }
 
-    override func receive(_ action: ItemsAction) {}
+    override func receive(_ action: ItemsAction) {
+        switch action {
+        case .addItemPressed:
+            coordinator.navigate(to: .addItem)
+        default:
+            break
+        }
+    }
 
     // MARK: Private Methods
 

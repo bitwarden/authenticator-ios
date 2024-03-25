@@ -51,6 +51,8 @@ final class ItemsCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: ItemsRoute, context: AnyObject?) {
         switch route {
+        case .addItem:
+            showAddItem()
         case .list:
             showList()
         }
@@ -59,6 +61,15 @@ final class ItemsCoordinator: Coordinator, HasStackNavigator {
     func start() {}
 
     // MARK: - Private Methods
+
+    func showAddItem() {
+//        let navigationController = UINavigationController()
+//        let coordinator = module.makeAddItemCoordinator(stackNavigator: navigationController)
+//        coordinator.start()
+//        coordinator.navigate(to: route)
+//
+//        stackNavigator?.present(navigationController)
+    }
 
     func showList() {
         let processor = ItemsProcessor(
