@@ -19,7 +19,7 @@ struct ItemsView: View {
 
     var body: some View {
         content
-            .navigationTitle("Verification codes")
+            .navigationTitle("Item List")
             .navigationBarTitleDisplayMode(.inline)
             .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
             .toolbar {
@@ -78,23 +78,19 @@ struct ItemsView: View {
     @ViewBuilder
     private func groupView(with items: [VaultListItem]) -> some View {
         ScrollView {
-            VStack(spacing: 20.0) {
-                VStack(alignment: .leading, spacing: 7) {
-                    LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach(items) { item in
-                            Button {
-                                store.send(.itemPressed(item))
-                            } label: {
-                                vaultItemRow(
-                                    for: item,
-                                    isLastInSection: true
-                                )
-                            }
-                        }
-                        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+            LazyVStack(alignment: .leading, spacing: 7) {
+                ForEach(items) { item in
+                    Button {
+                        store.send(.itemPressed(item))
+                    } label: {
+                        vaultItemRow(
+                            for: item,
+                            isLastInSection: true
+                        )
                     }
                 }
+                .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
             .padding(16)
         }
@@ -163,6 +159,29 @@ struct ItemsView: View {
                                     id: "One",
                                     itemType: .totp(
                                         name: "One",
+                                        totpModel: VaultListTOTP(
+                                            id: UUID().uuidString,
+                                            loginView: .init(
+                                                username: "email@example.com",
+                                                password: nil,
+                                                passwordRevisionDate: nil,
+                                                uris: nil,
+                                                totp: "asdf",
+                                                autofillOnPageLoad: nil,
+                                                fido2Credentials: nil
+                                            ),
+                                            totpCode: TOTPCodeModel(
+                                                code: "123456",
+                                                codeGenerationDate: Date(),
+                                                period: 30
+                                            )
+                                        )
+                                    )
+                                ),
+                                .init(
+                                    id: "Two",
+                                    itemType: .totp(
+                                        name: "Two",
                                         totpModel: VaultListTOTP(
                                             id: UUID().uuidString,
                                             loginView: .init(

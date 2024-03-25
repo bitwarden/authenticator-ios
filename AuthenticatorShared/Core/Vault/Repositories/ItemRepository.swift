@@ -107,48 +107,11 @@ extension DefaultItemRepository: ItemRepository {
     // MARK: Publishers
 
     func vaultListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Never>> {
-//        try await Publishers.
         Just([
-            VaultListItem(
-                cipherView: .init(
-                    id: UUID().uuidString,
-                    organizationId: nil,
-                    folderId: nil,
-                    collectionIds: [],
-                    key: nil,
-                    name: "Test",
-                    notes: nil,
-                    type: .login,
-                    login: .init(
-                        username: "Username",
-                        password: "Password",
-                        passwordRevisionDate: nil,
-                        uris: nil,
-                        totp: "asdf",
-                        autofillOnPageLoad: false,
-                        fido2Credentials: nil
-                    ),
-                    identity: nil,
-                    card: nil,
-                    secureNote: nil,
-                    favorite: false,
-                    reprompt: .none,
-                    organizationUseTotp: false,
-                    edit: false,
-                    viewPassword: false,
-                    localData: nil,
-                    attachments: nil,
-                    fields: nil,
-                    passwordHistory: nil,
-                    creationDate: Date(timeIntervalSinceNow: -1440),
-                    deletedDate: nil,
-                    revisionDate: Date(timeIntervalSinceNow: -1440)
-                )
-            )!,
             VaultListItem(
                 id: UUID().uuidString,
                 itemType: .totp(
-                    name: "Name",
+                    name: "Amazon",
                     totpModel: VaultListTOTP(
                         id: UUID().uuidString,
                         loginView: .init(
@@ -156,7 +119,30 @@ extension DefaultItemRepository: ItemRepository {
                             password: "Password",
                             passwordRevisionDate: nil,
                             uris: nil,
-                            totp: "asdf",
+                            totp: "amazon",
+                            autofillOnPageLoad: false,
+                            fido2Credentials: nil
+                        ),
+                        totpCode: TOTPCodeModel(
+                            code: "123456",
+                            codeGenerationDate: Date(),
+                            period: 30
+                        )
+                    )
+                )
+            ),
+            VaultListItem(
+                id: UUID().uuidString,
+                itemType: .totp(
+                    name: "eBay",
+                    totpModel: VaultListTOTP(
+                        id: UUID().uuidString,
+                        loginView: .init(
+                            username: "Username",
+                            password: "Password",
+                            passwordRevisionDate: nil,
+                            uris: nil,
+                            totp: "ebay",
                             autofillOnPageLoad: false,
                             fido2Credentials: nil
                         ),
