@@ -47,14 +47,24 @@ final class ItemsCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: - Methods
 
-    func handleEvent(_ event: ItemsEvent, context: AnyObject?) async {}
+    func handleEvent(_ event: ItemsEvent, context: AnyObject?) async {
+        switch event {
+        case .showScanCode:
+            guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
+            await showCamera(delegate: delegate)
+        }
+    }
 
     func navigate(to route: ItemsRoute, context: AnyObject?) {
         switch route {
         case .addItem:
-            showAddItem()
+            break
         case .list:
             showList()
+        case .setupTotpManual:
+            guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
+            showManualTotp(delegate: delegate)
+
         }
     }
 
@@ -62,13 +72,33 @@ final class ItemsCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: - Private Methods
 
-    func showAddItem() {
-//        let navigationController = UINavigationController()
-//        let coordinator = module.makeAddItemCoordinator(stackNavigator: navigationController)
-//        coordinator.start()
-//        coordinator.navigate(to: route)
-//
-//        stackNavigator?.present(navigationController)
+    /// Shows the totp camera setup screen.
+    ///
+    private func showCamera(delegate: AuthenticatorKeyCaptureDelegate) async {
+        let navigationController = UINavigationController()
+        let coordinator = AuthenticatorKeyCaptureCoordinator(
+            delegate: delegate,
+            services: services,
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+
+        await coordinator.handleEvent(.showScanCode, context: self)
+        stackNavigator?.present(navigationController, overFullscreen: true)
+    }
+
+    /// Shows the totp manual setup screen.
+    ///
+    private func showManualTotp(delegate: AuthenticatorKeyCaptureDelegate) {
+        let navigationController = UINavigationController()
+        let coordinator = AuthenticatorKeyCaptureCoordinator(
+            delegate: delegate,
+            services: services,
+            stackNavigator: navigationController
+        ).asAnyCoordinator()
+        coordinator.start()
+        coordinator.navigate(to: .manualKeyEntry, context: nil)
+        stackNavigator?.present(navigationController)
     }
 
     func showList() {

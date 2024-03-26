@@ -7,7 +7,8 @@ import Foundation
 final class ItemsProcessor: StateProcessor<ItemsState, ItemsAction, ItemsEffect> {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasCameraService
+        & HasErrorReporter
         & HasItemRepository
         & HasTimeProvider
 
@@ -55,6 +56,8 @@ final class ItemsProcessor: StateProcessor<ItemsState, ItemsAction, ItemsEffect>
 
     override func perform(_ effect: ItemsEffect) async {
         switch effect {
+        case .addItemPressed:
+            await setupTotp()
         case .appeared:
             await streamItemList()
         case .refresh:
@@ -64,27 +67,35 @@ final class ItemsProcessor: StateProcessor<ItemsState, ItemsAction, ItemsEffect>
         }
     }
 
-    override func receive(_ action: ItemsAction) {
-        switch action {
-        case .addItemPressed:
-            coordinator.navigate(to: .addItem)
-        default:
-            break
-        }
-    }
+    override func receive(_ action: ItemsAction) {}
 
     // MARK: Private Methods
 
     /// Refreshes the vault group's TOTP Codes.
     ///
     private func refreshTOTPCodes(for items: [VaultListItem]) async {
-        guard case let .data(currentSections) = state.loadingState else { return }
+        guard case .data = state.loadingState else { return }
         do {
             let refreshedItems = try await services.itemRepository.refreshTOTPCodes(for: items)
             groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: refreshedItems)
             state.loadingState = .data(refreshedItems)
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Kicks off the TOTP setup flow.
+    ///
+    private func setupTotp() async {
+        guard services.cameraService.deviceSupportsCamera() else {
+            coordinator.navigate(to: .setupTotpManual, context: self)
+            return
+        }
+        let status = await services.cameraService.checkStatusOrRequestCameraAuthorization()
+        if status == .authorized {
+            await coordinator.handleEvent(.showScanCode, context: self)
+        } else {
+            coordinator.navigate(to: .setupTotpManual, context: self)
         }
     }
 
