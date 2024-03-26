@@ -11,6 +11,7 @@ final class ItemsProcessor: StateProcessor<ItemsState, ItemsAction, ItemsEffect>
         & HasErrorReporter
         & HasItemRepository
         & HasTimeProvider
+        & HasTOTPService
 
     // MARK: Private Properties
 
@@ -213,21 +214,53 @@ extension ItemsProcessor: AuthenticatorKeyCaptureDelegate {
     }
 
     func parseAndValidateCapturedAuthenticatorKey(_ key: String) {
-//        do {
-//            let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
+        do {
+            let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
 //            state.loginState.totpState = .key(authKeyModel)
-//            state.toast = Toast(text: Localizations.authenticatorKeyAdded)
-//        } catch {
+            let loginTotpState = LoginTOTPState.init(authKeyModel: authKeyModel)
+            let newCipher = CipherView(
+                id: UUID().uuidString,
+                organizationId: nil,
+                folderId: nil,
+                collectionIds: [],
+                key: nil,
+                name: "Example",
+                notes: nil,
+                type: .login,
+                login: .init(
+                    username: nil,
+                    password: nil,
+                    passwordRevisionDate: nil,
+                    uris: nil,
+                    totp: loginTotpState.rawAuthenticatorKeyString,
+                    autofillOnPageLoad: nil,
+                    fido2Credentials: nil
+                ),
+                identity: nil,
+                card: nil,
+                secureNote: nil,
+                favorite: false,
+                reprompt: .none,
+                organizationUseTotp: false,
+                edit: true,
+                viewPassword: true,
+                localData: nil,
+                attachments: nil,
+                fields: nil,
+                passwordHistory: nil,
+                creationDate: .now,
+                deletedDate: nil,
+                revisionDate: .now
+            )
+            Task {
+                await try services.itemRepository.addItem(newCipher)
+                await perform(.refresh)
+            }
+            state.toast = Toast(text: Localizations.authenticatorKeyAdded)
+        } catch {
+            // Replace with better alerts later
 //            coordinator.navigate(to: .alert(.totpScanFailureAlert()))
-//        }
-    }
-
-    func parseAndValidateEditedAuthenticatorKey(_ key: String?) {
-//        guard key != state.loginState.totpState.authKeyModel?.rawAuthenticatorKey else { return }
-//        let newState = LoginTOTPState(key)
-//        state.loginState.totpState = newState
-//        guard case .invalid = newState else { return }
-//        coordinator.navigate(to: .alert(.totpScanFailureAlert()))
+        }
     }
 
     func showCameraScan(

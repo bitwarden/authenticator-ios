@@ -85,7 +85,8 @@ public class ServiceContainer: Services {
         let itemRepository = DefaultItemRepository(
             clientVault: clientService.clientVault(),
             errorReporter: errorReporter,
-            timeProvider: timeProvider)
+            timeProvider: timeProvider
+        )
 
         self.init(
             application: application,
