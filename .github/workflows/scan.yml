@@ -10,9 +10,7 @@ on:
   pull_request_target:
     types: [opened, synchronize]
 
-permissions:
-  contents: read
-  pull-requests: write
+permissions: read-all
 
 jobs:
   check-run:
@@ -24,6 +22,8 @@ jobs:
     runs-on: ubuntu-22.04
     needs: check-run
     permissions:
+      contents: read
+      pull-requests: write
       security-events: write
 
     steps:
