@@ -200,3 +200,55 @@ private class TOTPExpirationManager {
         onExpiration?(expired)
     }
 }
+
+extension ItemsProcessor: AuthenticatorKeyCaptureDelegate {
+    func didCompleteCapture(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
+        with value: String
+    ) {
+        let dismissAction = DismissAction(action: { [weak self] in
+            self?.parseAndValidateCapturedAuthenticatorKey(value)
+        })
+        captureCoordinator.navigate(to: .dismiss(dismissAction))
+    }
+
+    func parseAndValidateCapturedAuthenticatorKey(_ key: String) {
+//        do {
+//            let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
+//            state.loginState.totpState = .key(authKeyModel)
+//            state.toast = Toast(text: Localizations.authenticatorKeyAdded)
+//        } catch {
+//            coordinator.navigate(to: .alert(.totpScanFailureAlert()))
+//        }
+    }
+
+    func parseAndValidateEditedAuthenticatorKey(_ key: String?) {
+//        guard key != state.loginState.totpState.authKeyModel?.rawAuthenticatorKey else { return }
+//        let newState = LoginTOTPState(key)
+//        state.loginState.totpState = newState
+//        guard case .invalid = newState else { return }
+//        coordinator.navigate(to: .alert(.totpScanFailureAlert()))
+    }
+
+    func showCameraScan(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+    ) {
+        guard services.cameraService.deviceSupportsCamera() else { return }
+        let dismissAction = DismissAction(action: { [weak self] in
+            guard let self else { return }
+            Task {
+                await self.coordinator.handleEvent(.showScanCode, context: self)
+            }
+        })
+        captureCoordinator.navigate(to: .dismiss(dismissAction))
+    }
+
+    func showManualEntry(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+    ) {
+        let dismissAction = DismissAction(action: { [weak self] in
+            self?.coordinator.navigate(to: .setupTotpManual, context: self)
+        })
+        captureCoordinator.navigate(to: .dismiss(dismissAction))
+    }
+}
