@@ -16,5 +16,6 @@ struct ViewTokenState: Sendable {
 }
 
 struct TokenItemState: Equatable {
-
+    /// The TOTP key/code state.
+    var totpState: LoginTOTPState
 }

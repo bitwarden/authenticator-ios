@@ -4,4 +4,7 @@
 enum ViewTokenEffect: Equatable {
     /// The view token screen appeared.
     case appeared
+
+    /// The TOTP code for the view expired.
+    case totpCodeExpired
 }

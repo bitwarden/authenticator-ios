@@ -53,6 +53,8 @@ final class ViewTokenProcessor: StateProcessor<
         switch effect {
         case .appeared:
             break
+        case .totpCodeExpired:
+            await updateTOTPCode()
         }
     }
 
@@ -60,6 +62,10 @@ final class ViewTokenProcessor: StateProcessor<
         switch action {
         case let .toastShown(newValue):
             state.toast = newValue
+        case .copyPressed(value: let value):
+            break
+        case .editPressed:
+            break
         }
     }
 }
@@ -67,14 +73,17 @@ final class ViewTokenProcessor: StateProcessor<
 private extension ViewTokenProcessor {
     // MARK: Private Methods
 
+    /// Updates the TOTP code for the view.
+    func updateTOTPCode() async {}
+
     /// Stream the cipher details.
     private func streamCipherDetails() async {
         do {
-            guard let token = try await services.itemRepository.fetchItem(withId: itemId) else {
-                return
-            }
+            guard let token = try await services.itemRepository.fetchItem(withId: itemId)
+            else { return }
 
-            state.loadingState = .data(TokenItemState())
+            var totpState = LoginTOTPState(token.login?.totp)
+            state.loadingState = .data(TokenItemState(totpState: totpState))
 
         } catch {
             services.errorReporter.log(error: error)

@@ -43,7 +43,22 @@ struct ViewTokenView: View {
     /// The details of the token.
     @ViewBuilder
     private func details(for state: TokenItemState) -> some View {
-        Text("Hello world")
+        ScrollView {
+            ViewTokenItemView(
+                store: store.child(
+                    state: { _ in ViewTokenItemState(totpState: state.totpState) },
+                    mapAction: { $0 },
+                    mapEffect: { $0 }
+                ),
+                timeProvider: timeProvider
+            )
+        }.toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                editToolbarButton {
+                    store.send(.editPressed)
+                }
+            }
+        }
     }
 }
 
@@ -63,6 +78,36 @@ struct ViewTokenView: View {
             ),
             timeProvider: PreviewTimeProvider(
                 fixedDate: Date(timeIntervalSinceReferenceDate: 0)
+            )
+        )
+    }
+}
+
+#Preview("Token") {
+    NavigationView {
+        ViewTokenView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ViewTokenState(
+                        loadingState: .data(
+                            TokenItemState(
+                                totpState: LoginTOTPState(
+                                    authKeyModel: TOTPKeyModel(authenticatorKey: "ASDF")!,
+                                    codeModel: TOTPCodeModel(
+                                        code: "123123",
+                                        codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
+                                        period: 30
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
+            timeProvider: PreviewTimeProvider(
+                fixedDate: Date(
+                    timeIntervalSinceReferenceDate: 0
+                )
             )
         )
     }
