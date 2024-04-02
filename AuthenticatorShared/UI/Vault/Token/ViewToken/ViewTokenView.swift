@@ -45,14 +45,17 @@ struct ViewTokenView: View {
     @ViewBuilder
     private func details(for state: ViewTokenItemState) -> some View {
         ScrollView {
-            ViewTokenItemView(
-                store: store.child(
-                    state: { _ in state },
-                    mapAction: { $0 },
-                    mapEffect: { $0 }
-                ),
-                timeProvider: timeProvider
-            )
+            LazyVStack(alignment: .leading, spacing: 16) {
+                ViewTokenItemView(
+                    store: store.child(
+                        state: { _ in state },
+                        mapAction: { $0 },
+                        mapEffect: { $0 }
+                    ),
+                    timeProvider: timeProvider
+                )
+                .padding(16)
+            }
         }.toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 editToolbarButton {

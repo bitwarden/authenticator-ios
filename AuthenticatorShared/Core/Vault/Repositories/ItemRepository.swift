@@ -114,10 +114,19 @@ extension DefaultItemRepository: ItemRepository {
     func deleteItem(_ id: String) {}
 
     func fetchItem(withId id: String) async throws -> BitwardenSdk.CipherView? {
-        return ciphers.first { $0.id == id }
+        ciphers.first { $0.id == id }
     }
 
-    func refreshTOTPCode(for key: TOTPKeyModel) async throws -> LoginTOTPState { .none }
+    func refreshTOTPCode(for key: TOTPKeyModel) async throws -> LoginTOTPState {
+        let codeState = try await clientVault.generateTOTPCode(
+            for: key.rawAuthenticatorKey,
+            date: timeProvider.presentTime
+        )
+        return LoginTOTPState(
+            authKeyModel: key,
+            codeModel: codeState
+        )
+    }
 
     func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem] {
         await items.asyncMap { item in
@@ -131,7 +140,7 @@ extension DefaultItemRepository: ItemRepository {
             }
             var updatedModel = model
             updatedModel.totpCode = code
-            return .init(
+            return VaultListItem(
                 id: item.id,
                 itemType: .totp(name: name, totpModel: updatedModel)
             )

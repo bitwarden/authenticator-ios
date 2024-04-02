@@ -83,6 +83,10 @@ private extension ViewTokenProcessor {
             else { return }
 
             var totpState = LoginTOTPState(token.login?.totp)
+            if let key = totpState.authKeyModel,
+               let updatedState = try? await services.itemRepository.refreshTOTPCode(for: key) {
+                totpState = updatedState
+            }
             state.loadingState = .data(TokenItemState(totpState: totpState))
         } catch {
             services.errorReporter.log(error: error)
