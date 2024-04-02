@@ -14,13 +14,13 @@ protocol ItemListModule {
     ///
     func makeItemsCoordinator(
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<ItemListRoute, ItemsEvent>
+    ) -> AnyCoordinator<ItemListRoute, ItemListEvent>
 }
 
 extension DefaultAppModule: ItemListModule {
     func makeItemsCoordinator(
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<ItemListRoute, ItemsEvent> {
+    ) -> AnyCoordinator<ItemListRoute, ItemListEvent> {
         ItemsCoordinator(
             module: self,
             services: services,

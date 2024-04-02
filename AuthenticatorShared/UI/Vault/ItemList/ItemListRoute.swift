@@ -15,7 +15,7 @@ public enum ItemListRoute: Equatable, Hashable {
     case setupTotpManual
 }
 
-enum ItemsEvent {
+enum ItemListEvent {
     /// When the app should show the scan code screen.
     ///  Defaults to `.setupTotpManual` if camera is unavailable.
     case showScanCode

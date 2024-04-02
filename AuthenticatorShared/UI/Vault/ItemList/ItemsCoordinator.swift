@@ -47,7 +47,7 @@ final class ItemsCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: - Methods
 
-    func handleEvent(_ event: ItemsEvent, context: AnyObject?) async {
+    func handleEvent(_ event: ItemListEvent, context: AnyObject?) async {
         switch event {
         case .showScanCode:
             guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
