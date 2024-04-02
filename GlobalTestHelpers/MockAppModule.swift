@@ -4,7 +4,7 @@
 
 class MockAppModule:
     AppModule,
-    ItemsModule {
+    ItemListModule {
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
     var itemsCoordinator = MockCoordinator<ItemsRoute, ItemsEvent>()
 

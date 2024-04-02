@@ -10,7 +10,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     // MARK: Types
 
     /// The types of modules used by this coordinator.
-    typealias Module = ItemsModule
+    typealias Module = ItemListModule
 
     // MARK: Private Properties
 

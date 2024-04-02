@@ -8,7 +8,7 @@ import SwiftUI
 final class ItemsCoordinator: Coordinator, HasStackNavigator {
     // MARK: - Types
 
-    typealias Module = ItemsModule
+    typealias Module = ItemListModule
 
     typealias Services = HasTimeProvider
         & ItemsProcessor.Services
