@@ -86,7 +86,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.navigate(to: route)
         } else {
             let stackNavigator = UINavigationController()
-            let coordinator = module.makeItemsCoordinator(
+            let coordinator = module.makeItemListCoordinator(
                 stackNavigator: stackNavigator
             )
             coordinator.start()

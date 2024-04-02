@@ -1,11 +1,11 @@
 import BitwardenSdk
 import SwiftUI
 
-// MARK: - ItemsCoordinator
+// MARK: - ItemListCoordinator
 
-/// A coordinator that manages navigation on the Token List screen.
+/// A coordinator that manages navigation on the Item List screen.
 ///
-final class ItemsCoordinator: Coordinator, HasStackNavigator {
+final class ItemListCoordinator: Coordinator, HasStackNavigator {
     // MARK: - Types
 
     typealias Module = ItemListModule
@@ -28,7 +28,7 @@ final class ItemsCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: - Initialization
 
-    /// Creates a new `ItemsCoordinator`.
+    /// Creates a new `ItemListCoordinator`.
     ///
     ///  - Parameters:
     ///   - module: The module used by this coordinator to create child coordinators.
