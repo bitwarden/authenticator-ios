@@ -11,7 +11,7 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
     typealias Module = ItemListModule
 
     typealias Services = HasTimeProvider
-        & ItemsProcessor.Services
+        & ItemListProcessor.Services
 
     // MARK: - Private Properties
 
@@ -102,13 +102,13 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
     }
 
     func showList() {
-        let processor = ItemsProcessor(
+        let processor = ItemListProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: ItemsState()
+            state: ItemListState()
         )
         let store = Store(processor: processor)
-        let view = ItemsView(
+        let view = ItemListView(
             store: store,
             timeProvider: services.timeProvider
         )
