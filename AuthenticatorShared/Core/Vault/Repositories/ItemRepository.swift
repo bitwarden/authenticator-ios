@@ -113,7 +113,9 @@ extension DefaultItemRepository: ItemRepository {
 
     func deleteItem(_ id: String) {}
 
-    func fetchItem(withId id: String) async throws -> BitwardenSdk.CipherView? { nil }
+    func fetchItem(withId id: String) async throws -> BitwardenSdk.CipherView? {
+        return ciphers.first { $0.id == id }
+    }
 
     func refreshTOTPCode(for key: TOTPKeyModel) async throws -> LoginTOTPState { .none }
 

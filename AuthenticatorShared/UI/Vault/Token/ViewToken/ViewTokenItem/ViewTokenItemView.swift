@@ -46,6 +46,8 @@ struct ViewTokenItemView: View {
                     .accessibilityLabel(Localizations.copy)
                 }
             )
+        } else {
+            Text("Something went wrong.")
         }
     }
 }

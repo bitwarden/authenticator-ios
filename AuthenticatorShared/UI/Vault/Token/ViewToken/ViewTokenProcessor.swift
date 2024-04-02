@@ -52,7 +52,7 @@ final class ViewTokenProcessor: StateProcessor<
     override func perform(_ effect: ViewTokenEffect) async {
         switch effect {
         case .appeared:
-            break
+            await streamTokenDetails()
         case .totpCodeExpired:
             await updateTOTPCode()
         }
@@ -62,7 +62,7 @@ final class ViewTokenProcessor: StateProcessor<
         switch action {
         case let .toastShown(newValue):
             state.toast = newValue
-        case .copyPressed(value: let value):
+        case let .copyPressed(value: value):
             break
         case .editPressed:
             break
@@ -77,14 +77,13 @@ private extension ViewTokenProcessor {
     func updateTOTPCode() async {}
 
     /// Stream the cipher details.
-    private func streamCipherDetails() async {
+    private func streamTokenDetails() async {
         do {
             guard let token = try await services.itemRepository.fetchItem(withId: itemId)
             else { return }
 
             var totpState = LoginTOTPState(token.login?.totp)
             state.loadingState = .data(TokenItemState(totpState: totpState))
-
         } catch {
             services.errorReporter.log(error: error)
         }

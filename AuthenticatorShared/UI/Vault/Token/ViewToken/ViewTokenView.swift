@@ -19,7 +19,8 @@ struct ViewTokenView: View {
 
     var body: some View {
         LoadingView(state: store.state.loadingState) { state in
-            details(for: state)
+            let viewState = ViewTokenItemState(totpState: state.totpState)
+            details(for: viewState)
         }
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(navigationTitle)
@@ -42,11 +43,11 @@ struct ViewTokenView: View {
 
     /// The details of the token.
     @ViewBuilder
-    private func details(for state: TokenItemState) -> some View {
+    private func details(for state: ViewTokenItemState) -> some View {
         ScrollView {
             ViewTokenItemView(
                 store: store.child(
-                    state: { _ in ViewTokenItemState(totpState: state.totpState) },
+                    state: { _ in state },
                     mapAction: { $0 },
                     mapEffect: { $0 }
                 ),
