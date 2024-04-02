@@ -17,7 +17,7 @@ final class ViewTokenProcessor: StateProcessor<
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation, typically an `ItemsCoordinator`.
-    private let coordinator: AnyCoordinator<ItemsRoute, ItemsEvent>
+    private let coordinator: AnyCoordinator<ItemListRoute, ItemListEvent>
 
     /// The ID of the item being viewed.
     private let itemId: String
@@ -36,7 +36,7 @@ final class ViewTokenProcessor: StateProcessor<
     ///   - state: The initial state of this processor.
     ///
     init(
-        coordinator: AnyCoordinator<ItemsRoute, ItemsEvent>,
+        coordinator: AnyCoordinator<ItemListRoute, ItemListEvent>,
         itemId: String,
         services: Services,
         state: ViewTokenState
