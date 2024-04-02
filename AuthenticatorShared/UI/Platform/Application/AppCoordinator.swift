@@ -81,8 +81,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     ///
     /// - Parameter route: The token list route to show.
     ///
-    private func showItems(route: ItemsRoute) {
-        if let coordinator = childCoordinator as? AnyCoordinator<ItemsRoute, ItemsEvent> {
+    private func showItems(route: ItemListRoute) {
+        if let coordinator = childCoordinator as? AnyCoordinator<ItemListRoute, ItemsEvent> {
             coordinator.navigate(to: route)
         } else {
             let stackNavigator = UINavigationController()

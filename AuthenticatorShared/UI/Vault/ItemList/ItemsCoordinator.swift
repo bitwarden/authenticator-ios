@@ -55,7 +55,7 @@ final class ItemsCoordinator: Coordinator, HasStackNavigator {
         }
     }
 
-    func navigate(to route: ItemsRoute, context: AnyObject?) {
+    func navigate(to route: ItemListRoute, context: AnyObject?) {
         switch route {
         case .addItem:
             break

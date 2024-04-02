@@ -5,22 +5,22 @@ import Foundation
 /// An object that builds coordinators for the Token List screen.
 @MainActor
 protocol ItemListModule {
-    /// Initializes a coordinator for navigating between `ItemsRoute`s
+    /// Initializes a coordinator for navigating between `ItemListRoute` objects
     ///
     /// - Parameters:
     ///   - delegate: A delegate of the `ItemsCoordinator`.
     ///   - stackNavigator: The stack navigator that will be used to navigate between routes.
-    /// - Returns: A coordinator that can navigate to `ItemsRoute`s
+    /// - Returns: A coordinator that can navigate to an `ItemListRoute`
     ///
     func makeItemsCoordinator(
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<ItemsRoute, ItemsEvent>
+    ) -> AnyCoordinator<ItemListRoute, ItemsEvent>
 }
 
 extension DefaultAppModule: ItemListModule {
     func makeItemsCoordinator(
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<ItemsRoute, ItemsEvent> {
+    ) -> AnyCoordinator<ItemListRoute, ItemsEvent> {
         ItemsCoordinator(
             module: self,
             services: services,

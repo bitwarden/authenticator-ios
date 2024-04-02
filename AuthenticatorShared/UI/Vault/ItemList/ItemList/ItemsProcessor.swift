@@ -17,7 +17,7 @@ final class ItemsProcessor: StateProcessor<ItemsState, ItemsAction, ItemsEffect>
     // MARK: Private Properties
 
     /// The `Coordinator` for this processor.
-    private var coordinator: any Coordinator<ItemsRoute, ItemsEvent>
+    private var coordinator: any Coordinator<ItemListRoute, ItemsEvent>
 
     /// The services for this processor.
     private var services: Services
@@ -35,7 +35,7 @@ final class ItemsProcessor: StateProcessor<ItemsState, ItemsAction, ItemsEffect>
     ///   - state: The initial state of this processor.
     ///
     init(
-        coordinator: any Coordinator<ItemsRoute, ItemsEvent>,
+        coordinator: any Coordinator<ItemListRoute, ItemsEvent>,
         services: Services,
         state: ItemsState
     ) {
