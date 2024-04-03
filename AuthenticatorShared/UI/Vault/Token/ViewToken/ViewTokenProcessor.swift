@@ -13,6 +13,9 @@ final class ViewTokenProcessor: StateProcessor<
 
     typealias Services = HasErrorReporter
         & HasItemRepository
+        & HasPasteboardService
+        & HasTOTPService
+        & HasTimeProvider
 
     // MARK: Properties
 
@@ -62,8 +65,9 @@ final class ViewTokenProcessor: StateProcessor<
         switch action {
         case let .toastShown(newValue):
             state.toast = newValue
-        case let .copyPressed(value: value):
-            break
+        case let .copyPressed(value):
+            services.pasteboardService.copy(value)
+            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
         case .editPressed:
             break
         }
@@ -74,7 +78,22 @@ private extension ViewTokenProcessor {
     // MARK: Private Methods
 
     /// Updates the TOTP code for the view.
-    func updateTOTPCode() async {}
+    func updateTOTPCode() async {
+        guard case let .data(tokenItemState) = state.loadingState,
+              let calculationKey = tokenItemState.totpState.authKeyModel
+        else { return }
+        do {
+            let newLoginTotp = try await services.itemRepository.refreshTOTPCode(for: calculationKey)
+
+            guard case let .data(tokenItemState) = state.loadingState else { return }
+
+            var newState = tokenItemState
+            newState.totpState = newLoginTotp
+            state.loadingState = .data(newState)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
 
     /// Stream the cipher details.
     private func streamTokenDetails() async {

@@ -19,7 +19,6 @@ struct ViewTokenView: View {
 
     var body: some View {
         LoadingView(state: store.state.loadingState) { state in
-//            let viewState = TokenItemState(totpState: state.totpState)
             details(for: state)
         }
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
@@ -46,6 +45,9 @@ struct ViewTokenView: View {
     private func details(for state: TokenItemState) -> some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 16) {
+                BitwardenTextValueField(title: Localizations.name, value: state.name)
+                    .accessibilityElement(children: .contain)
+                    .accessibilityIdentifier("ItemRow")
                 ViewTokenItemView(
                     store: store.child(
                         state: { _ in state },
@@ -54,8 +56,7 @@ struct ViewTokenView: View {
                     ),
                     timeProvider: timeProvider
                 )
-                .padding(16)
-            }
+            }.padding(16)
         }.toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 editToolbarButton {
