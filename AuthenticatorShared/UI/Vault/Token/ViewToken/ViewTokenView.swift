@@ -19,8 +19,8 @@ struct ViewTokenView: View {
 
     var body: some View {
         LoadingView(state: store.state.loadingState) { state in
-            let viewState = ViewTokenItemState(totpState: state.totpState)
-            details(for: viewState)
+//            let viewState = TokenItemState(totpState: state.totpState)
+            details(for: state)
         }
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(navigationTitle)
@@ -43,7 +43,7 @@ struct ViewTokenView: View {
 
     /// The details of the token.
     @ViewBuilder
-    private func details(for state: ViewTokenItemState) -> some View {
+    private func details(for state: TokenItemState) -> some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 16) {
                 ViewTokenItemView(
@@ -95,6 +95,8 @@ struct ViewTokenView: View {
                     state: ViewTokenState(
                         loadingState: .data(
                             TokenItemState(
+                                configuration: .add,
+                                name: "Example",
                                 totpState: LoginTOTPState(
                                     authKeyModel: TOTPKeyModel(authenticatorKey: "ASDF")!,
                                     codeModel: TOTPCodeModel(

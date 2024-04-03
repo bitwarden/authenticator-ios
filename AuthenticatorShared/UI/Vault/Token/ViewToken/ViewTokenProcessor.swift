@@ -87,7 +87,13 @@ private extension ViewTokenProcessor {
                let updatedState = try? await services.itemRepository.refreshTOTPCode(for: key) {
                 totpState = updatedState
             }
-            state.loadingState = .data(TokenItemState(totpState: totpState))
+
+            guard var newState = ViewTokenState(cipherView: token) else { return }
+            if case var .data(tokenState) = newState.loadingState {
+                tokenState.totpState = totpState
+                newState.loadingState = .data(tokenState)
+            }
+            state = newState
         } catch {
             services.errorReporter.log(error: error)
         }

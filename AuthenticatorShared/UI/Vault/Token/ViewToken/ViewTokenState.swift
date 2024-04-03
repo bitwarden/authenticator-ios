@@ -15,7 +15,18 @@ struct ViewTokenState: Sendable {
     var toast: Toast?
 }
 
-struct TokenItemState: Equatable {
-    /// The TOTP key/code state.
-    var totpState: LoginTOTPState
+extension ViewTokenState {
+    // MARK: Initialization
+
+    /// Creates a new `ViewTokenState` from a provided `CipherView`.
+    ///
+    /// - Parameters:
+    ///   - cipherView: The `CipherView` to create this state with.
+    ///
+    init?(cipherView: CipherView) {
+        guard let tokenItemState = TokenItemState(
+            existing: cipherView
+        ) else { return nil }
+        self.init(loadingState: .data(tokenItemState))
+    }
 }
