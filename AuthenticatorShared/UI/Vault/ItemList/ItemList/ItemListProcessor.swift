@@ -13,6 +13,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         & HasPasteboardService
         & HasTOTPService
         & HasTimeProvider
+        & HasTokenRepository
 
     // MARK: Private Properties
 
@@ -236,7 +237,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
                   let newToken = Token(name: "Example", authenticatorKey: key)
             else { return }
             Task {
-                try await services.itemRepository.addItem(newToken)
+                try await services.tokenRepository.addToken(newToken)
                 await perform(.refresh)
             }
             state.toast = Toast(text: Localizations.authenticatorKeyAdded)

@@ -11,6 +11,8 @@ public protocol TokenRepository: AnyObject {
 
     func deleteToken(_ id: String)
 
+    func fetchToken(withId id: String) async throws -> Token?
+
     func refreshTotpCode(for key: TOTPKeyModel) async throws -> TOTPCodeModel
 
     // MARK: Publishers
@@ -63,6 +65,10 @@ extension DefaultTokenRepository: TokenRepository {
 
     func deleteToken(_ id: String) {
         tokens.removeAll { $0.id == id }
+    }
+
+    func fetchToken(withId id: String) async throws -> Token? {
+        tokens.first { $0.id == id }
     }
 
     func refreshTotpCode(for key: TOTPKeyModel) async throws -> TOTPCodeModel {
