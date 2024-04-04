@@ -15,8 +15,6 @@ public protocol TokenRepository: AnyObject {
 
     func refreshTotpCode(for key: TOTPKeyModel) async throws -> TOTPCodeModel
 
-    var tokens: [Token] { get }
-
     // MARK: Publishers
 
     func tokenPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Token], Never>>

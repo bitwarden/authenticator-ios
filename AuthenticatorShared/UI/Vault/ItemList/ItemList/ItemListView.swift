@@ -103,7 +103,7 @@ struct ItemListView: View {
     /// Creates a row in the list for the provided item.
     ///
     /// - Parameters:
-    ///   - item: The `VaultListItem` to use when creating the view.
+    ///   - item: The `ItemListItem` to use when creating the view.
     ///   - isLastInSection: A flag indicating if this item is the last one in the section.
     ///
     @ViewBuilder

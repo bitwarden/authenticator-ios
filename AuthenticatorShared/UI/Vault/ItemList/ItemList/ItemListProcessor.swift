@@ -9,7 +9,6 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
 
     typealias Services = HasCameraService
         & HasErrorReporter
-        & HasItemRepository
         & HasPasteboardService
         & HasTOTPService
         & HasTimeProvider
