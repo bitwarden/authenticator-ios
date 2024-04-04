@@ -80,7 +80,7 @@ struct ItemListView: View {
     /// A view that displays a list of the sections within this vault group.
     ///
     @ViewBuilder
-    private func groupView(with items: [VaultListItem]) -> some View {
+    private func groupView(with items: [ItemListItem]) -> some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 7) {
                 ForEach(items) { item in
@@ -107,7 +107,7 @@ struct ItemListView: View {
     ///   - isLastInSection: A flag indicating if this item is the last one in the section.
     ///
     @ViewBuilder
-    private func vaultItemRow(for item: VaultListItem, isLastInSection: Bool = false) -> some View {
+    private func vaultItemRow(for item: ItemListItem, isLastInSection: Bool = false) -> some View {
         ItemListItemRowView(
             store: store.child(
                 state: { state in
@@ -159,34 +159,30 @@ struct ItemListView: View {
                     state: ItemListState(
                         loadingState: .data(
                             [
-                                .init(
+                                ItemListItem(
                                     id: "One",
-                                    itemType: .totp(
+                                    name: "One",
+                                    token: Token(
                                         name: "One",
-                                        totpModel: VaultListTOTP(
-                                            id: UUID().uuidString,
-                                            loginView: Token(name: "Example", authenticatorKey: "asdf")!,
-                                            totpCode: TOTPCodeModel(
-                                                code: "123456",
-                                                codeGenerationDate: Date(),
-                                                period: 30
-                                            )
-                                        )
+                                        authenticatorKey: "One"
+                                    )!,
+                                    totpCode: TOTPCodeModel(
+                                        code: "123456",
+                                        codeGenerationDate: Date(),
+                                        period: 30
                                     )
                                 ),
-                                .init(
+                                ItemListItem(
                                     id: "Two",
-                                    itemType: .totp(
+                                    name: "Two",
+                                    token: Token(
                                         name: "Two",
-                                        totpModel: VaultListTOTP(
-                                            id: UUID().uuidString,
-                                            loginView: Token(name: "Example", authenticatorKey: "asdf")!,
-                                            totpCode: TOTPCodeModel(
-                                                code: "123456",
-                                                codeGenerationDate: Date(),
-                                                period: 30
-                                            )
-                                        )
+                                        authenticatorKey: "Two"
+                                    )!,
+                                    totpCode: TOTPCodeModel(
+                                        code: "123456",
+                                        codeGenerationDate: Date(),
+                                        period: 30
                                     )
                                 ),
                             ]

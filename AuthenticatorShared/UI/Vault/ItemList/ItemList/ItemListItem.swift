@@ -14,5 +14,5 @@ public struct ItemListItem: Equatable, Identifiable {
     public let token: Token
 
     /// The current TOTP code for the ciper.
-    public let totpCode: TOTPCodeModel
+    public var totpCode: TOTPCodeModel
 }

@@ -43,12 +43,11 @@ enum TOTPExpirationCalculator {
     /// - Returns: A dictionary with the items sorted by a `Bool` flag indicating expiration.
     ///
     static func listItemsByExpiration(
-        _ items: [VaultListItem],
+        _ items: [ItemListItem],
         timeProvider: any TimeProvider
-    ) -> [Bool: [VaultListItem]] {
-        let sortedItems: [Bool: [VaultListItem]] = Dictionary(grouping: items, by: { item in
-            guard case let .totp(_, model) = item.itemType else { return false }
-            return hasCodeExpired(model.totpCode, timeProvider: timeProvider)
+    ) -> [Bool: [ItemListItem]] {
+        let sortedItems: [Bool: [ItemListItem]] = Dictionary(grouping: items, by: { item in
+            return hasCodeExpired(item.totpCode, timeProvider: timeProvider)
         })
         return sortedItems
     }
