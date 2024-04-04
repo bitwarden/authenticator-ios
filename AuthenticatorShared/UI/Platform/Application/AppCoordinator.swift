@@ -59,7 +59,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     func handleEvent(_ event: AppEvent, context: AnyObject?) async {
         switch event {
         case .didStart:
-            showItems(route: .list)
+            showItemList(route: .list)
         }
     }
 
@@ -81,7 +81,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     ///
     /// - Parameter route: The token list route to show.
     ///
-    private func showItems(route: ItemListRoute) {
+    private func showItemList(route: ItemListRoute) {
         if let coordinator = childCoordinator as? AnyCoordinator<ItemListRoute, ItemListEvent> {
             coordinator.navigate(to: route)
         } else {
