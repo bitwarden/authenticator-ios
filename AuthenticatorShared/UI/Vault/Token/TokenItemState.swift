@@ -58,6 +58,12 @@ struct TokenItemState: Equatable {
     }
 }
 
+extension TokenItemState: EditTokenState {
+    var editState: EditTokenState {
+        self
+    }
+}
+
 extension TokenItemState: ViewTokenItemState {
     var authenticatorKey: String? {
         totpState.rawAuthenticatorKeyString
