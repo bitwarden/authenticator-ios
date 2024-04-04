@@ -35,10 +35,10 @@ public struct VaultListItem: Equatable, Identifiable {
 extension VaultListItem {
     /// The name of the cipher for TOTP item types, otherwise ""
     ///     Used to sort the TOTP code items after a refresh.
-    var name: String {
-        guard case let .totp(name, model) = itemType else { return "" }
-        return name + (model.loginView.username ?? "") + "\(model.id)"
-    }
+//    var name: String {
+//        guard case let .totp(name, model) = itemType else { return "" }
+//        return name + (model.loginView.username ?? "") + "\(model.id)"
+//    }
 }
 
 extension VaultListItem {
@@ -94,16 +94,16 @@ extension VaultListItem {
     }
 
     /// The login view containing the uri's to download the special decorative icon, if applicable.
-    var loginView: BitwardenSdk.LoginView? {
-        switch itemType {
-        case let .cipher(cipherView):
-            cipherView.login
-        case .group:
-            nil
-        case let .totp(_, totpModel):
-            totpModel.loginView
-        }
-    }
+//    var loginView: BitwardenSdk.LoginView? {
+//        switch itemType {
+//        case let .cipher(cipherView):
+//            cipherView.login
+//        case .group:
+//            nil
+//        case let .totp(_, totpModel):
+//            totpModel.loginView
+//        }
+//    }
 
     /// The subtitle to show in the row.
     var subtitle: String? {
@@ -150,7 +150,7 @@ public struct VaultListTOTP: Equatable {
 
     /// The `BitwardenSdk.LoginView` used to populate the view.
     ///
-    let loginView: BitwardenSdk.LoginView
+    let loginView: Token
 
     /// The current TOTP code for the cipher.
     ///

@@ -108,24 +108,24 @@ struct ItemListItemRowView: View {
     ///
     @ViewBuilder
     private func decorativeImage(_ item: VaultListItem, iconBaseURL: URL?, showWebIcons: Bool) -> some View {
-        if showWebIcons, let loginView = item.loginView, let iconBaseURL {
-            AsyncImage(
-                url: IconImageHelper.getIconImage(
-                    for: loginView,
-                    from: iconBaseURL
-                ),
-                content: { image in
-                    image
-                        .resizable()
-                        .scaledToFit()
-                },
-                placeholder: {
-                    placeholderDecorativeImage(item.icon)
-                }
-            )
-        } else {
+//        if showWebIcons, let loginView = item.loginView, let iconBaseURL {
+//            AsyncImage(
+//                url: IconImageHelper.getIconImage(
+//                    for: loginView,
+//                    from: iconBaseURL
+//                ),
+//                content: { image in
+//                    image
+//                        .resizable()
+//                        .scaledToFit()
+//                },
+//                placeholder: {
+//                    placeholderDecorativeImage(item.icon)
+//                }
+//            )
+//        } else {
             placeholderDecorativeImage(item.icon)
-        }
+//        }
     }
 
     /// The placeholder image for the decorative image.
@@ -176,15 +176,10 @@ struct ItemListItemRowView: View {
                             name: "Name",
                             totpModel: VaultListTOTP(
                                 id: UUID().uuidString,
-                                loginView: .init(
-                                    username: "email@example.com",
-                                    password: nil,
-                                    passwordRevisionDate: nil,
-                                    uris: nil,
-                                    totp: "asdf",
-                                    autofillOnPageLoad: nil,
-                                    fido2Credentials: nil
-                                ),
+                                loginView: Token(
+                                    name: "Example",
+                                    authenticatorKey: "totp"
+                                )!,
                                 totpCode: TOTPCodeModel(
                                     code: "123456",
                                     codeGenerationDate: Date(),

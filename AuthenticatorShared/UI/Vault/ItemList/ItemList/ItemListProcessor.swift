@@ -232,42 +232,11 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
         do {
             let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
             let loginTotpState = LoginTOTPState(authKeyModel: authKeyModel)
-            let newCipher = CipherView(
-                id: UUID().uuidString,
-                organizationId: nil,
-                folderId: nil,
-                collectionIds: [],
-                key: nil,
-                name: "Example",
-                notes: nil,
-                type: .login,
-                login: .init(
-                    username: nil,
-                    password: nil,
-                    passwordRevisionDate: nil,
-                    uris: nil,
-                    totp: loginTotpState.rawAuthenticatorKeyString,
-                    autofillOnPageLoad: nil,
-                    fido2Credentials: nil
-                ),
-                identity: nil,
-                card: nil,
-                secureNote: nil,
-                favorite: false,
-                reprompt: .none,
-                organizationUseTotp: false,
-                edit: true,
-                viewPassword: true,
-                localData: nil,
-                attachments: nil,
-                fields: nil,
-                passwordHistory: nil,
-                creationDate: .now,
-                deletedDate: nil,
-                revisionDate: .now
-            )
+            guard let key = loginTotpState.rawAuthenticatorKeyString,
+                  let newToken = Token(name: "Example", authenticatorKey: key)
+            else { return }
             Task {
-                try await services.itemRepository.addItem(newCipher)
+                try await services.itemRepository.addItem(newToken)
                 await perform(.refresh)
             }
             state.toast = Toast(text: Localizations.authenticatorKeyAdded)

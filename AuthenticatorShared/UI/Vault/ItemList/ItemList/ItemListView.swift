@@ -165,15 +165,7 @@ struct ItemListView: View {
                                         name: "One",
                                         totpModel: VaultListTOTP(
                                             id: UUID().uuidString,
-                                            loginView: .init(
-                                                username: "email@example.com",
-                                                password: nil,
-                                                passwordRevisionDate: nil,
-                                                uris: nil,
-                                                totp: "asdf",
-                                                autofillOnPageLoad: nil,
-                                                fido2Credentials: nil
-                                            ),
+                                            loginView: Token(name: "Example", authenticatorKey: "asdf")!,
                                             totpCode: TOTPCodeModel(
                                                 code: "123456",
                                                 codeGenerationDate: Date(),
@@ -188,15 +180,7 @@ struct ItemListView: View {
                                         name: "Two",
                                         totpModel: VaultListTOTP(
                                             id: UUID().uuidString,
-                                            loginView: .init(
-                                                username: "email@example.com",
-                                                password: nil,
-                                                passwordRevisionDate: nil,
-                                                uris: nil,
-                                                totp: "asdf",
-                                                autofillOnPageLoad: nil,
-                                                fido2Credentials: nil
-                                            ),
+                                            loginView: Token(name: "Example", authenticatorKey: "asdf")!,
                                             totpCode: TOTPCodeModel(
                                                 code: "123456",
                                                 codeGenerationDate: Date(),

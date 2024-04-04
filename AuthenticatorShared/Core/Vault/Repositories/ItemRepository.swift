@@ -8,11 +8,11 @@ import OSLog
 public protocol ItemRepository: AnyObject {
     // MARK: Data Methods
 
-    func addItem(_ item: CipherView) async throws
+    func addItem(_ item: Token) async throws
 
     func deleteItem(_ id: String)
 
-    func fetchItem(withId id: String) async throws -> CipherView?
+    func fetchItem(withId id: String) async throws -> Token?
 
     /// Regenerates the TOTP code for a given key.
     ///
@@ -47,41 +47,8 @@ class DefaultItemRepository {
     /// The service used to get the present time.
     private let timeProvider: TimeProvider
 
-    @Published var ciphers: [CipherView] = [
-        CipherView(
-            id: UUID().uuidString,
-            organizationId: nil,
-            folderId: nil,
-            collectionIds: [],
-            key: nil,
-            name: "Amazon",
-            notes: nil,
-            type: .login,
-            login: .init(
-                username: "amazon@example.com",
-                password: nil,
-                passwordRevisionDate: nil,
-                uris: nil,
-                totp: "amazon",
-                autofillOnPageLoad: nil,
-                fido2Credentials: nil
-            ),
-            identity: nil,
-            card: nil,
-            secureNote: nil,
-            favorite: false,
-            reprompt: .none,
-            organizationUseTotp: false,
-            edit: false,
-            viewPassword: false,
-            localData: nil,
-            attachments: nil,
-            fields: nil,
-            passwordHistory: nil,
-            creationDate: .now,
-            deletedDate: nil,
-            revisionDate: .now
-        ),
+    @Published var tokens: [Token] = [
+        Token(name: "Amazon", authenticatorKey: "amazon")!,
     ]
 
     // MARK: Initialization
@@ -107,14 +74,14 @@ class DefaultItemRepository {
 extension DefaultItemRepository: ItemRepository {
     // MARK: Data Methods
 
-    func addItem(_ item: BitwardenSdk.CipherView) async throws {
-        ciphers.append(item)
+    func addItem(_ item: Token) async throws {
+        tokens.append(item)
     }
 
     func deleteItem(_ id: String) {}
 
-    func fetchItem(withId id: String) async throws -> BitwardenSdk.CipherView? {
-        ciphers.first { $0.id == id }
+    func fetchItem(withId id: String) async throws -> Token? {
+        tokens.first { $0.id == id }
     }
 
     func refreshTOTPCode(for key: TOTPKeyModel) async throws -> LoginTOTPState {
@@ -130,9 +97,16 @@ extension DefaultItemRepository: ItemRepository {
 
     func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem] {
         await items.asyncMap { item in
-            guard case let .totp(name, model) = item.itemType,
-                  let key = model.loginView.totp,
-                  let code = try? await clientVault.generateTOTPCode(for: key, date: timeProvider.presentTime)
+            guard case let .totp(name, model) = item.itemType
+            else {
+                errorReporter.log(error: TOTPServiceError
+                    .unableToGenerateCode("Unable to refresh TOTP code for item: \(item.id)"))
+                return item
+            }
+
+            let key = model.loginView.key.base32Key
+
+            guard let code = try? await clientVault.generateTOTPCode(for: key, date: timeProvider.presentTime)
             else {
                 errorReporter.log(error: TOTPServiceError
                     .unableToGenerateCode("Unable to refresh TOTP code for item: \(item.id)"))
@@ -145,7 +119,7 @@ extension DefaultItemRepository: ItemRepository {
                 itemType: .totp(name: name, totpModel: updatedModel)
             )
         }
-        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+//        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 
     func updateItem(_ item: BitwardenSdk.CipherView) async throws {}
@@ -153,7 +127,7 @@ extension DefaultItemRepository: ItemRepository {
     // MARK: Publishers
 
     func vaultListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Never>> {
-        ciphers.publisher
+        tokens.publisher
 //            .asyncMap {
 //                $0.compactMap({
 //                    totpItem(for: $0)
@@ -176,12 +150,14 @@ extension DefaultItemRepository: ItemRepository {
     /// - Parameter cipherView: The cipher view that may have a TOTP key.
     /// - Returns: A `VaultListItem` if the CipherView supports TOTP.
     ///
-    private func totpItem(for cipherView: CipherView) async -> VaultListItem? {
-        guard let id = cipherView.id,
-              let login = cipherView.login,
-              let key = login.totp else {
-            return nil
-        }
+    private func totpItem(for token: Token) async -> VaultListItem? {
+        let id = token.id
+        let key = token.key.base32Key
+//        guard let id = cipherView.id,
+//              let login = cipherView.login,
+//              let key = login.totp else {
+//            return nil
+//        }
         guard let code = try? await clientVault.generateTOTPCode(
             for: key,
             date: timeProvider.presentTime
@@ -195,13 +171,13 @@ extension DefaultItemRepository: ItemRepository {
 
         let listModel = VaultListTOTP(
             id: id,
-            loginView: login,
+            loginView: token,
             totpCode: code
         )
         return VaultListItem(
             id: id,
             itemType: .totp(
-                name: cipherView.name,
+                name: token.name,
                 totpModel: listModel
             )
         )

@@ -101,13 +101,13 @@ private extension ViewTokenProcessor {
             guard let token = try await services.itemRepository.fetchItem(withId: itemId)
             else { return }
 
-            var totpState = LoginTOTPState(token.login?.totp)
+            var totpState = LoginTOTPState(token.key.base32Key)
             if let key = totpState.authKeyModel,
                let updatedState = try? await services.itemRepository.refreshTOTPCode(for: key) {
                 totpState = updatedState
             }
 
-            guard var newState = ViewTokenState(cipherView: token) else { return }
+            guard var newState = ViewTokenState(token: token) else { return }
             if case var .data(tokenState) = newState.loadingState {
                 tokenState.totpState = totpState
                 newState.loadingState = .data(tokenState)
