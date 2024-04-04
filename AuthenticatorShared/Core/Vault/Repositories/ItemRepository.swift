@@ -47,6 +47,8 @@ class DefaultItemRepository {
     /// The service used to get the present time.
     private let timeProvider: TimeProvider
 
+    private let tokenRepository: TokenRepository
+
     @Published var tokens: [Token] = [
         Token(name: "Amazon", authenticatorKey: "amazon")!,
     ]
@@ -63,11 +65,13 @@ class DefaultItemRepository {
     init(
         clientVault: ClientVaultService,
         errorReporter: ErrorReporter,
-        timeProvider: TimeProvider
+        timeProvider: TimeProvider,
+        tokenRepository: TokenRepository
     ) {
         self.clientVault = clientVault
         self.errorReporter = errorReporter
         self.timeProvider = timeProvider
+        self.tokenRepository = tokenRepository
     }
 }
 
@@ -75,13 +79,15 @@ extension DefaultItemRepository: ItemRepository {
     // MARK: Data Methods
 
     func addItem(_ item: Token) async throws {
-        tokens.append(item)
+        try await tokenRepository.addToken(item)
     }
 
-    func deleteItem(_ id: String) {}
+    func deleteItem(_ id: String) {
+        tokenRepository.deleteToken(id)
+    }
 
     func fetchItem(withId id: String) async throws -> Token? {
-        tokens.first { $0.id == id }
+        try await tokenRepository.fetchToken(withId: id)
     }
 
     func refreshTOTPCode(for key: TOTPKeyModel) async throws -> LoginTOTPState {
@@ -127,7 +133,16 @@ extension DefaultItemRepository: ItemRepository {
     // MARK: Publishers
 
     func vaultListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Never>> {
-        tokens.publisher
+        tokenRepository.tokens.publisher
+//        for await value in try tokenRepository.tokenPublisher() {
+//
+//        }
+//        tokenRepository.tokenPublisher()
+//            .asyncMap({ $0.map({ await self.totpItem(for: $0) }) })
+//            .values
+//            .compactMap({ await self.totpItem(for: $0) })
+//            .
+//        tokens.publisher
 //            .asyncMap {
 //                $0.compactMap({
 //                    totpItem(for: $0)
@@ -138,9 +153,12 @@ extension DefaultItemRepository: ItemRepository {
 //                    VaultListItem(cipherView: $0)
 //                })
 //            })
-            .asyncCompactMap({ await self.totpItem(for: $0) })
-            .collect()
+//            .collect()
+//            .compactMap({ $0 })
+//            .collect()
 //        await Just(ciphers.asyncMap({ await self.totpItem(for: $0)! }))
+            .asyncCompactMap { await self.totpItem(for: $0) }
+            .collect()
         .eraseToAnyPublisher()
         .values
     }

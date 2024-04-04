@@ -93,18 +93,19 @@ public class ServiceContainer: Services {
         let timeProvider = CurrentTime()
         let totpService = DefaultTOTPService()
 
-        let itemRepository = DefaultItemRepository(
-            clientVault: clientService.clientVault(),
-            errorReporter: errorReporter,
-            timeProvider: timeProvider
-        )
-        let pasteboardService = DefaultPasteboardService(
-            errorReporter: errorReporter
-        )
         let tokenRepository = DefaultTokenRepository(
             clientVault: clientService.clientVault(),
             errorReporter: errorReporter,
             timeProvider: timeProvider
+        )
+        let itemRepository = DefaultItemRepository(
+            clientVault: clientService.clientVault(),
+            errorReporter: errorReporter,
+            timeProvider: timeProvider,
+            tokenRepository: tokenRepository
+        )
+        let pasteboardService = DefaultPasteboardService(
+            errorReporter: errorReporter
         )
 
         self.init(
