@@ -36,6 +36,9 @@ public class ServiceContainer: Services {
     /// Provides the present time for TOTP Code Calculation.
     let timeProvider: TimeProvider
 
+    /// The repository for managing tokens
+    let tokenRepository: TokenRepository
+
     /// The service used by the application to validate TOTP keys and produce TOTP values.
     let totpService: TOTPService
 
@@ -61,6 +64,7 @@ public class ServiceContainer: Services {
         itemRepository: ItemRepository,
         pasteboardService: PasteboardService,
         timeProvider: TimeProvider,
+        tokenRepository: TokenRepository,
         totpService: TOTPService
     ) {
         self.application = application
@@ -70,6 +74,7 @@ public class ServiceContainer: Services {
         self.itemRepository = itemRepository
         self.pasteboardService = pasteboardService
         self.timeProvider = timeProvider
+        self.tokenRepository = tokenRepository
         self.totpService = totpService
     }
 
@@ -96,6 +101,11 @@ public class ServiceContainer: Services {
         let pasteboardService = DefaultPasteboardService(
             errorReporter: errorReporter
         )
+        let tokenRepository = DefaultTokenRepository(
+            clientVault: clientService.clientVault(),
+            errorReporter: errorReporter,
+            timeProvider: timeProvider
+        )
 
         self.init(
             application: application,
@@ -105,6 +115,7 @@ public class ServiceContainer: Services {
             itemRepository: itemRepository,
             pasteboardService: pasteboardService,
             timeProvider: timeProvider,
+            tokenRepository: tokenRepository,
             totpService: totpService
         )
     }

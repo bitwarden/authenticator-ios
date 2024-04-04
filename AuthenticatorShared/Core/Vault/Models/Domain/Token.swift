@@ -7,16 +7,18 @@ public struct Token: Equatable, Sendable {
 
     let id: String
 
-    let key: TOTPKey
+    let key: TOTPKeyModel
 
     let name: String
 
     // MARK: Initialization
 
     init?(name: String, authenticatorKey: String) {
-        guard let keyType = TOTPKey(authenticatorKey) else { return nil }
-        self.id = UUID().uuidString
+        guard let keyModel = TOTPKeyModel(authenticatorKey: authenticatorKey)
+        else { return nil }
+
+        id = UUID().uuidString
         self.name = name
-        self.key = keyType
+        key = keyModel
     }
 }

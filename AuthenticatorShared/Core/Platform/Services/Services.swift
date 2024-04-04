@@ -7,6 +7,7 @@ typealias Services = HasCameraService
     & HasPasteboardService
     & HasTOTPService
     & HasTimeProvider
+    & HasTokenRepository
 
 /// Protocol for an object that provides a `CameraService`.
 ///
@@ -48,4 +49,9 @@ protocol HasTOTPService {
 protocol HasTimeProvider {
     /// Provides the present time for TOTP Code Calculation.
     var timeProvider: TimeProvider { get }
+}
+
+protocol HasTokenRepository {
+    /// The service that interacts with the data layer for tokens
+    var tokenRepository: TokenRepository { get }
 }
