@@ -9,7 +9,7 @@ public protocol TokenRepository: AnyObject {
 
     func addToken(_ token: Token) async throws
 
-    func deleteToken(_ id: String)
+    func deleteToken(_ id: String) async throws
 
     func fetchToken(withId id: String) async throws -> Token?
 
@@ -63,7 +63,7 @@ extension DefaultTokenRepository: TokenRepository {
         tokens.append(token)
     }
 
-    func deleteToken(_ id: String) {
+    func deleteToken(_ id: String) async throws {
         tokens.removeAll { $0.id == id }
     }
 
