@@ -89,8 +89,13 @@ final class EditTokenProcessor: StateProcessor<
             try EmptyInputValidator(fieldName: Localizations.name)
                 .validate(input: state.name)
             coordinator.showLoadingOverlay(title: Localizations.saving)
-            let newToken = Token(name: state.name, authenticatorKey: state.totpState.rawAuthenticatorKeyString!)!
-            try await updateToken(token: newToken)
+            switch state.configuration {
+            case .add:
+                return
+            case let .existing(token: token):
+                let newToken = Token(id: token.id, name: token.name, authenticatorKey: state.totpState.rawAuthenticatorKeyString!)!
+                try await updateToken(token: newToken)
+            }
         } catch let error as InputValidationError {
             coordinator.showAlert(Alert.inputValidationAlert(error: error))
             return
