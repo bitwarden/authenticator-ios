@@ -93,7 +93,11 @@ final class EditTokenProcessor: StateProcessor<
             case .add:
                 return
             case let .existing(token: token):
-                let newToken = Token(id: token.id, name: token.name, authenticatorKey: state.totpState.rawAuthenticatorKeyString!)!
+                let newToken = Token(
+                    id: token.id,
+                    name: token.name,
+                    authenticatorKey: state.totpState.rawAuthenticatorKeyString!
+                )!
                 try await updateToken(token: newToken)
             }
         } catch let error as InputValidationError {

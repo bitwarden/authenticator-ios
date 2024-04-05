@@ -88,6 +88,7 @@ extension DefaultTokenRepository: TokenRepository {
     }
 
     func updateToken(_ token: Token) async throws {
+        try await Task.sleep(nanoseconds: 1_000_000_000)
         guard let tokenIndex = tokens.firstIndex(where: { $0.id == token.id })
         else { return }
         tokens[tokenIndex] = token
