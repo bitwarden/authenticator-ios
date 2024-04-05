@@ -10,12 +10,88 @@ struct EditTokenView: View {
     // MARK: View
 
     var body: some View {
-        Text("Hello world")
+        content
+            .navigationTitle(Localizations.editItem)
+            .toolbar {
+                cancelToolbarItem {
+                    store.send(.dismissPressed)
+                }
+            }
+            .task { await store.perform(.appeared) }
+            .toast(store.binding(
+                get: \.toast,
+                send: EditTokenAction.toastShown
+            ))
+    }
+
+    private var content: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                informationSection
+                saveButton
+            }
+            .padding(16)
+        }
+        .dismissKeyboardImmediately()
+        .background(
+            Asset.Colors.backgroundSecondary.swiftUIColor
+                .ignoresSafeArea()
+        )
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private var informationSection: some View {
+        SectionView(Localizations.itemInformation) {
+            BitwardenTextField(
+                title: Localizations.name,
+                text: store.binding(
+                    get: \.name,
+                    send: EditTokenAction.nameChanged
+                )
+            )
+
+            BitwardenTextField(
+                title: Localizations.authenticatorKey,
+                text: store.binding(
+                    get: \.totpState.rawAuthenticatorKeyString!,
+                    send: EditTokenAction.keyChanged
+                ),
+                isPasswordVisible: store.binding(
+                    get: \.isKeyVisible,
+                    send: EditTokenAction.toggleKeyVisibilityChanged
+                )
+            )
+            .textFieldConfiguration(.password)
+
+//            BitwardenTextField(
+//                title: Localizations.issuer,
+//                text: store.binding(
+//                    get: \.issuer,
+//                    send: EditTokenAction.issuerChanged
+//                )
+//            )
+//
+//            BitwardenTextField(
+//                title: Localizations.account,
+//                text: store.binding(
+//                    get: \.account,
+//                    send: EditTokenAction.accountChanged
+//                )
+//            )
+        }
+    }
+
+    private var saveButton: some View {
+        AsyncButton(Localizations.save) {
+            await store.perform(.savePressed)
+        }
+        .accessibilityIdentifier("SaveButton")
+        .buttonStyle(.primary())
     }
 }
 
 #if DEBUG
-#Preview("Loading") {
+#Preview("Edit") {
     EditTokenView(
         store: Store(
             processor: StateProcessor(
