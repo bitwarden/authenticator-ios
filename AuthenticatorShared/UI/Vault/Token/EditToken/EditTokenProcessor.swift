@@ -57,8 +57,6 @@ final class EditTokenProcessor: StateProcessor<
             state.account = account
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
-        case let .issuerChanged(issuer):
-            state.issuer = issuer
         case let .keyChanged(key):
             state.totpState = LoginTOTPState(key)
         case let .nameChanged(newValue):

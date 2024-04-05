@@ -9,9 +9,6 @@ enum EditTokenAction: Equatable {
     case dismissPressed
 
     /// The key field was changed.
-    case issuerChanged(String)
-
-    /// The key field was changed.
     case keyChanged(String)
 
     /// The token's name was changed

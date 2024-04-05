@@ -62,22 +62,6 @@ struct EditTokenView: View {
                 )
             )
             .textFieldConfiguration(.password)
-
-//            BitwardenTextField(
-//                title: Localizations.issuer,
-//                text: store.binding(
-//                    get: \.issuer,
-//                    send: EditTokenAction.issuerChanged
-//                )
-//            )
-//
-//            BitwardenTextField(
-//                title: Localizations.account,
-//                text: store.binding(
-//                    get: \.account,
-//                    send: EditTokenAction.accountChanged
-//                )
-//            )
         }
     }
 
