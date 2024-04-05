@@ -73,11 +73,41 @@ extension AuthenticatorItemData {
 }
 
 struct AuthenticatorItemDataModel: Codable {
-    init(item: AuthenticatorItem) throws {
+    let id: String
+    let name: String
 
+    init(item: AuthenticatorItem) throws {
+        id = item.id
+        name = item.name
     }
 }
 
-struct AuthenticatorItem {
+struct AuthenticatorItem: Equatable, Sendable {
     let id: String
+    let name: String
+
+    init(id: String, name: String) {
+        self.id = id
+        self.name = name
+    }
+
+    init(itemData: AuthenticatorItemData) throws {
+        guard let model = itemData.model else {
+            throw DataMappingError.invalidData
+        }
+        id = model.id
+        name = model.name
+    }
+}
+
+extension AuthenticatorItem {
+    static func fixture(
+        id: String = UUID().uuidString,
+        name: String = "Example"
+    ) -> AuthenticatorItem {
+        AuthenticatorItem(
+            id: id,
+            name: name
+        )
+    }
 }
