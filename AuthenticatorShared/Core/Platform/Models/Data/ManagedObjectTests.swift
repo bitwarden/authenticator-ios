@@ -20,5 +20,9 @@ class ManagedObjectTests: AuthenticatorTestCase {
 }
 
 private class TestManagedObject: NSManagedObject, ManagedObject {
+    static func idPredicate(id: String) -> NSPredicate {
+        return NSPredicate()
+    }
+    
     static var entityName = "TestManagedObject"
 }
