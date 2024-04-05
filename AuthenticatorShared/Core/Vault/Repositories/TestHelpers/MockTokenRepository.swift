@@ -23,6 +23,9 @@ class MockTokenRepository: TokenRepository {
 
     var tokenListSubject = CurrentValueSubject<[Token], Never>([])
 
+    var updateTokenTokens = [Token]()
+    var updateTokenResult: Result<Void, Error> = .success(())
+
     // MARK: Methods
 
     func addToken(_ token: Token) async throws {
@@ -47,5 +50,10 @@ class MockTokenRepository: TokenRepository {
 
     func tokenPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[AuthenticatorShared.Token], Never>> {
         tokenListSubject.eraseToAnyPublisher().values
+    }
+
+    func updateToken(_ token: Token) async throws {
+        updateTokenTokens.append(token)
+        try updateTokenResult.get()
     }
 }
