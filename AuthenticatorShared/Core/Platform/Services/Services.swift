@@ -2,6 +2,7 @@ import BitwardenSdk
 
 /// The services provided by the `ServiceContainer`.
 typealias Services = HasCameraService
+    & HasCryptographyService
     & HasErrorReporter
     & HasPasteboardService
     & HasTOTPService
@@ -13,6 +14,13 @@ typealias Services = HasCameraService
 protocol HasCameraService {
     /// The service used by the application to query for and request camera authorization.
     var cameraService: CameraService { get }
+}
+
+/// Protocol for an object that provides a `CryptographyService`
+///
+protocol HasCryptographyService {
+    /// The service used by the application to encrypt and decrypt items
+    var cryptographyService: CryptographyService { get }
 }
 
 /// Protocol for an object that provides an `ErrorReporter`.

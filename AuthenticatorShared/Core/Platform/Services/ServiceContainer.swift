@@ -24,6 +24,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
 
+    /// The service used by the application to encrypt and decrypt items
+    let cryptographyService: CryptographyService
+
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 
@@ -47,6 +50,7 @@ public class ServiceContainer: Services {
     ///   - application: The application instance.
     ///   - cameraService: The service used by the application to manage camera use.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
+    ///   - cryptographyService: The service used by the application to encrypt and decrypt items
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
     ///   - timeProvider: Provides the present time for TOTP Code Calculation.
@@ -56,6 +60,7 @@ public class ServiceContainer: Services {
     init(
         application: Application?,
         cameraService: CameraService,
+        cryptographyService: CryptographyService,
         clientService: ClientService,
         errorReporter: ErrorReporter,
         pasteboardService: PasteboardService,
@@ -66,6 +71,7 @@ public class ServiceContainer: Services {
         self.application = application
         self.cameraService = cameraService
         self.clientService = clientService
+        self.cryptographyService = cryptographyService
         self.errorReporter = errorReporter
         self.pasteboardService = pasteboardService
         self.timeProvider = timeProvider
@@ -85,6 +91,7 @@ public class ServiceContainer: Services {
     ) {
         let cameraService = DefaultCameraService()
         let clientService = DefaultClientService()
+        let cryptographyService = DefaultCryptographyService()
         let dataStore = DataStore(errorReporter: errorReporter)
         let timeProvider = CurrentTime()
         let totpService = DefaultTOTPService()
@@ -104,6 +111,7 @@ public class ServiceContainer: Services {
         self.init(
             application: application,
             cameraService: cameraService,
+            cryptographyService: cryptographyService,
             clientService: clientService,
             errorReporter: errorReporter,
             pasteboardService: pasteboardService,

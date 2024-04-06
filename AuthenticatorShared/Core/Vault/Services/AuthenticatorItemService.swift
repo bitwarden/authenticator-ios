@@ -98,6 +98,6 @@ extension DefaultAuthenticatorItemService: AuthenticatorItemService {
     }
 
     func authenticatorItemsPublisher() async throws -> AnyPublisher<[AuthenticatorItem], Error> {
-        return authenticatorItemDataStore.authenticatorItemPublisher(userId: defaultUserId)
+        authenticatorItemDataStore.authenticatorItemPublisher(userId: defaultUserId)
     }
 }

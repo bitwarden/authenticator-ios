@@ -6,13 +6,6 @@ import CoreData
 protocol ManagedObject: AnyObject {
     /// The name of the entity of the managed object, as defined in the data model.
     static var entityName: String { get }
-
-    /// Returns a `NSPredicate` used for filtering by a managed object ID.
-    ///
-    /// - Parameters:
-    ///   - id: The ID of the object to fetch
-    ///
-    static func idPredicate(id: String) -> NSPredicate
 }
 
 extension ManagedObject where Self: NSManagedObject {
@@ -82,28 +75,4 @@ extension ManagedObject where Self: NSManagedObject {
         fetchRequest.predicate = predicate
         return fetchRequest
     }
-
-    static func fetchRequest() -> NSFetchRequest<Self> {
-        fetchRequest(predicate: nil)
-    }
-
-    /// A `NSFetchRequest` that fetches objects matching an ID.
-    ///
-    /// - Parameters:
-    ///   - id: The ID of the object to fetch.
-    /// - Returns: A `NSFetchRequest` that fetches all objects for the user.
-    ///
-    static func fetchByIdRequest(id: String) -> NSFetchRequest<Self> {
-        fetchRequest(predicate: idPredicate(id: id))
-    }
-
-    /// A `NSBatchDeleteRequest` that deletes all objects
-    ///
-    /// - Returns: A `NSBatchDeleteRequest` that deletes all objects for the user.
-    ///
-    static func deleteAllRequest() -> NSBatchDeleteRequest {
-        let fetchRequest = fetchResultRequest(predicate: nil)
-        return NSBatchDeleteRequest(fetchRequest: fetchRequest)
-    }
-
 }

@@ -8,6 +8,7 @@ extension ServiceContainer {
         application: Application? = nil,
         cameraService: CameraService = MockCameraService(),
         clientService: ClientService = MockClientService(),
+        cryptographyService: CryptographyService = MockCryptographyService(),
         errorReporter: ErrorReporter = MockErrorReporter(),
         pasteboardService: PasteboardService = MockPasteboardService(),
         timeProvider: TimeProvider = MockTimeProvider(.currentTime),
@@ -17,10 +18,11 @@ extension ServiceContainer {
         ServiceContainer(
             application: application,
             cameraService: cameraService,
+            cryptographyService: cryptographyService,
             clientService: clientService,
             errorReporter: errorReporter,
             pasteboardService: pasteboardService,
-            timeProvider: timeProvider, 
+            timeProvider: timeProvider,
             tokenRepository: tokenRepository,
             totpService: totpService
         )
