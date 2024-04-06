@@ -85,6 +85,7 @@ public class ServiceContainer: Services {
     ) {
         let cameraService = DefaultCameraService()
         let clientService = DefaultClientService()
+        let dataStore = DataStore(errorReporter: errorReporter)
         let timeProvider = CurrentTime()
         let totpService = DefaultTOTPService()
 
@@ -95,6 +96,9 @@ public class ServiceContainer: Services {
             clientVault: clientService.clientVault(),
             errorReporter: errorReporter,
             timeProvider: timeProvider
+        )
+        let authenticatorItemService = DefaultAuthenticatorItemService(
+            authenticatorItemDataStore: dataStore
         )
 
         self.init(

@@ -102,7 +102,7 @@ struct AuthenticatorItem: Equatable, Sendable {
 
 extension AuthenticatorItem {
     static func fixture(
-        id: String = UUID().uuidString,
+        id: String = "ID",
         name: String = "Example"
     ) -> AuthenticatorItem {
         AuthenticatorItem(
