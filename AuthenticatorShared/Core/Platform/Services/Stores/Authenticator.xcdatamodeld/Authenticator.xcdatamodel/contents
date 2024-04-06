@@ -11,14 +11,4 @@
             </uniquenessConstraint>
         </uniquenessConstraints>
     </entity>
-    <entity name="TokenData" representedClassName=".TokenData" syncable="YES">
-        <attribute name="id" attributeType="String"/>
-        <attribute name="modelData" attributeType="Binary"/>
-        <attribute name="name" attributeType="String"/>
-        <uniquenessConstraints>
-            <uniquenessConstraint>
-                <constraint value="id"/>
-            </uniquenessConstraint>
-        </uniquenessConstraints>
-    </entity>
 </model>

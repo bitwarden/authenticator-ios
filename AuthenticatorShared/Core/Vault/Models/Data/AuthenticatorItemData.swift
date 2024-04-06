@@ -111,3 +111,13 @@ extension AuthenticatorItem {
         )
     }
 }
+
+/// Errors thrown from converting between SDK and app types.
+///
+enum DataMappingError: Error {
+    /// Thrown if an object was unable to be constructed because the data was invalid.
+    case invalidData
+
+    /// Thrown if a required object identifier is nil.
+    case missingId
+}

@@ -73,7 +73,7 @@ class DataStore {
     /// Deletes all data stored in the store
     ///
     func deleteData() async throws {
-        try await deleteAllTokens()
+        try await deleteAllAuthenticatorItems(userId: "local")
     }
 
     /// Executes a batch delete request and merges the changes into the background and view contexts.
