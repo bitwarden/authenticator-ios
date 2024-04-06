@@ -18,6 +18,9 @@ public class ServiceContainer: Services {
     /// The application instance (i.e. `UIApplication`), if the app isn't running in an extension.
     let application: Application?
 
+    /// The service used for managing items
+    let authenticatorItemRepository: AuthenticatorItemRepository
+
     /// The service used by the application to manage camera use.
     let cameraService: CameraService
 
@@ -48,6 +51,7 @@ public class ServiceContainer: Services {
     ///
     /// - Parameters:
     ///   - application: The application instance.
+    ///   - authenticatorItemRepository: The service to manage items
     ///   - cameraService: The service used by the application to manage camera use.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - cryptographyService: The service used by the application to encrypt and decrypt items
@@ -59,6 +63,7 @@ public class ServiceContainer: Services {
     ///
     init(
         application: Application?,
+        authenticatorItemRepository: AuthenticatorItemRepository,
         cameraService: CameraService,
         cryptographyService: CryptographyService,
         clientService: ClientService,
@@ -69,6 +74,7 @@ public class ServiceContainer: Services {
         totpService: TOTPService
     ) {
         self.application = application
+        self.authenticatorItemRepository = authenticatorItemRepository
         self.cameraService = cameraService
         self.clientService = clientService
         self.cryptographyService = cryptographyService
@@ -107,9 +113,14 @@ public class ServiceContainer: Services {
         let authenticatorItemService = DefaultAuthenticatorItemService(
             authenticatorItemDataStore: dataStore
         )
+        let authenticatorItemRepository = DefaultAuthenticatorItemRepository(
+            authenticatorItemService: authenticatorItemService,
+            cryptographyService: cryptographyService
+        )
 
         self.init(
             application: application,
+            authenticatorItemRepository: authenticatorItemRepository,
             cameraService: cameraService,
             cryptographyService: cryptographyService,
             clientService: clientService,

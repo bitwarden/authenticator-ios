@@ -1,13 +1,21 @@
 import BitwardenSdk
 
 /// The services provided by the `ServiceContainer`.
-typealias Services = HasCameraService
+typealias Services = HasAuthenticatorItemRepository
+    & HasCameraService
     & HasCryptographyService
     & HasErrorReporter
     & HasPasteboardService
     & HasTOTPService
     & HasTimeProvider
     & HasTokenRepository
+
+/// Protocol for an object that proves an `AuthenticatorItemRepository`
+///
+protocol HasAuthenticatorItemRepository {
+    /// The service used to interact with the data layer for items
+    var authenticatorItemRepository: AuthenticatorItemRepository { get }
+}
 
 /// Protocol for an object that provides a `CameraService`.
 ///
