@@ -16,3 +16,27 @@ public struct ItemListItem: Equatable, Identifiable {
     /// The current TOTP code for the ciper.
     public var totpCode: TOTPCodeModel
 }
+
+extension ItemListItem {
+    /// Initialize an `ItemListItem` from an `AuthenticatorItemView`
+    ///
+    /// - Parameters:
+    ///   - authenticatorItemView: The `AuthenticatorItemView` used to initialize the `ItemListItem`
+    ///
+    init?(authenticatorItemView: AuthenticatorItemView) {
+        self.init(
+            id: authenticatorItemView.id,
+            name: authenticatorItemView.name,
+            token: Token(
+                id: "Bad",
+                name: "Bad",
+                authenticatorKey: "Bad"
+            )!,
+            totpCode: TOTPCodeModel(
+                code: "123456",
+                codeGenerationDate: .now,
+                period: 30
+            )
+        )
+    }
+}
