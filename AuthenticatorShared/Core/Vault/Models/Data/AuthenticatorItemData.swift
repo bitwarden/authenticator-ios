@@ -70,10 +70,12 @@ extension AuthenticatorItemData {
 struct AuthenticatorItemDataModel: Codable {
     let id: String
     let name: String
+    let totpKey: String?
 
     init(item: AuthenticatorItem) throws {
         id = item.id
         name = item.name
+        totpKey = item.totpKey
     }
 }
 

@@ -5,10 +5,12 @@ import Foundation
 struct AuthenticatorItem: Equatable, Sendable {
     let id: String
     let name: String
+    let totpKey: String?
 
-    init(id: String, name: String) {
+    init(id: String, name: String, totpKey: String?) {
         self.id = id
         self.name = name
+        self.totpKey = totpKey
     }
 
     init(itemData: AuthenticatorItemData) throws {
@@ -17,17 +19,20 @@ struct AuthenticatorItem: Equatable, Sendable {
         }
         id = model.id
         name = model.name
+        totpKey = model.totpKey
     }
 }
 
 extension AuthenticatorItem {
     static func fixture(
         id: String = "ID",
-        name: String = "Example"
+        name: String = "Example",
+        totpKey: String? = "example"
     ) -> AuthenticatorItem {
         AuthenticatorItem(
             id: id,
-            name: name
+            name: name,
+            totpKey: totpKey
         )
     }
 }
@@ -37,16 +42,19 @@ extension AuthenticatorItem {
 struct AuthenticatorItemView: Equatable, Sendable {
     let id: String
     let name: String
+    let totpKey: String?
 }
 
 extension AuthenticatorItemView {
     static func fixture(
         id: String = "ID",
-        name: String = "Example"
+        name: String = "Example",
+        totpKey: String? = "example"
     ) -> AuthenticatorItemView {
         AuthenticatorItemView(
             id: id,
-            name: name
+            name: name,
+            totpKey: totpKey
         )
     }
 }

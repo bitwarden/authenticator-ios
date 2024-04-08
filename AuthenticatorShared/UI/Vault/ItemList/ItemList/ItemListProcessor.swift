@@ -249,7 +249,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
             guard let key = loginTotpState.rawAuthenticatorKeyString
             else { return }
             Task {
-                let newItem = AuthenticatorItemView(id: UUID().uuidString, name: "Example")
+                let newItem = AuthenticatorItemView(id: UUID().uuidString, name: "Example", totpKey: key)
                 try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
                 await perform(.refresh)
             }
