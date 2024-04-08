@@ -1,4 +1,3 @@
-import BitwardenSdk
 import Foundation
 
 // MARK: - ItemListProcessor
@@ -7,7 +6,8 @@ import Foundation
 final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, ItemListEffect> {
     // MARK: Types
 
-    typealias Services = HasCameraService
+    typealias Services = HasAuthenticatorItemRepository
+        & HasCameraService
         & HasErrorReporter
         & HasPasteboardService
         & HasTOTPService
@@ -128,10 +128,11 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     /// Stream the items list.
     private func streamItemList() async {
         do {
-            for try await tokenList in try await services.tokenRepository.tokenPublisher() {
-                let itemList = try await tokenList.asyncMap { token in
-                    let code = try await services.tokenRepository.refreshTotpCode(for: token.key)
-                    return ItemListItem(id: token.id, name: token.name, token: token, totpCode: code)
+            for try await value in try await services.authenticatorItemRepository.itemListPublisher() {
+                guard let items = value.first?.items else { return }
+                let itemList = try await items.asyncMap { item in
+                    let code = try await services.tokenRepository.refreshTotpCode(for: item.token.key)
+                    return ItemListItem(id: item.id, name: item.name, token: item.token, totpCode: code)
                 }
                 groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: itemList)
                 state.loadingState = .data(itemList)
@@ -245,11 +246,11 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
         do {
             let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
             let loginTotpState = LoginTOTPState(authKeyModel: authKeyModel)
-            guard let key = loginTotpState.rawAuthenticatorKeyString,
-                  let newToken = Token(name: "Example", authenticatorKey: key)
+            guard let key = loginTotpState.rawAuthenticatorKeyString
             else { return }
             Task {
-                try await services.tokenRepository.addToken(newToken)
+                let newItem = AuthenticatorItemView(id: UUID().uuidString, name: "Example")
+                try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
                 await perform(.refresh)
             }
             state.toast = Toast(text: Localizations.authenticatorKeyAdded)
