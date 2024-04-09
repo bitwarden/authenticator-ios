@@ -11,7 +11,8 @@ final class ViewTokenProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasAuthenticatorItemRepository
+        & HasErrorReporter
         & HasPasteboardService
         & HasTOTPService
         & HasTimeProvider
@@ -80,32 +81,34 @@ private extension ViewTokenProcessor {
     /// Triggers the edit state for the item currently stored in `state`.
     ///
     private func editItem() {
-        guard case let .data(tokenState) = state.loadingState,
-              case let .existing(token) = tokenState.configuration else {
+        guard case let .data(authenticatorItemState) = state.loadingState,
+              case let .existing(authenticatorItemView) = authenticatorItemState.configuration else {
             return
         }
         Task {
-            coordinator.navigate(to: .editToken(token), context: self)
+            coordinator.navigate(to: .editAuthenticatorItem(authenticatorItemView), context: self)
         }
     }
 
     /// Stream the token details.
     private func streamTokenDetails() async {
         do {
-            guard let token = try await services.tokenRepository.fetchToken(withId: itemId)
+            guard let authenticatorItemView = try await services.authenticatorItemRepository.fetchAuthenticatorItem(withId: itemId),
+                  let key = authenticatorItemView.totpKey,
+                  let model = TOTPKeyModel(authenticatorKey: key)
             else { return }
 
-            let code = try await services.totpService.getTotpCode(for: token.key)
-            guard var newTokenState = ViewTokenState(token: token) else { return }
-            if case var .data(tokenState) = newTokenState.loadingState {
+            let code = try await services.totpService.getTotpCode(for: model)
+            guard var newAuthenticatorItemState = ViewTokenState(authenticatorItemView: authenticatorItemView) else { return }
+            if case var .data(authenticatorItemState) = newAuthenticatorItemState.loadingState {
                 let totpState = LoginTOTPState(
-                    authKeyModel: token.key,
+                    authKeyModel: model,
                     codeModel: code
                 )
-                tokenState.totpState = totpState
-                newTokenState.loadingState = .data(tokenState)
+                authenticatorItemState.totpState = totpState
+                newAuthenticatorItemState.loadingState = .data(authenticatorItemState)
             }
-            state = newTokenState
+            state = newAuthenticatorItemState
         } catch {
             services.errorReporter.log(error: error)
         }

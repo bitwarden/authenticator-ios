@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - TokenState
 
-/// An object that defines the current state of any view interacting with a token.
+/// An object that defines the current state of any view interacting with an authenticator item.
 ///
 struct AuthenticatorItemState: Equatable {
     // MARK: Types
@@ -14,12 +14,12 @@ struct AuthenticatorItemState: Equatable {
         case add
 
         /// We are viewing or editing an existing token.
-        case existing(token: Token)
+        case existing(authenticatorItemView: AuthenticatorItemView)
 
-        /// The existing `CipherView` if the configuration is `existing`.
-        var existingToken: Token? {
-            guard case let .existing(token) = self else { return nil }
-            return token
+        /// The existing `AuthenticatorItemView` if the configuration is `existing`.
+        var existingToken: AuthenticatorItemView? {
+            guard case let .existing(authenticatorItemView) = self else { return nil }
+            return authenticatorItemView
         }
     }
 
@@ -60,11 +60,11 @@ struct AuthenticatorItemState: Equatable {
         issuer = "Fixme"
     }
 
-    init?(existing token: Token) {
+    init?(existing authenticatorItemView: AuthenticatorItemView) {
         self.init(
-            configuration: .existing(token: token),
-            name: token.name,
-            totpState: LoginTOTPState(token.key.base32Key)
+            configuration: .existing(authenticatorItemView: authenticatorItemView),
+            name: authenticatorItemView.name,
+            totpState: LoginTOTPState(authenticatorItemView.totpKey)
         )
     }
 }
@@ -80,12 +80,12 @@ extension AuthenticatorItemState: ViewAuthenticatorItemState {
         totpState.rawAuthenticatorKeyString
     }
 
-    var token: Token {
+    var authenticatorItemView: AuthenticatorItemView {
         switch configuration {
-        case let .existing(token):
-            return token
+        case let .existing(authenticatorItemView):
+            return authenticatorItemView
         case .add:
-            return newToken()
+            return newAuthenticatorItemView()
         }
     }
 
@@ -97,7 +97,11 @@ extension AuthenticatorItemState: ViewAuthenticatorItemState {
 extension AuthenticatorItemState {
     /// Returns a `Token` based on the properties of the `AuthenticatorItemState`.
     ///
-    func newToken() -> Token {
-        Token(name: name, authenticatorKey: totpState.rawAuthenticatorKeyString!)!
+    func newAuthenticatorItemView() -> AuthenticatorItemView {
+        AuthenticatorItemView(
+            id: UUID().uuidString,
+            name: name,
+            totpKey: totpState.rawAuthenticatorKeyString
+        )
     }
 }

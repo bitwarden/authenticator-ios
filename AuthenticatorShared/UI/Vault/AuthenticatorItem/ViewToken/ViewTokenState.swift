@@ -18,14 +18,14 @@ struct ViewTokenState: Sendable {
 extension ViewTokenState {
     // MARK: Initialization
 
-    /// Creates a new `ViewTokenState` from a provided `CipherView`.
+    /// Creates a new `ViewTokenState` from a provided `AuthenticatorItemView`.
     ///
     /// - Parameters:
     ///   - cipherView: The `CipherView` to create this state with.
     ///
-    init?(token: Token) {
+    init?(authenticatorItemView: AuthenticatorItemView) {
         guard let authenticatorItemState = AuthenticatorItemState(
-            existing: token
+            existing: authenticatorItemView
         ) else { return nil }
         self.init(loadingState: .data(authenticatorItemState))
     }

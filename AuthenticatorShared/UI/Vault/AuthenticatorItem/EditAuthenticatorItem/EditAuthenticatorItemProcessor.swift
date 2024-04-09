@@ -90,10 +90,10 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
             switch state.configuration {
             case .add:
                 return
-            case let .existing(token: token):
+            case let .existing(authenticatorItemView: authenticatorItemView):
                 let newToken = Token(
-                    id: token.id,
-                    name: token.name,
+                    id: authenticatorItemView.id,
+                    name: authenticatorItemView.name,
                     authenticatorKey: state.totpState.rawAuthenticatorKeyString!
                 )!
                 try await updateToken(token: newToken)

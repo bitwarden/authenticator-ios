@@ -74,31 +74,31 @@ struct EditAuthenticatorItemView: View {
     }
 }
 
-#if DEBUG
-#Preview("Edit") {
-    EditAuthenticatorItemView(
-        store: Store(
-            processor: StateProcessor(
-                state: AuthenticatorItemState(
-                    configuration: .existing(
-                        token: Token(
-                            name: "Example",
-                            authenticatorKey: "example"
-                        )!
-                    ),
-                    name: "Example",
-                    totpState: LoginTOTPState(
-                        authKeyModel: TOTPKeyModel(authenticatorKey: "example")!,
-                        codeModel: TOTPCodeModel(
-                            code: "123456",
-                            codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
-                            period: 30
-                        )
-                    )
-                )
-                .editState
-            )
-        )
-    )
-}
-#endif
+//#if DEBUG
+//#Preview("Edit") {
+//    EditAuthenticatorItemView(
+//        store: Store(
+//            processor: StateProcessor(
+//                state: AuthenticatorItemState(
+//                    configuration: .existing(
+//                        token: Token(
+//                            name: "Example",
+//                            authenticatorKey: "example"
+//                        )!
+//                    ),
+//                    name: "Example",
+//                    totpState: LoginTOTPState(
+//                        authKeyModel: TOTPKeyModel(authenticatorKey: "example")!,
+//                        codeModel: TOTPCodeModel(
+//                            code: "123456",
+//                            codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
+//                            period: 30
+//                        )
+//                    )
+//                )
+//                .editState
+//            )
+//        )
+//    )
+//}
+//#endif

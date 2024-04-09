@@ -58,8 +58,8 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
             stackNavigator?.dismiss(animated: true, completion: {
                 onDismiss?.action()
             })
-        case let .editToken(token):
-            showEditToken(for: token)
+        case let .editAuthenticatorItem(authenticatorItemView):
+            showEditAuthenticatorItem(for: authenticatorItemView)
         case let .viewToken(id):
             showViewToken(id: id)
         }
@@ -90,10 +90,10 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
     /// - Parameters:
     ///   - token: The `Token` to edit.
     ///
-    private func showEditToken(for token: Token) {
+    private func showEditAuthenticatorItem(for authenticatorItemView: AuthenticatorItemView) {
         guard let stackNavigator else { return }
         if stackNavigator.isEmpty {
-            guard let state = AuthenticatorItemState(existing: token)
+            guard let state = AuthenticatorItemState(existing: authenticatorItemView)
             else { return }
 
             let processor = EditAuthenticatorItemProcessor(
@@ -105,7 +105,7 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
             let view = EditAuthenticatorItemView(store: store)
             stackNavigator.replace(view)
         } else {
-            presentChildAuthenticatorItemCoordinator(route: .editToken(token), context: self)
+            presentChildAuthenticatorItemCoordinator(route: .editAuthenticatorItem(authenticatorItemView), context: self)
         }
     }
 

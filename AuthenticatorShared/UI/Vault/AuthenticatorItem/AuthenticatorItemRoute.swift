@@ -20,7 +20,7 @@ enum AuthenticatorItemRoute: Equatable {
     /// A route to edit a token.
     ///
     /// - Parameter token: the `Token` to edit
-    case editToken(_ token: Token)
+    case editAuthenticatorItem(_ authenticatorItemView: AuthenticatorItemView)
 
     /// A route to the view token screen.
     ///
