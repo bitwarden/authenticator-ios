@@ -1,7 +1,7 @@
 import BitwardenSdk
 import Foundation
 
-/// The processor used to manage state and handle actions/effects for the edit token screen
+/// The processor used to manage state and handle actions/effects for the edit item screen
 final class EditAuthenticatorItemProcessor: StateProcessor<
     EditAuthenticatorItemState,
     EditAuthenticatorItemAction,
@@ -15,7 +15,7 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation.
-    private var coordinator: AnyCoordinator<AuthenticatorItemRoute, TokenEvent>
+    private var coordinator: AnyCoordinator<AuthenticatorItemRoute, AuthenticatorItemEvent>
 
     /// The services required by this processor.
     private let services: Services
@@ -30,7 +30,7 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
     ///   - state: The initial state for the processor.
     ///
     init(
-        coordinator: AnyCoordinator<AuthenticatorItemRoute, TokenEvent>,
+        coordinator: AnyCoordinator<AuthenticatorItemRoute, AuthenticatorItemEvent>,
         services: Services,
         state: EditAuthenticatorItemState
     ) {
@@ -110,9 +110,7 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
     /// Updates the item currently in `state`.
     ///
     private func updateAuthenticatorItem(authenticatorItem: AuthenticatorItemView) async throws {
-        let bar = try await services.authenticatorItemRepository.fetchAllAuthenticatorItems()
         try await services.authenticatorItemRepository.updateAuthenticatorItem(authenticatorItem)
-        let foo = try await services.authenticatorItemRepository.fetchAllAuthenticatorItems()
         coordinator.hideLoadingOverlay()
         coordinator.navigate(to: .dismiss())
     }

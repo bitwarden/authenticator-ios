@@ -65,7 +65,7 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
         case .setupTotpManual:
             guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
             showManualTotp(delegate: delegate)
-        case let .viewToken(id):
+        case let .viewItem(id):
             Logger.application.log("View token \(id)")
             showToken(route: .viewToken(id: id))
         }

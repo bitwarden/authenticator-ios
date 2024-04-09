@@ -12,13 +12,13 @@ protocol AuthenticatorItemModule {
     ///
     func makeAuthenticatorItemCoordinator(
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<AuthenticatorItemRoute, TokenEvent>
+    ) -> AnyCoordinator<AuthenticatorItemRoute, AuthenticatorItemEvent>
 }
 
 extension DefaultAppModule: AuthenticatorItemModule {
     func makeAuthenticatorItemCoordinator(
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<AuthenticatorItemRoute, TokenEvent> {
+    ) -> AnyCoordinator<AuthenticatorItemRoute, AuthenticatorItemEvent> {
         AuthenticatorItemCoordinator(
             module: self,
             services: services,

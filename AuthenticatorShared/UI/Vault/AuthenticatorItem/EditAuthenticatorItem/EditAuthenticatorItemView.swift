@@ -1,7 +1,7 @@
 import BitwardenSdk
 import SwiftUI
 
-/// A view for editing a token
+/// A view for editing an item
 struct EditAuthenticatorItemView: View {
     // MARK: Properties
 

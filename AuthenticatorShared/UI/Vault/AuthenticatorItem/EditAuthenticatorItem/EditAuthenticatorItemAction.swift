@@ -11,7 +11,7 @@ enum EditAuthenticatorItemAction: Equatable {
     /// The key field was changed.
     case keyChanged(String)
 
-    /// The token's name was changed
+    /// The item's name was changed
     case nameChanged(String)
 
     /// The toast was shown or hidden.

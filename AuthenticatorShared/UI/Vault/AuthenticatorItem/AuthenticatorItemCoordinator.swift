@@ -48,7 +48,7 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     // MARK: Methods
 
-    func handleEvent(_ event: TokenEvent, context: AnyObject?) async {}
+    func handleEvent(_ event: AuthenticatorItemEvent, context: AnyObject?) async {}
 
     func navigate(to route: AuthenticatorItemRoute, context: AnyObject?) {
         switch route {

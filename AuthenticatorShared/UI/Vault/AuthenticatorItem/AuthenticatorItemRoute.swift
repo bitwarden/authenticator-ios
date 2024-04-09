@@ -29,4 +29,4 @@ enum AuthenticatorItemRoute: Equatable {
     case viewToken(id: String)
 }
 
-enum TokenEvent {}
+enum AuthenticatorItemEvent {}

@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - ViewAuthenticatorItemState
 
-/// The state for viewing/adding/editing a token item
+/// The state for viewing/adding/editing a totp item
 protocol ViewAuthenticatorItemState: Sendable {
     // MARK: Properties
 

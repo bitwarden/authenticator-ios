@@ -5,7 +5,7 @@ import Foundation
 protocol EditAuthenticatorItemState: Sendable {
     // MARK: Properties
 
-    /// The account of the token
+    /// The account of the item
     var account: String { get set }
 
     /// The Add or Existing Configuration.
@@ -14,7 +14,7 @@ protocol EditAuthenticatorItemState: Sendable {
     /// A flag indicating if the key is visible.
     var isKeyVisible: Bool { get set }
 
-    /// The issuer of the token
+    /// The issuer of the item
     var issuer: String { get set }
 
     /// The name of this item.
