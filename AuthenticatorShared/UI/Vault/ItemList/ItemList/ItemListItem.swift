@@ -4,17 +4,25 @@ import Foundation
 /// Data model for an item displayed in the item list.
 ///
 public struct ItemListItem: Equatable, Identifiable {
+    // MARK: Types
+
+    /// The type of item being displayed by this item
+    public enum ItemType: Equatable {
+        /// A TOTP code item
+        ///
+        /// - Parameters:
+        ///   - model: The TOTP model
+        case totp(model: ItemListTotpItem)
+    }
+
     /// The identifier for the item.
     public let id: String
 
     /// The name to display for the item.
     public let name: String
 
-    /// The token used to generate the code.
-    public let token: Token
-
-    /// The current TOTP code for the ciper.
-    public var totpCode: TOTPCodeModel
+    /// The type of item being displayed by this item
+    public let itemType: ItemType
 }
 
 extension ItemListItem {
@@ -24,19 +32,18 @@ extension ItemListItem {
     ///   - authenticatorItemView: The `AuthenticatorItemView` used to initialize the `ItemListItem`
     ///
     init?(authenticatorItemView: AuthenticatorItemView) {
-        self.init(
-            id: authenticatorItemView.id,
-            name: authenticatorItemView.name,
-            token: Token(
-                id: "Bad",
-                name: "Bad",
-                authenticatorKey: "Bad"
-            )!,
-            totpCode: TOTPCodeModel(
-                code: "123456",
-                codeGenerationDate: .now,
-                period: 30
-            )
-        )
+        let totpCode = TOTPCodeModel(code: "123456", codeGenerationDate: .now, period: 30)
+        let totpModel = ItemListTotpItem(itemView: authenticatorItemView, totpCode: totpCode)
+        self.init(id: authenticatorItemView.id,
+                  name: authenticatorItemView.name,
+                  itemType: .totp(model: totpModel))
     }
+}
+
+public struct ItemListTotpItem: Equatable {
+    /// The `AuthenticatorItemView` used to populate the view
+    let itemView: AuthenticatorItemView
+
+    /// The current TOTP code for the item
+    var totpCode: TOTPCodeModel
 }

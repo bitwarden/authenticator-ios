@@ -151,47 +151,47 @@ struct ItemListView: View {
     }
 }
 
-#Preview("Tokens") {
-    NavigationView {
-        ItemListView(
-            store: Store(
-                processor: StateProcessor(
-                    state: ItemListState(
-                        loadingState: .data(
-                            [
-                                ItemListItem(
-                                    id: "One",
-                                    name: "One",
-                                    token: Token(
-                                        name: "One",
-                                        authenticatorKey: "One"
-                                    )!,
-                                    totpCode: TOTPCodeModel(
-                                        code: "123456",
-                                        codeGenerationDate: Date(),
-                                        period: 30
-                                    )
-                                ),
-                                ItemListItem(
-                                    id: "Two",
-                                    name: "Two",
-                                    token: Token(
-                                        name: "Two",
-                                        authenticatorKey: "Two"
-                                    )!,
-                                    totpCode: TOTPCodeModel(
-                                        code: "123456",
-                                        codeGenerationDate: Date(),
-                                        period: 30
-                                    )
-                                ),
-                            ]
-                        )
-                    )
-                )
-            ),
-            timeProvider: PreviewTimeProvider()
-        )
-    }
-}
+//#Preview("Tokens") {
+//    NavigationView {
+//        ItemListView(
+//            store: Store(
+//                processor: StateProcessor(
+//                    state: ItemListState(
+//                        loadingState: .data(
+//                            [
+//                                ItemListItem(
+//                                    id: "One",
+//                                    name: "One",
+//                                    token: Token(
+//                                        name: "One",
+//                                        authenticatorKey: "One"
+//                                    )!,
+//                                    totpCode: TOTPCodeModel(
+//                                        code: "123456",
+//                                        codeGenerationDate: Date(),
+//                                        period: 30
+//                                    )
+//                                ),
+//                                ItemListItem(
+//                                    id: "Two",
+//                                    name: "Two",
+//                                    token: Token(
+//                                        name: "Two",
+//                                        authenticatorKey: "Two"
+//                                    )!,
+//                                    totpCode: TOTPCodeModel(
+//                                        code: "123456",
+//                                        codeGenerationDate: Date(),
+//                                        period: 30
+//                                    )
+//                                ),
+//                            ]
+//                        )
+//                    )
+//                )
+//            ),
+//            timeProvider: PreviewTimeProvider()
+//        )
+//    }
+//}
 #endif

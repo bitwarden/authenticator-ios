@@ -27,7 +27,10 @@ struct ItemListItemRowView: View {
                 .accessibilityHidden(true)
 
                 HStack {
-                    totpCodeRow(store.state.item.name, store.state.item.totpCode)
+                    switch store.state.item.itemType {
+                    case let .totp(model):
+                        totpCodeRow(store.state.item.name, model.totpCode)
+                    }
                 }
                 .padding(.vertical, 9)
             }
@@ -91,29 +94,31 @@ struct ItemListItemRowView: View {
     }
 }
 
-#Preview {
-    ItemListItemRowView(
-        store: Store(
-            processor: StateProcessor(
-                state: ItemListItemRowState(
-                    item: ItemListItem(
-                        id: UUID().uuidString,
-                        name: "Example",
-                        token: Token(
-                            name: "Example",
-                            authenticatorKey: "Example"
-                        )!,
-                        totpCode: TOTPCodeModel(
-                            code: "123456",
-                            codeGenerationDate: Date(),
-                            period: 30
-                        )
-                    ),
-                    hasDivider: true,
-                    showWebIcons: true
-                )
-            )
-        ),
-        timeProvider: PreviewTimeProvider()
-    )
-}
+#if DEBUG
+//#Preview {
+//    ItemListItemRowView(
+//        store: Store(
+//            processor: StateProcessor(
+//                state: ItemListItemRowState(
+//                    item: ItemListItem(
+//                        id: UUID().uuidString,
+//                        name: "Example",
+//                        token: Token(
+//                            name: "Example",
+//                            authenticatorKey: "Example"
+//                        )!,
+//                        totpCode: TOTPCodeModel(
+//                            code: "123456",
+//                            codeGenerationDate: Date(),
+//                            period: 30
+//                        )
+//                    ),
+//                    hasDivider: true,
+//                    showWebIcons: true
+//                )
+//            )
+//        ),
+//        timeProvider: PreviewTimeProvider()
+//    )
+//}
+#endif
