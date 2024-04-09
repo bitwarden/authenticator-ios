@@ -11,7 +11,6 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
 
     typealias Services = HasAuthenticatorItemRepository
         & HasErrorReporter
-        & HasTokenRepository
 
     // MARK: Properties
 

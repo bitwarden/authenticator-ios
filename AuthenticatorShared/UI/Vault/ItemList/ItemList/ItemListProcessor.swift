@@ -12,7 +12,6 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         & HasPasteboardService
         & HasTOTPService
         & HasTimeProvider
-        & HasTokenRepository
 
     // MARK: Private Properties
 

@@ -13,7 +13,6 @@ extension ServiceContainer {
         errorReporter: ErrorReporter = MockErrorReporter(),
         pasteboardService: PasteboardService = MockPasteboardService(),
         timeProvider: TimeProvider = MockTimeProvider(.currentTime),
-        tokenRepository: TokenRepository = MockTokenRepository(),
         totpService: TOTPService = MockTOTPService()
     ) -> ServiceContainer {
         ServiceContainer(
@@ -25,7 +24,6 @@ extension ServiceContainer {
             errorReporter: errorReporter,
             pasteboardService: pasteboardService,
             timeProvider: timeProvider,
-            tokenRepository: tokenRepository,
             totpService: totpService
         )
     }

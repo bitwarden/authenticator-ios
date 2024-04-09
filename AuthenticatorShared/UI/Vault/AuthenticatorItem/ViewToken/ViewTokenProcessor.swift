@@ -16,7 +16,6 @@ final class ViewTokenProcessor: StateProcessor<
         & HasPasteboardService
         & HasTOTPService
         & HasTimeProvider
-        & HasTokenRepository
 
     // MARK: Properties
 
