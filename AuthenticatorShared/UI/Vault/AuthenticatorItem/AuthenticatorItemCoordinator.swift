@@ -105,7 +105,10 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
             let view = EditAuthenticatorItemView(store: store)
             stackNavigator.replace(view)
         } else {
-            presentChildAuthenticatorItemCoordinator(route: .editAuthenticatorItem(authenticatorItemView), context: self)
+            presentChildAuthenticatorItemCoordinator(
+                route: .editAuthenticatorItem(authenticatorItemView),
+                context: self
+            )
         }
     }
 

@@ -9,7 +9,8 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasAuthenticatorItemRepository
+        & HasErrorReporter
         & HasTokenRepository
 
     // MARK: Properties
@@ -91,12 +92,12 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
             case .add:
                 return
             case let .existing(authenticatorItemView: authenticatorItemView):
-                let newToken = Token(
+                let newAuthenticatorItemView = AuthenticatorItemView(
                     id: authenticatorItemView.id,
                     name: authenticatorItemView.name,
-                    authenticatorKey: state.totpState.rawAuthenticatorKeyString!
-                )!
-                try await updateToken(token: newToken)
+                    totpKey: state.totpState.rawAuthenticatorKeyString
+                )
+                try await updateAuthenticatorItem(authenticatorItem: newAuthenticatorItemView)
             }
         } catch let error as InputValidationError {
             coordinator.showAlert(Alert.inputValidationAlert(error: error))
@@ -109,8 +110,10 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
 
     /// Updates the item currently in `state`.
     ///
-    private func updateToken(token: Token) async throws {
-        try await services.tokenRepository.updateToken(token)
+    private func updateAuthenticatorItem(authenticatorItem: AuthenticatorItemView) async throws {
+        let bar = try await services.authenticatorItemRepository.fetchAllAuthenticatorItems()
+        try await services.authenticatorItemRepository.updateAuthenticatorItem(authenticatorItem)
+        let foo = try await services.authenticatorItemRepository.fetchAllAuthenticatorItems()
         coordinator.hideLoadingOverlay()
         coordinator.navigate(to: .dismiss())
     }

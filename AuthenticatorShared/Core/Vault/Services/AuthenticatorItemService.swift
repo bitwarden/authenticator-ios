@@ -33,7 +33,7 @@ protocol AuthenticatorItemService {
     ///
     /// - Returns: The items belonging to the current user
     ///
-    func fetchAllCiphers() async throws -> [AuthenticatorItem]
+    func fetchAllAuthenticatorItems() async throws -> [AuthenticatorItem]
 
     /// Updates an item for the current user
     ///
@@ -89,7 +89,7 @@ extension DefaultAuthenticatorItemService: AuthenticatorItemService {
         try await authenticatorItemDataStore.fetchAuthenticatorItem(withId: id, userId: defaultUserId)
     }
 
-    func fetchAllCiphers() async throws -> [AuthenticatorItem] {
+    func fetchAllAuthenticatorItems() async throws -> [AuthenticatorItem] {
         try await authenticatorItemDataStore.fetchAllAuthenticatorItems(userId: defaultUserId)
     }
 

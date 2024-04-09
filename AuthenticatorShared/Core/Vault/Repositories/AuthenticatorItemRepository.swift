@@ -30,6 +30,8 @@ protocol AuthenticatorItemRepository: AnyObject {
     ///
     func fetchAuthenticatorItem(withId id: String) async throws -> AuthenticatorItemView?
 
+    func fetchAllAuthenticatorItems() async throws -> [AuthenticatorItemView]
+
     /// Updates an item in the user's storage
     ///
     /// - Parameters:
@@ -121,6 +123,14 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
 
     func deleteAuthenticatorItem(_ id: String) async throws {
         try await authenticatorItemService.deleteAuthenticatorItem(id: id)
+    }
+
+    func fetchAllAuthenticatorItems() async throws -> [AuthenticatorItemView] {
+        let items = try await authenticatorItemService.fetchAllAuthenticatorItems()
+        return try await items.asyncMap({
+            try await cryptographyService.decrypt($0)
+        })
+        .compactMap({ $0 })
     }
 
     func fetchAuthenticatorItem(withId id: String) async throws -> AuthenticatorItemView? {
