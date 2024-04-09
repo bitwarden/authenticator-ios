@@ -93,7 +93,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         guard case .data = state.loadingState else { return }
         let refreshedItems = await items.asyncMap { item in
             do {
-                let refreshedCode = try await services.tokenRepository.refreshTotpCode(for: item.token.key)
+                let refreshedCode = try await services.totpService.getTotpCode(for: item.token.key)
                 return ItemListItem(
                     id: item.id,
                     name: item.name,
@@ -131,7 +131,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             for try await value in try await services.authenticatorItemRepository.itemListPublisher() {
                 guard let items = value.first?.items else { return }
                 let itemList = try await items.asyncMap { item in
-                    let code = try await services.tokenRepository.refreshTotpCode(for: item.token.key)
+                    let code = try await services.totpService.getTotpCode(for: item.token.key)
                     return ItemListItem(id: item.id, name: item.name, token: item.token, totpCode: code)
                 }
                 groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: itemList)

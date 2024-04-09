@@ -95,7 +95,7 @@ private extension ViewTokenProcessor {
             guard let token = try await services.tokenRepository.fetchToken(withId: itemId)
             else { return }
 
-            let code = try await services.tokenRepository.refreshTotpCode(for: token.key)
+            let code = try await services.totpService.getTotpCode(for: token.key)
             guard var newTokenState = ViewTokenState(token: token) else { return }
             if case var .data(tokenState) = newTokenState.loadingState {
                 let totpState = LoginTOTPState(
@@ -117,7 +117,7 @@ private extension ViewTokenProcessor {
               let calculationKey = tokenItemState.totpState.authKeyModel
         else { return }
         do {
-            let code = try await services.tokenRepository.refreshTotpCode(for: calculationKey)
+            let code = try await services.totpService.getTotpCode(for: calculationKey)
 
             guard case let .data(tokenItemState) = state.loadingState else { return }
 
