@@ -19,7 +19,7 @@ protocol TOTPService {
 }
 
 /// Default implementation of the `TOTPService`.
-class DefaultTotpService {
+class DefaultTOTPService {
     // MARK: Properties
 
     /// The service to communicate with the SDK for encryption/decryption tasks.
@@ -33,7 +33,7 @@ class DefaultTotpService {
 
     // MARK: Initialization
 
-    /// Initialize a `DefaultTotpService`.
+    /// Initialize a `DefaultTOTPService`.
     ///
     /// - Parameters:
     ///   - clientVault: The service to communicate with the SDK for encryption/decryption tasks.
@@ -51,7 +51,7 @@ class DefaultTotpService {
     }
 }
 
-extension DefaultTotpService: TOTPService {
+extension DefaultTOTPService: TOTPService {
     func getTotpCode(for key: TOTPKeyModel) async throws -> TOTPCodeModel {
         try await clientVault.generateTOTPCode(
             for: key.rawAuthenticatorKey,

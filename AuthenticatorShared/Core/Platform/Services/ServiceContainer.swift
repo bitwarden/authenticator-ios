@@ -100,7 +100,12 @@ public class ServiceContainer: Services {
         let cryptographyService = DefaultCryptographyService()
         let dataStore = DataStore(errorReporter: errorReporter, storeType: .memory)
         let timeProvider = CurrentTime()
-        let totpService = DefaultTOTPService()
+
+        let totpService = DefaultTOTPService(
+            clientVault: clientService.clientVault(),
+            errorReporter: errorReporter,
+            timeProvider: timeProvider
+        )
 
         let pasteboardService = DefaultPasteboardService(
             errorReporter: errorReporter
