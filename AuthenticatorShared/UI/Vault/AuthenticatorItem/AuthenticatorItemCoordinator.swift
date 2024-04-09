@@ -1,4 +1,4 @@
-import BitwardenSdk
+import OSLog
 import SwiftUI
 
 // MARK: - AuthenticatorItemCoordinator
@@ -59,8 +59,10 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
                 onDismiss?.action()
             })
         case let .editAuthenticatorItem(authenticatorItemView):
+            Logger.application.log("Edit item \(authenticatorItemView.id)")
             showEditAuthenticatorItem(for: authenticatorItemView)
         case let .viewToken(id):
+            Logger.application.log("View token \(id)")
             showViewToken(id: id)
         }
     }

@@ -136,7 +136,11 @@ class AuthenticatorItemDataStoreTests: AuthenticatorTestCase {
     private func insertAuthenticatorItems(_ authenticatorItems: [AuthenticatorItem], userId: String) async throws {
         try await subject.backgroundContext.performAndSave {
             for authenticatorItem in authenticatorItems {
-                _ = try AuthenticatorItemData(context: self.subject.backgroundContext, userId: userId, authenticatorItem: authenticatorItem)
+                _ = try AuthenticatorItemData(
+                    context: self.subject.backgroundContext,
+                    userId: userId,
+                    authenticatorItem: authenticatorItem
+                )
             }
         }
     }

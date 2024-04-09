@@ -78,7 +78,7 @@ class AuthenticatorItemServiceTests: AuthenticatorTestCase {
             .fixture(id: "2"),
         ])
 
-        let items = try await subject.fetchAllCiphers()
+        let items = try await subject.fetchAllAuthenticatorItems()
         XCTAssertEqual(items.count, 2)
         XCTAssertEqual(items[0].id, "1")
         XCTAssertEqual(items[1].id, "2")

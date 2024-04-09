@@ -114,7 +114,11 @@ extension DataStore: AuthenticatorItemDataStore {
 
     func upsertAuthenticatorItem(_ authenticatorItem: AuthenticatorItem, userId: String) async throws {
         try await backgroundContext.performAndSave {
-            _ = try AuthenticatorItemData(context: self.backgroundContext, userId: userId, authenticatorItem: authenticatorItem)
+            _ = try AuthenticatorItemData(
+                context: self.backgroundContext,
+                userId: userId,
+                authenticatorItem: authenticatorItem
+            )
         }
     }
 }

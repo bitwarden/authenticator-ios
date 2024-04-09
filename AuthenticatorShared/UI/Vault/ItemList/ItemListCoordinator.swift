@@ -1,4 +1,4 @@
-import BitwardenSdk
+import OSLog
 import SwiftUI
 
 // MARK: - ItemListCoordinator
@@ -66,6 +66,7 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
             guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
             showManualTotp(delegate: delegate)
         case let .viewToken(id):
+            Logger.application.log("View token \(id)")
             showToken(route: .viewToken(id: id))
         }
     }

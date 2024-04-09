@@ -4,6 +4,7 @@ import Foundation
 @testable import AuthenticatorShared
 
 class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
+
     // MARK: Properties
 
     var addAuthenticatorItemAuthenticatorItems = [AuthenticatorItemView]()
@@ -11,6 +12,8 @@ class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
 
     var deletedAuthenticatorItem = [String]()
     var deleteAuthenticatorItemResult: Result<Void, Error> = .success(())
+
+    var fetchAllAuthenticatorItemsResult: Result<[AuthenticatorItemView], Error> = .success([])
 
     var fetchAuthenticatorItemId: String?
     var fetchAuthenticatorItemResult: Result<AuthenticatorItemView?, Error> = .success(nil)
@@ -36,6 +39,10 @@ class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
     func deleteAuthenticatorItem(_ id: String) async throws {
         deletedAuthenticatorItem.append(id)
         try deleteAuthenticatorItemResult.get()
+    }
+
+    func fetchAllAuthenticatorItems() async throws -> [AuthenticatorShared.AuthenticatorItemView] {
+        return try fetchAllAuthenticatorItemsResult.get()
     }
 
     func fetchAuthenticatorItem(withId id: String) async throws -> AuthenticatorItemView? {

@@ -35,7 +35,7 @@ class MockAuthenticatorItemService: AuthenticatorItemService {
         return try fetchAuthenticatorItemResult.get()
     }
 
-    func fetchAllCiphers() async throws -> [AuthenticatorShared.AuthenticatorItem] {
+    func fetchAllAuthenticatorItems() async throws -> [AuthenticatorShared.AuthenticatorItem] {
         try fetchAllAuthenticatorItemsResult.get()
     }
 

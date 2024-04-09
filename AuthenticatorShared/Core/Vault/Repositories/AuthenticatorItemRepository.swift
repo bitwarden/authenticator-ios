@@ -127,10 +127,10 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
 
     func fetchAllAuthenticatorItems() async throws -> [AuthenticatorItemView] {
         let items = try await authenticatorItemService.fetchAllAuthenticatorItems()
-        return try await items.asyncMap({
-            try await cryptographyService.decrypt($0)
-        })
-        .compactMap({ $0 })
+        return try await items.asyncMap { item in
+            try await cryptographyService.decrypt(item)
+        }
+        .compactMap { $0 }
     }
 
     func fetchAuthenticatorItem(withId id: String) async throws -> AuthenticatorItemView? {

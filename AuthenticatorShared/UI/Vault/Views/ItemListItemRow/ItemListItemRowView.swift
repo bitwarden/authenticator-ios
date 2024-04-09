@@ -95,30 +95,31 @@ struct ItemListItemRowView: View {
 }
 
 #if DEBUG
-//#Preview {
-//    ItemListItemRowView(
-//        store: Store(
-//            processor: StateProcessor(
-//                state: ItemListItemRowState(
-//                    item: ItemListItem(
-//                        id: UUID().uuidString,
-//                        name: "Example",
-//                        token: Token(
-//                            name: "Example",
-//                            authenticatorKey: "Example"
-//                        )!,
-//                        totpCode: TOTPCodeModel(
-//                            code: "123456",
-//                            codeGenerationDate: Date(),
-//                            period: 30
-//                        )
-//                    ),
-//                    hasDivider: true,
-//                    showWebIcons: true
-//                )
-//            )
-//        ),
-//        timeProvider: PreviewTimeProvider()
-//    )
-//}
+#Preview {
+    ItemListItemRowView(
+        store: Store(
+            processor: StateProcessor(
+                state: ItemListItemRowState(
+                    item: ItemListItem(
+                        id: UUID().uuidString,
+                        name: "Example",
+                        itemType: .totp(
+                            model: ItemListTotpItem(
+                                itemView: AuthenticatorItemView.fixture(),
+                                totpCode: TOTPCodeModel(
+                                    code: "123456",
+                                    codeGenerationDate: Date(),
+                                    period: 30
+                                )
+                            )
+                        )
+                    ),
+                    hasDivider: true,
+                    showWebIcons: true
+                )
+            )
+        ),
+        timeProvider: PreviewTimeProvider()
+    )
+}
 #endif

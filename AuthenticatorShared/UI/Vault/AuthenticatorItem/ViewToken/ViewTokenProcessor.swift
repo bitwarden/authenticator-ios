@@ -99,7 +99,9 @@ private extension ViewTokenProcessor {
             else { return }
 
             let code = try await services.totpService.getTotpCode(for: model)
-            guard var newAuthenticatorItemState = ViewTokenState(authenticatorItemView: authenticatorItemView) else { return }
+            guard var newAuthenticatorItemState = ViewTokenState(authenticatorItemView: authenticatorItemView)
+            else { return }
+
             if case var .data(authenticatorItemState) = newAuthenticatorItemState.loadingState {
                 let totpState = LoginTOTPState(
                     authKeyModel: model,
