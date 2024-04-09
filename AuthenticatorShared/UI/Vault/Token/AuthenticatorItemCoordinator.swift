@@ -1,14 +1,14 @@
 import BitwardenSdk
 import SwiftUI
 
-// MARK: - TokenCoordinator
+// MARK: - AuthenticatorItemCoordinator
 
 /// A coordinator that manages navigation for displaying, editing, and adding individual tokens.
 ///
-class TokenCoordinator: NSObject, Coordinator, HasStackNavigator {
+class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Module = TokenModule
+    typealias Module = AuthenticatorItemModule
 
     typealias Services = HasErrorReporter
         & HasTimeProvider
@@ -29,7 +29,7 @@ class TokenCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     // MARK: Initialization
 
-    /// Creates a new `TokenCoordinator`.
+    /// Creates a new `AuthenticatorItemCoordinator`.
     ///
     /// - Parameters:
     ///   - module: The module used by this coordinator to create child coordinators.
@@ -50,7 +50,7 @@ class TokenCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     func handleEvent(_ event: TokenEvent, context: AnyObject?) async {}
 
-    func navigate(to route: TokenRoute, context: AnyObject?) {
+    func navigate(to route: AuthenticatorItemRoute, context: AnyObject?) {
         switch route {
         case let .alert(alert):
             stackNavigator?.present(alert)
@@ -69,7 +69,7 @@ class TokenCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     // MARK: Private Methods
 
-    /// Present a child `TokenCoordinator` on top of the existing coordinator.
+    /// Present a child `AuthenticatorItemCoordinator` on top of the existing coordinator.
     ///
     /// Presenting a view on top of an already presented view within the same coordinator causes
     /// problems when dismissing only the top view. So instead, present a new coordinator and
@@ -77,9 +77,9 @@ class TokenCoordinator: NSObject, Coordinator, HasStackNavigator {
     ///
     /// - Parameter route: The route to navigate to in the presented coordinator.
     ///
-    private func presentChildTokenCoordinator(route: TokenRoute, context: AnyObject?) {
+    private func presentChildAuthenticatorItemCoordinator(route: AuthenticatorItemRoute, context: AnyObject?) {
         let navigationController = UINavigationController()
-        let coordinator = module.makeTokenCoordinator(stackNavigator: navigationController)
+        let coordinator = module.makeAuthenticatorItemCoordinator(stackNavigator: navigationController)
         coordinator.navigate(to: route, context: context)
         coordinator.start()
         stackNavigator?.present(navigationController)
@@ -93,19 +93,19 @@ class TokenCoordinator: NSObject, Coordinator, HasStackNavigator {
     private func showEditToken(for token: Token) {
         guard let stackNavigator else { return }
         if stackNavigator.isEmpty {
-            guard let state = TokenItemState(existing: token)
+            guard let state = AuthenticatorItemState(existing: token)
             else { return }
 
-            let processor = EditTokenProcessor(
+            let processor = EditAuthenticatorItemProcessor(
                 coordinator: asAnyCoordinator(),
                 services: services,
                 state: state
             )
             let store = Store(processor: processor)
-            let view = EditTokenView(store: store)
+            let view = EditAuthenticatorItemView(store: store)
             stackNavigator.replace(view)
         } else {
-            presentChildTokenCoordinator(route: .editToken(token), context: self)
+            presentChildAuthenticatorItemCoordinator(route: .editToken(token), context: self)
         }
     }
 

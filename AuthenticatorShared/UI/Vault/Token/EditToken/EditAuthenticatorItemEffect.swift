@@ -1,7 +1,7 @@
 import Foundation
 
-/// Asynchronous effects that can be processed by an `EditTokenProcessor`
-enum EditTokenEffect {
+/// Asynchronous effects that can be processed by an `EditAuthenticatorItemProcessor`
+enum EditAuthenticatorItemEffect {
     /// The view appeared.
     case appeared
 

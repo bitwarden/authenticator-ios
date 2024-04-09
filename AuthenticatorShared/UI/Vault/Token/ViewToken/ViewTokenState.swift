@@ -9,7 +9,7 @@ struct ViewTokenState: Sendable {
 
     /// The current state. If this state is not `.loading`, this value will contain an associated value with the
     /// appropriate internal state.
-    var loadingState: LoadingState<TokenItemState> = .loading(nil)
+    var loadingState: LoadingState<AuthenticatorItemState> = .loading(nil)
 
     /// A toast message to show in the view.
     var toast: Toast?
@@ -24,9 +24,9 @@ extension ViewTokenState {
     ///   - cipherView: The `CipherView` to create this state with.
     ///
     init?(token: Token) {
-        guard let tokenItemState = TokenItemState(
+        guard let authenticatorItemState = AuthenticatorItemState(
             existing: token
         ) else { return nil }
-        self.init(loadingState: .data(tokenItemState))
+        self.init(loadingState: .data(authenticatorItemState))
     }
 }

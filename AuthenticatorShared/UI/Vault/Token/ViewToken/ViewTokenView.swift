@@ -42,7 +42,7 @@ struct ViewTokenView: View {
 
     /// The details of the token.
     @ViewBuilder
-    private func details(for state: TokenItemState) -> some View {
+    private func details(for state: AuthenticatorItemState) -> some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 16) {
                 BitwardenTextValueField(title: Localizations.name, value: state.name)
@@ -95,7 +95,7 @@ struct ViewTokenView: View {
                 processor: StateProcessor(
                     state: ViewTokenState(
                         loadingState: .data(
-                            TokenItemState(
+                            AuthenticatorItemState(
                                 configuration: .add,
                                 name: "Example",
                                 totpState: LoginTOTPState(

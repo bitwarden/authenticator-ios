@@ -2,10 +2,10 @@ import BitwardenSdk
 import Foundation
 
 /// The processor used to manage state and handle actions/effects for the edit token screen
-final class EditTokenProcessor: StateProcessor<
-    EditTokenState,
-    EditTokenAction,
-    EditTokenEffect
+final class EditAuthenticatorItemProcessor: StateProcessor<
+    EditAuthenticatorItemState,
+    EditAuthenticatorItemAction,
+    EditAuthenticatorItemEffect
 > {
     // MARK: Types
 
@@ -15,14 +15,14 @@ final class EditTokenProcessor: StateProcessor<
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation.
-    private var coordinator: AnyCoordinator<TokenRoute, TokenEvent>
+    private var coordinator: AnyCoordinator<AuthenticatorItemRoute, TokenEvent>
 
     /// The services required by this processor.
     private let services: Services
 
     // MARK: Initialization
 
-    /// Creates a new `EditTokenProcessor`.
+    /// Creates a new `EditAuthenticatorItemProcessor`.
     ///
     /// - Parameters:
     ///   - coordinator: The `Coordinator` that handles navigation.
@@ -30,9 +30,9 @@ final class EditTokenProcessor: StateProcessor<
     ///   - state: The initial state for the processor.
     ///
     init(
-        coordinator: AnyCoordinator<TokenRoute, TokenEvent>,
+        coordinator: AnyCoordinator<AuthenticatorItemRoute, TokenEvent>,
         services: Services,
-        state: EditTokenState
+        state: EditAuthenticatorItemState
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -42,7 +42,7 @@ final class EditTokenProcessor: StateProcessor<
 
     // MARK: Methods
 
-    override func perform(_ effect: EditTokenEffect) async {
+    override func perform(_ effect: EditAuthenticatorItemEffect) async {
         switch effect {
         case .appeared:
             break
@@ -51,7 +51,7 @@ final class EditTokenProcessor: StateProcessor<
         }
     }
 
-    override func receive(_ action: EditTokenAction) {
+    override func receive(_ action: EditAuthenticatorItemAction) {
         switch action {
         case let .accountChanged(account):
             state.account = account

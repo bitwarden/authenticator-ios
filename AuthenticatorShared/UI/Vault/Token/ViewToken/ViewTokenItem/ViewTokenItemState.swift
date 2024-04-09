@@ -1,10 +1,10 @@
 import BitwardenSdk
 import Foundation
 
-// MARK: - ViewTokenItemState
+// MARK: - ViewAuthenticatorItemState
 
 // The state for viewing/adding/editing a token item
-protocol ViewTokenItemState: Sendable {
+protocol ViewAuthenticatorItemState: Sendable {
     // MARK: Properties
 
     /// The TOTP key.
@@ -17,7 +17,7 @@ protocol ViewTokenItemState: Sendable {
     var totpCode: TOTPCodeModel? { get }
 }
 
-//extension ViewTokenItemState {
+//extension ViewAuthenticatorItemState {
 //    var totpCode: TOTPCodeModel? {
 //        totpState.codeModel
 //    }

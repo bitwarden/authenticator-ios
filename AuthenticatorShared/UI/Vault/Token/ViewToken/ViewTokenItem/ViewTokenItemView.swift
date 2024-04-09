@@ -10,7 +10,7 @@ struct ViewTokenItemView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<TokenItemState, ViewTokenAction, ViewTokenEffect>
+    @ObservedObject var store: Store<AuthenticatorItemState, ViewTokenAction, ViewTokenEffect>
 
     /// The `TimeProvider` used to calculate TOTP expiration.
     var timeProvider: any TimeProvider
@@ -59,7 +59,7 @@ struct ViewTokenItemView: View {
         store: Store(
             processor: StateProcessor(
                 state:
-                TokenItemState(
+                AuthenticatorItemState(
                     configuration: .add,
                     name: "Example",
                     totpState: LoginTOTPState(

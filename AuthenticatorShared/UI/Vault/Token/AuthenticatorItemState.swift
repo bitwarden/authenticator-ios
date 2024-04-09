@@ -5,7 +5,7 @@ import Foundation
 
 /// An object that defines the current state of any view interacting with a token.
 ///
-struct TokenItemState: Equatable {
+struct AuthenticatorItemState: Equatable {
     // MARK: Types
 
     /// An enum defining if the state is a new or existing token.
@@ -69,13 +69,13 @@ struct TokenItemState: Equatable {
     }
 }
 
-extension TokenItemState: EditTokenState {
-    var editState: EditTokenState {
+extension AuthenticatorItemState: EditAuthenticatorItemState {
+    var editState: EditAuthenticatorItemState {
         self
     }
 }
 
-extension TokenItemState: ViewTokenItemState {
+extension AuthenticatorItemState: ViewAuthenticatorItemState {
     var authenticatorKey: String? {
         totpState.rawAuthenticatorKeyString
     }
@@ -94,8 +94,8 @@ extension TokenItemState: ViewTokenItemState {
     }
 }
 
-extension TokenItemState {
-    /// Returns a `Token` based on the properties of the `TokenItemState`.
+extension AuthenticatorItemState {
+    /// Returns a `Token` based on the properties of the `AuthenticatorItemState`.
     ///
     func newToken() -> Token {
         Token(name: name, authenticatorKey: totpState.rawAuthenticatorKeyString!)!

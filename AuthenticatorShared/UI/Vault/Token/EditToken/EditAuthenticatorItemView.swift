@@ -2,10 +2,10 @@ import BitwardenSdk
 import SwiftUI
 
 /// A view for editing a token
-struct EditTokenView: View {
+struct EditAuthenticatorItemView: View {
     // MARK: Properties
 
-    @ObservedObject var store: Store<EditTokenState, EditTokenAction, EditTokenEffect>
+    @ObservedObject var store: Store<EditAuthenticatorItemState, EditAuthenticatorItemAction, EditAuthenticatorItemEffect>
 
     // MARK: View
 
@@ -20,7 +20,7 @@ struct EditTokenView: View {
             .task { await store.perform(.appeared) }
             .toast(store.binding(
                 get: \.toast,
-                send: EditTokenAction.toastShown
+                send: EditAuthenticatorItemAction.toastShown
             ))
     }
 
@@ -46,7 +46,7 @@ struct EditTokenView: View {
                 title: Localizations.name,
                 text: store.binding(
                     get: \.name,
-                    send: EditTokenAction.nameChanged
+                    send: EditAuthenticatorItemAction.nameChanged
                 )
             )
 
@@ -54,11 +54,11 @@ struct EditTokenView: View {
                 title: Localizations.authenticatorKey,
                 text: store.binding(
                     get: \.totpState.rawAuthenticatorKeyString!,
-                    send: EditTokenAction.keyChanged
+                    send: EditAuthenticatorItemAction.keyChanged
                 ),
                 isPasswordVisible: store.binding(
                     get: \.isKeyVisible,
-                    send: EditTokenAction.toggleKeyVisibilityChanged
+                    send: EditAuthenticatorItemAction.toggleKeyVisibilityChanged
                 )
             )
             .textFieldConfiguration(.password)
@@ -76,10 +76,10 @@ struct EditTokenView: View {
 
 #if DEBUG
 #Preview("Edit") {
-    EditTokenView(
+    EditAuthenticatorItemView(
         store: Store(
             processor: StateProcessor(
-                state: TokenItemState(
+                state: AuthenticatorItemState(
                     configuration: .existing(
                         token: Token(
                             name: "Example",

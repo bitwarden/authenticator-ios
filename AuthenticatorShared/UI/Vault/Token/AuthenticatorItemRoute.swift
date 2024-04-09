@@ -1,10 +1,10 @@
 import BitwardenSdk
 import SwiftUI
 
-// MARK: - TokenRoute
+// MARK: - AuthenticatorItemRoute
 
 /// A route to a screen for a specific token.
-enum TokenRoute: Equatable {
+enum AuthenticatorItemRoute: Equatable {
     /// A route to display the specified alert.
     ///
     /// - Parameter alert: The alert to display.

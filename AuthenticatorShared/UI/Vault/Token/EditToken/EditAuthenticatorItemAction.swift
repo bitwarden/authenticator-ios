@@ -1,7 +1,7 @@
 import BitwardenSdk
 
 /// Synchronous actions that can be processed by an `EditItemProcessor`.
-enum EditTokenAction: Equatable {
+enum EditAuthenticatorItemAction: Equatable {
     /// The account field was changed.
     case accountChanged(String)
 

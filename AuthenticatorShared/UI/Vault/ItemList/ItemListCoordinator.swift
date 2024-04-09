@@ -9,7 +9,7 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
     // MARK: - Types
 
     typealias Module = ItemListModule
-        & TokenModule
+        & AuthenticatorItemModule
 
     typealias Services = HasTimeProvider
         & ItemListProcessor.Services
@@ -121,9 +121,9 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
     ///
     /// - Parameter route: The route to navigate to in the coordinator.
     ///
-    private func showToken(route: TokenRoute) {
+    private func showToken(route: AuthenticatorItemRoute) {
         let navigationController = UINavigationController()
-        let coordinator = module.makeTokenCoordinator(stackNavigator: navigationController)
+        let coordinator = module.makeAuthenticatorItemCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(to: route, context: self)
 

@@ -19,8 +19,8 @@ final class ViewTokenProcessor: StateProcessor<
 
     // MARK: Properties
 
-    /// The `Coordinator` that handles navigation, typically a `TokenCoordinator`.
-    private let coordinator: AnyCoordinator<TokenRoute, TokenEvent>
+    /// The `Coordinator` that handles navigation, typically a `AuthenticatorItemCoordinator`.
+    private let coordinator: AnyCoordinator<AuthenticatorItemRoute, TokenEvent>
 
     /// The ID of the item being viewed.
     private let itemId: String
@@ -39,7 +39,7 @@ final class ViewTokenProcessor: StateProcessor<
     ///   - state: The initial state of this processor.
     ///
     init(
-        coordinator: AnyCoordinator<TokenRoute, TokenEvent>,
+        coordinator: AnyCoordinator<AuthenticatorItemRoute, TokenEvent>,
         itemId: String,
         services: Services,
         state: ViewTokenState
@@ -113,20 +113,20 @@ private extension ViewTokenProcessor {
 
     /// Updates the TOTP code for the view.
     func updateTOTPCode() async {
-        guard case let .data(tokenItemState) = state.loadingState,
-              let calculationKey = tokenItemState.totpState.authKeyModel
+        guard case let .data(authenticatorItemState) = state.loadingState,
+              let calculationKey = authenticatorItemState.totpState.authKeyModel
         else { return }
         do {
             let code = try await services.totpService.getTotpCode(for: calculationKey)
 
-            guard case let .data(tokenItemState) = state.loadingState else { return }
+            guard case let .data(authenticatorItemState) = state.loadingState else { return }
 
             let newTotpState = LoginTOTPState(
                 authKeyModel: calculationKey,
                 codeModel: code
             )
 
-            var newState = tokenItemState
+            var newState = authenticatorItemState
             newState.totpState = newTotpState
             state.loadingState = .data(newState)
         } catch {

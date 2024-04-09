@@ -1,15 +1,15 @@
 import BitwardenSdk
 import Foundation
 
-/// The state of an `EditTokenView`
-protocol EditTokenState: Sendable {
+/// The state of an `EditAuthenticatorItemView`
+protocol EditAuthenticatorItemState: Sendable {
     // MARK: Properties
 
     /// The account of the token
     var account: String { get set }
 
     /// The Add or Existing Configuration.
-    var configuration: TokenItemState.Configuration { get }
+    var configuration: AuthenticatorItemState.Configuration { get }
 
     /// A flag indicating if the key is visible.
     var isKeyVisible: Bool { get set }
