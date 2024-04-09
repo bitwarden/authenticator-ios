@@ -73,6 +73,10 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
 
     func start() {}
 
+    func showToast(_ text: String) {
+        let xxx = 2
+    }
+
     // MARK: - Private Methods
 
     /// Shows the totp camera setup screen.

@@ -61,9 +61,11 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             await setupTotp()
         case .appeared:
             await streamItemList()
+        case let .morePressed(item):
+            await showMoreOptionsAlert(for: item)
         case .refresh:
             await streamItemList()
-        case .streamVaultList:
+        case .streamItemList:
             await streamItemList()
         }
     }
@@ -76,9 +78,11 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             services.pasteboardService.copy(code)
             state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
         case let .itemPressed(item):
-            coordinator.navigate(to: .viewItem(id: item.id))
-        case .morePressed:
-            break
+            switch item.itemType {
+            case let .totp(model):
+                services.pasteboardService.copy(model.totpCode.code)
+                state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
+            }
         case let .toastShown(newValue):
             state.toast = newValue
         }
@@ -124,6 +128,41 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             await coordinator.handleEvent(.showScanCode, context: self)
         } else {
             coordinator.navigate(to: .setupTotpManual, context: self)
+        }
+    }
+
+    /// Show the more options alert for the selected item.
+    ///
+    /// - Parameter item: The selected item to show the options for.
+    ///
+    private func showMoreOptionsAlert(for item: ItemListItem) async {
+        guard case let .totp(model) = item.itemType else { return }
+
+        coordinator.showAlert(
+            .moreOptions(
+                authenticatorItemView: model.itemView,
+                id: item.id,
+                action: handleMoreOptionsAction
+            )
+        )
+    }
+
+    /// Handle the result of the selected option on the More Options alert.
+    ///
+    /// - Parameter action: The selected action.
+    ///
+    private func handleMoreOptionsAction(_ action: MoreOptionsAction) async {
+        switch action {
+        case let .copy(toast, value, requiresMasterPasswordReprompt):
+            break
+        case let .copyTotp(totpKey, requiresMasterPasswordReprompt):
+            break
+        case let .edit(authenticatorItemView):
+            break
+        case let .launch(url):
+            break
+        case let .view(id):
+            coordinator.navigate(to: .viewItem(id: id))
         }
     }
 
@@ -290,4 +329,24 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
         })
         captureCoordinator.navigate(to: .dismiss(dismissAction))
     }
+}
+
+// MARK: - MoreOptionsAction
+
+/// The actions available from the More Options alert.
+enum MoreOptionsAction: Equatable {
+    /// Copy the `value` and show a toast with the `toast` string.
+    case copy(toast: String, value: String, requiresMasterPasswordReprompt: Bool)
+
+    /// Generate and copy the TOTP code for the given `totpKey`.
+    case copyTotp(totpKey: TOTPKeyModel, requiresMasterPasswordReprompt: Bool)
+
+    /// Navigate to the view to edit the `cipherView`.
+    case edit(authenticatorItemView: AuthenticatorItemView)
+
+    /// Launch the `url` in the device's browser.
+    case launch(url: URL)
+
+    /// Navigate to view the item with the given `id`.
+    case view(id: String)
 }
