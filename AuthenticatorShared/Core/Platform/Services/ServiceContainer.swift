@@ -98,7 +98,7 @@ public class ServiceContainer: Services {
         let cameraService = DefaultCameraService()
         let clientService = DefaultClientService()
         let cryptographyService = DefaultCryptographyService()
-        let dataStore = DataStore(errorReporter: errorReporter, storeType: .memory)
+        let dataStore = DataStore(errorReporter: errorReporter)
         let timeProvider = CurrentTime()
 
         let totpService = DefaultTOTPService(
