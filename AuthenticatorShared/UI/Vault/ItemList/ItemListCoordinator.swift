@@ -105,6 +105,8 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
         stackNavigator?.present(navigationController)
     }
 
+    /// Shows the list of items
+    ///
     func showList() {
         let processor = ItemListProcessor(
             coordinator: asAnyCoordinator(),
