@@ -1,19 +1,19 @@
 import BitwardenSdk
 import Foundation
 
-// MARK: - TokenState
+// MARK: - AuthenticatorItemState
 
 /// An object that defines the current state of any view interacting with an authenticator item.
 ///
 struct AuthenticatorItemState: Equatable {
     // MARK: Types
 
-    /// An enum defining if the state is a new or existing token.
+    /// An enum defining if the state is a new or existing item.
     enum Configuration: Equatable {
-        /// We are creating a new token.
+        /// We are creating a new item.
         case add
 
-        /// We are viewing or editing an existing token.
+        /// We are viewing or editing an existing item.
         case existing(authenticatorItemView: AuthenticatorItemView)
 
         /// The existing `AuthenticatorItemView` if the configuration is `existing`.
@@ -25,7 +25,7 @@ struct AuthenticatorItemState: Equatable {
 
     // MARK: Properties
 
-    /// The account of the token
+    /// The account of the item
     var account: String
 
     /// The Add or Existing Configuration.
@@ -34,7 +34,7 @@ struct AuthenticatorItemState: Equatable {
     /// A flag indicating if the key field is visible
     var isKeyVisible: Bool = false
 
-    /// The issuer of the token
+    /// The issuer of the item
     var issuer: String
 
     /// The name of this item.
@@ -95,7 +95,8 @@ extension AuthenticatorItemState: ViewAuthenticatorItemState {
 }
 
 extension AuthenticatorItemState {
-    /// Returns a `Token` based on the properties of the `AuthenticatorItemState`.
+    /// Returns an `AuthenticatorItemView` based on the
+    /// properties of the `AuthenticatorItemState`.
     ///
     func newAuthenticatorItemView() -> AuthenticatorItemView {
         AuthenticatorItemView(

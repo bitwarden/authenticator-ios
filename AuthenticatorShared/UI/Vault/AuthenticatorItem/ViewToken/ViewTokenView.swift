@@ -40,7 +40,7 @@ struct ViewTokenView: View {
 
     // MARK: Private Views
 
-    /// The details of the token.
+    /// The details of the item.
     @ViewBuilder
     private func details(for state: AuthenticatorItemState) -> some View {
         ScrollView {

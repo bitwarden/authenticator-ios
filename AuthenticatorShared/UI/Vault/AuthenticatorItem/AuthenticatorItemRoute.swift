@@ -3,7 +3,7 @@ import SwiftUI
 
 // MARK: - AuthenticatorItemRoute
 
-/// A route to a screen for a specific token.
+/// A route to a screen for a specific item.
 enum AuthenticatorItemRoute: Equatable {
     /// A route to display the specified alert.
     ///
@@ -19,7 +19,7 @@ enum AuthenticatorItemRoute: Equatable {
 
     /// A route to edit a token.
     ///
-    /// - Parameter token: the `Token` to edit
+    /// - Parameter authenticatorItemView: the `AuthenticatorItemView` to edit
     case editAuthenticatorItem(_ authenticatorItemView: AuthenticatorItemView)
 
     /// A route to the view token screen.

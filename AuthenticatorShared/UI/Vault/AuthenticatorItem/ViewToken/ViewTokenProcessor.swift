@@ -55,7 +55,7 @@ final class ViewTokenProcessor: StateProcessor<
     override func perform(_ effect: ViewTokenEffect) async {
         switch effect {
         case .appeared:
-            await streamTokenDetails()
+            await streamItemDetails()
         case .totpCodeExpired:
             await updateTOTPCode()
         }
@@ -89,8 +89,8 @@ private extension ViewTokenProcessor {
         }
     }
 
-    /// Stream the token details.
-    private func streamTokenDetails() async {
+    /// Stream the item details.
+    private func streamItemDetails() async {
         do {
             guard let authenticatorItemView = try await services.authenticatorItemRepository.fetchAuthenticatorItem(withId: itemId),
                   let key = authenticatorItemView.totpKey,

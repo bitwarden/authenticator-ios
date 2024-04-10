@@ -30,6 +30,10 @@ protocol AuthenticatorItemRepository: AnyObject {
     ///
     func fetchAuthenticatorItem(withId id: String) async throws -> AuthenticatorItemView?
 
+    /// Fetch all items
+    ///
+    /// Returns: An array of all items in storage
+    ///
     func fetchAllAuthenticatorItems() async throws -> [AuthenticatorItemView]
 
     /// Updates an item in the user's storage

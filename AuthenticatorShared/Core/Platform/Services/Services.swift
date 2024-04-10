@@ -9,7 +9,7 @@ typealias Services = HasAuthenticatorItemRepository
     & HasTOTPService
     & HasTimeProvider
 
-/// Protocol for an object that proves an `AuthenticatorItemRepository`
+/// Protocol for an object that provides an `AuthenticatorItemRepository`
 ///
 protocol HasAuthenticatorItemRepository {
     /// The service used to interact with the data layer for items
