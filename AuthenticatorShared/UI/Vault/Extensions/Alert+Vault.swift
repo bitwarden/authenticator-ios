@@ -3,33 +3,55 @@ import UIKit
 // MARK: Alert+Vault
 
 extension Alert {
-    /// An alert presenting the user with more options for a vault list item.
+    /// An alert confirming deletion of an item
     ///
     /// - Parameters:
-    ///   - cipherView: The cipher view to show.
-    ///   - hasPremium: Whether the user has a premium account.
-    ///   - id: The id of the item.
-    ///   - showEdit: Whether to show the edit option (should be `false` for items in the trash).
+    ///   - action: The action to perform if the user confirms
+    /// - Returns: An alert confirming item deletion
+    ///
+    static func confirmDeleteItem(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.doYouReallyWantToDelete,
+            message: nil,
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _, _ in await action() },
+                AlertAction(title: Localizations.no, style: .cancel),
+            ]
+        )
+    }
+
+    /// An alert presenting the user with more options for an item.
+    ///
+    /// - Parameters:
+    ///   - authenticatorItemView: The item to show
+    ///   - id: The id of the item
     ///   - action: The action to perform after selecting an option.
     ///
     /// - Returns: An alert presenting the user with options to select an attachment type.
     @MainActor
-    static func moreOptions( // swiftlint:disable:this function_body_length
+    static func moreOptions(
         authenticatorItemView: AuthenticatorItemView,
         id: String,
         action: @escaping (_ action: MoreOptionsAction) async -> Void
     ) -> Alert {
-        // All the cipher types have the option to view the cipher.
-        var alertActions = [
-            AlertAction(title: Localizations.view, style: .default) { _, _ in await action(.view(id: id)) },
-        ]
+        var alertActions = [AlertAction]()
 
-        // Add the option to edit the cipher if desired.
+        if let totp = authenticatorItemView.totpKey,
+           let totpKey = TOTPKeyModel(authenticatorKey: totp) {
+            alertActions.append(
+                AlertAction(title: Localizations.copy, style: .default) { _, _ in
+                    await action(.copyTotp(totpKey: totpKey))
+                })
+        }
+
         alertActions.append(AlertAction(title: Localizations.edit, style: .default) { _, _ in
             await action(.edit(authenticatorItemView: authenticatorItemView))
         })
 
-        // Return the alert.
+        alertActions.append(AlertAction(title: Localizations.delete, style: .destructive) { _, _ in
+            await action(.delete(id: id))
+        })
+
         return Alert(
             title: authenticatorItemView.name,
             message: nil,

@@ -16,7 +16,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     // MARK: Private Properties
 
     /// The `Coordinator` for this processor.
-    private var coordinator: any Coordinator<ItemListRoute, ItemListEvent>
+    private var coordinator: AnyCoordinator<ItemListRoute, ItemListEvent>
 
     /// The services for this processor.
     private var services: Services
@@ -34,7 +34,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     ///   - state: The initial state of this processor.
     ///
     init(
-        coordinator: any Coordinator<ItemListRoute, ItemListEvent>,
+        coordinator: AnyCoordinator<ItemListRoute, ItemListEvent>,
         services: Services,
         state: ItemListState
     ) {
@@ -89,6 +89,25 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     }
 
     // MARK: Private Methods
+
+    /// Confirm that the user wants to delete the item then delete it if so
+    private func confirmDeleteItem(_ id: String) {
+        coordinator.showAlert(.confirmDeleteItem {
+            await self.deleteItem(id)
+        })
+    }
+
+    /// Delete the item
+    private func deleteItem(_ id: String) async {
+        defer { coordinator.hideLoadingOverlay() }
+        do {
+            coordinator.showLoadingOverlay(title: Localizations.deleting)
+            try await services.authenticatorItemRepository.deleteAuthenticatorItem(id)
+            state.toast = Toast(text: Localizations.itemDeleted)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
 
     /// Refreshes the vault group's TOTP Codes.
     ///
@@ -153,13 +172,11 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     ///
     private func handleMoreOptionsAction(_ action: MoreOptionsAction) async {
         switch action {
-        case let .copy(toast, value, requiresMasterPasswordReprompt):
+        case let .copyTotp(totpKey):
             break
-        case let .copyTotp(totpKey, requiresMasterPasswordReprompt):
-            break
+        case let .delete(id):
+            confirmDeleteItem(id)
         case let .edit(authenticatorItemView):
-            break
-        case let .launch(url):
             break
         case let .view(id):
             coordinator.navigate(to: .viewItem(id: id))
@@ -335,17 +352,14 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
 
 /// The actions available from the More Options alert.
 enum MoreOptionsAction: Equatable {
-    /// Copy the `value` and show a toast with the `toast` string.
-    case copy(toast: String, value: String, requiresMasterPasswordReprompt: Bool)
-
     /// Generate and copy the TOTP code for the given `totpKey`.
-    case copyTotp(totpKey: TOTPKeyModel, requiresMasterPasswordReprompt: Bool)
+    case copyTotp(totpKey: TOTPKeyModel)
 
-    /// Navigate to the view to edit the `cipherView`.
+    /// Delete the item with the given `id`
+    case delete(id: String)
+
+    /// Navigate to the view to edit the `AuthenticatorItemView`.
     case edit(authenticatorItemView: AuthenticatorItemView)
-
-    /// Launch the `url` in the device's browser.
-    case launch(url: URL)
 
     /// Navigate to view the item with the given `id`.
     case view(id: String)
