@@ -191,8 +191,8 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             await generateAndCopyTotpCode(totpKey: totpKey)
         case let .delete(id):
             confirmDeleteItem(id)
-        case let .edit(authenticatorItemView):
-            break
+        case let .edit(item):
+            coordinator.navigate(to: .editItem(item: item))
         case let .view(id):
             coordinator.navigate(to: .viewItem(id: id))
         }

@@ -60,22 +60,19 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case .addItem:
             break
+        case let .editItem(item):
+            showToken(route: .editAuthenticatorItem(item))
         case .list:
             showList()
         case .setupTotpManual:
             guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
             showManualTotp(delegate: delegate)
         case let .viewItem(id):
-            Logger.application.log("View token \(id)")
             showToken(route: .viewToken(id: id))
         }
     }
 
     func start() {}
-
-    func showToast(_ text: String) {
-        let xxx = 2
-    }
 
     // MARK: - Private Methods
 
