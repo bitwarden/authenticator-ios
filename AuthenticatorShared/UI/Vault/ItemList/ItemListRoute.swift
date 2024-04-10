@@ -8,6 +8,8 @@ public enum ItemListRoute: Equatable, Hashable {
     /// A route to the add item screen.
     case addItem
 
+    /// A route to the edit item screen
+
     /// A route to the base item list screen.
     case list
 

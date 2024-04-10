@@ -109,6 +109,21 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         }
     }
 
+    /// Generates and copies a TOTP code for the cipher's TOTP key.
+    ///
+    /// - Parameter totpKey: The TOTP key used to generate a TOTP code.
+    ///
+    private func generateAndCopyTotpCode(totpKey: TOTPKeyModel) async {
+        do {
+            let code = try await services.totpService.getTotpCode(for: totpKey)
+            services.pasteboardService.copy(code.code)
+            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
+        } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Refreshes the vault group's TOTP Codes.
     ///
     private func refreshTOTPCodes(for items: [ItemListItem]) async {
@@ -173,7 +188,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     private func handleMoreOptionsAction(_ action: MoreOptionsAction) async {
         switch action {
         case let .copyTotp(totpKey):
-            break
+            await generateAndCopyTotpCode(totpKey: totpKey)
         case let .delete(id):
             confirmDeleteItem(id)
         case let .edit(authenticatorItemView):
