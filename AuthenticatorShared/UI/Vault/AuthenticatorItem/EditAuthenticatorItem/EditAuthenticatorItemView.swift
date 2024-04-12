@@ -57,15 +57,58 @@ struct EditAuthenticatorItemView: View {
             BitwardenTextField(
                 title: Localizations.authenticatorKey,
                 text: store.binding(
-                    get: \.totpState.rawAuthenticatorKeyString!,
-                    send: EditAuthenticatorItemAction.keyChanged
+                    get: \.secret,
+                    send: EditAuthenticatorItemAction.secretChanged
                 ),
                 isPasswordVisible: store.binding(
-                    get: \.isKeyVisible,
-                    send: EditAuthenticatorItemAction.toggleKeyVisibilityChanged
+                    get: \.isSecretVisible,
+                    send: EditAuthenticatorItemAction.toggleSecretVisibilityChanged
                 )
             )
             .textFieldConfiguration(.password)
+
+            BitwardenTextField(
+                title: "Account name",
+                text: store.binding(
+                    get: \.accountName,
+                    send: EditAuthenticatorItemAction.accountNameChanged
+                )
+            )
+
+            BitwardenTextField(
+                title: Localizations.issuer,
+                text: store.binding(
+                    get: \.issuer,
+                    send: EditAuthenticatorItemAction.issuerChanged
+                )
+            )
+
+            BitwardenMenuField(
+                title: "Algorithm",
+                options: TOTPCryptoHashAlgorithm.allCases,
+                selection: store.binding(
+                    get: \.algorithm,
+                    send: EditAuthenticatorItemAction.algorithmChanged
+                )
+            )
+
+            BitwardenMenuField(
+                title: "Period",
+                options: TotpPeriodOptions.allCases,
+                selection: store.binding(
+                    get: \.period,
+                    send: EditAuthenticatorItemAction.periodChanged
+                )
+            )
+
+            BitwardenMenuField(
+                title: "Digits",
+                options: TotpDigitsOptions.allCases,
+                selection: store.binding(
+                    get: \.digits,
+                    send: EditAuthenticatorItemAction.digitsChanged
+                )
+            )
         }
     }
 
@@ -92,6 +135,12 @@ struct EditAuthenticatorItemView: View {
                         )
                     ),
                     name: "Example",
+                    accountName: "Account",
+                    algorithm: .sha1,
+                    digits: .six,
+                    issuer: "Issuer",
+                    period: .thirty,
+                    secret: "example",
                     totpState: LoginTOTPState(
                         authKeyModel: TOTPKeyModel(authenticatorKey: "example")!,
                         codeModel: TOTPCodeModel(
