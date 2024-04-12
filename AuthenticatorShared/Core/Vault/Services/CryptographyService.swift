@@ -12,6 +12,22 @@ protocol CryptographyService {
 
 // TODO: Actually encrypt/decrypt the item
 class DefaultCryptographyService: CryptographyService {
+    // MARK: Properties
+
+    /// A repository to provide the encryption secret key
+    ///
+    let keychainRepository: KeychainRepository
+
+    // MARK: Initialization
+
+    init(
+        keychainRepository: KeychainRepository
+    ) {
+        self.keychainRepository = keychainRepository
+    }
+
+    // MARK: Methods
+
     func encrypt(_ authenticatorItemView: AuthenticatorItemView) async throws -> AuthenticatorItem {
         AuthenticatorItem(
             id: authenticatorItemView.id,
