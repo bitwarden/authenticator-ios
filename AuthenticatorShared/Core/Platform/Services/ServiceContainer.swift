@@ -18,6 +18,9 @@ public class ServiceContainer: Services {
     /// The application instance (i.e. `UIApplication`), if the app isn't running in an extension.
     let application: Application?
 
+    /// The service for persisting app setting values.
+    let appSettingsStore: AppSettingsStore
+
     /// The service used for managing items
     let authenticatorItemRepository: AuthenticatorItemRepository
 
@@ -51,17 +54,20 @@ public class ServiceContainer: Services {
     ///
     /// - Parameters:
     ///   - application: The application instance.
+    ///   - appSettingsStore: The service for persisting app settings
     ///   - authenticatorItemRepository: The service to manage items
     ///   - cameraService: The service used by the application to manage camera use.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - cryptographyService: The service used by the application to encrypt and decrypt items
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
+    ///   - stateService: The service for managing account state.
     ///   - timeProvider: Provides the present time for TOTP Code Calculation.
     ///   - totpService: The service used by the application to validate TOTP keys and produce TOTP values.
     ///
     init(
         application: Application?,
+        appSettingsStore: AppSettingsStore,
         authenticatorItemRepository: AuthenticatorItemRepository,
         cameraService: CameraService,
         cryptographyService: CryptographyService,
@@ -73,6 +79,7 @@ public class ServiceContainer: Services {
         totpService: TOTPService
     ) {
         self.application = application
+        self.appSettingsStore = appSettingsStore
         self.authenticatorItemRepository = authenticatorItemRepository
         self.cameraService = cameraService
         self.clientService = clientService
@@ -137,6 +144,7 @@ public class ServiceContainer: Services {
 
         self.init(
             application: application,
+            appSettingsStore: appSettingsStore,
             authenticatorItemRepository: authenticatorItemRepository,
             cameraService: cameraService,
             cryptographyService: cryptographyService,
