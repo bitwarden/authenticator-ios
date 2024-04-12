@@ -104,10 +104,10 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         settingsCoordinator.start()
         self.settingsCoordinator = settingsCoordinator
 
-//        let tabsAndNavigators: [TabRoute: Navigator] = [
-//            .itemList(.list): itemListNavigator,
-//            .settings(.settings): settingsNavigator,
-//        ]
-//        tabNavigator.setNavigators(tabsAndNavigators)
+        let tabsAndNavigators: [TabRoute: Navigator] = [
+            .itemList(.list): itemListNavigator,
+            .settings(.settings): settingsNavigator,
+        ]
+        tabNavigator.setNavigators(tabsAndNavigators)
     }
 }
