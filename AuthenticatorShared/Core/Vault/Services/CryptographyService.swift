@@ -14,34 +14,33 @@ protocol CryptographyService {
 class DefaultCryptographyService: CryptographyService {
     // MARK: Properties
 
-    /// A repository to provide the encryption secret key
+    /// A service to get the encryption secret key
     ///
-    let keychainRepository: KeychainRepository
+    let cryptographyKeyService: CryptographyKeyService
 
     // MARK: Initialization
 
     init(
-        keychainRepository: KeychainRepository
+        cryptographyKeyService: CryptographyKeyService
     ) {
-        self.keychainRepository = keychainRepository
+        self.cryptographyKeyService = cryptographyKeyService
     }
 
     // MARK: Methods
 
     func encrypt(_ authenticatorItemView: AuthenticatorItemView) async throws -> AuthenticatorItem {
-        let secretKey = try await keychainRepository.getSecretKey(userId: "local")
-        guard let totpKeyData = authenticatorItemView.totpKey?.data(using: .utf8),
-              let symmetricKey = SymmetricKey(base64EncodedString: secretKey) else {
-            throw CryptographyError.unableToParseSecretKey
+        let secretKey = try await cryptographyKeyService.getOrCreateSecretKey(userId: "local")
+        guard let totpKeyData = authenticatorItemView.totpKey?.data(using: .utf8) else {
+            throw CryptographyError.unableToRetrieveTotpKey
         }
 
         let encryptedSealedBox = try AES.GCM.seal(
             totpKeyData,
-            using: symmetricKey
+            using: secretKey
         )
 
         guard let text = encryptedSealedBox.combined?.base64EncodedString() else {
-            throw CryptographyError.unableToParseSecretKey
+            throw CryptographyError.unableToSerializeSealedBox
         }
 
         return AuthenticatorItem(
@@ -52,12 +51,12 @@ class DefaultCryptographyService: CryptographyService {
     }
 
     func decrypt(_ authenticatorItem: AuthenticatorItem) async throws -> AuthenticatorItemView {
-        let secretKey = try await keychainRepository.getSecretKey(userId: "local")
+        let secretKey = try await cryptographyKeyService.getOrCreateSecretKey(userId: "local")
 
         guard let totpKey = authenticatorItem.totpKey,
-              let totpKeyData = Data(base64Encoded: totpKey),
-              let symmetricKey = SymmetricKey(base64EncodedString: secretKey) else {
-            throw CryptographyError.unableToParseSecretKey
+              let totpKeyData = Data(base64Encoded: totpKey)
+        else {
+            throw CryptographyError.unableToRetrieveTotpKey
         }
 
         let encryptedSealedBox = try AES.GCM.SealedBox(
@@ -66,7 +65,7 @@ class DefaultCryptographyService: CryptographyService {
 
         let decryptedBox = try AES.GCM.open(
             encryptedSealedBox,
-            using: symmetricKey
+            using: secretKey
         )
 
         return AuthenticatorItemView(
@@ -77,36 +76,10 @@ class DefaultCryptographyService: CryptographyService {
     }
 }
 
-// MARK: - SymmetricKey Extensions
-
-extension SymmetricKey {
-    // MARK: Initialization
-
-    /// Creates a `SymmetricKey` from a Base64-encoded `String`.
-    ///
-    /// - Parameters:
-    ///   - base64EncodedString: The Base64-encoded string from which to generate the `SymmetricKey`.
-    ///
-    init?(base64EncodedString: String) {
-        guard let data = Data(base64Encoded: base64EncodedString) else {
-            return nil
-        }
-
-        self.init(data: data)
-    }
-
-    // MARK: Methods
-
-    /// Serializes a `SymmetricKey` to a Base64-encoded `String`.
-    func base64EncodedString() -> String {
-        return self.withUnsafeBytes { body in
-            Data(body).base64EncodedString()
-        }
-    }
-}
-
 // MARK: - CryptographyError
 
 enum CryptographyError: Error {
     case unableToParseSecretKey
+    case unableToRetrieveTotpKey
+    case unableToSerializeSealedBox
 }

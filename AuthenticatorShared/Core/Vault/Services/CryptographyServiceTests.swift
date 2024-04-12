@@ -20,7 +20,9 @@ class CryptographyServiceTests: AuthenticatorTestCase {
         keychainRepository = MockKeychainRepository()
 
         subject = DefaultCryptographyService(
-            keychainRepository: keychainRepository
+            cryptographyKeyService: CryptographyKeyService(
+                keychainRepository: keychainRepository
+            )
         )
     }
 
