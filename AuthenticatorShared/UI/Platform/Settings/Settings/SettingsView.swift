@@ -31,40 +31,12 @@ struct SettingsView: View {
     /// The settings items.
     private var settingsItems: some View {
         VStack(spacing: 0) {
-            SettingsListItem(Localizations.accountSecurity) {
-                store.send(.accountSecurityPressed)
-            } trailingContent: {
-                chevron
-            }
-            .accessibilityIdentifier("AccountSecuritySettingsButton")
-
-            SettingsListItem(Localizations.autofill) {
-                store.send(.autoFillPressed)
-            } trailingContent: {
-                chevron
-            }
-            .accessibilityIdentifier("AutofillSettingsButton")
-
-            SettingsListItem(Localizations.vault) {
-                store.send(.vaultPressed)
-            } trailingContent: {
-                chevron
-            }
-            .accessibilityIdentifier("VaultSettingsButton")
-
             SettingsListItem(Localizations.appearance) {
                 store.send(.appearancePressed)
             } trailingContent: {
                 chevron
             }
             .accessibilityIdentifier("AppearanceSettingsButton")
-
-            SettingsListItem(Localizations.other) {
-                store.send(.otherPressed)
-            } trailingContent: {
-                chevron
-            }
-            .accessibilityIdentifier("OtherSettingsButton")
 
             SettingsListItem(Localizations.about, hasDivider: false) {
                 store.send(.aboutPressed)
