@@ -18,6 +18,9 @@ protocol EditAuthenticatorItemState: Sendable {
     /// The number of digits in the OTP
     var digits: TotpDigitsOptions { get set }
 
+    /// A flag indicating if the advanced section is expanded.
+    var isAdvancedExpanded: Bool { get set }
+
     /// A flag indicating if the secret is visible.
     var isSecretVisible: Bool { get set }
 

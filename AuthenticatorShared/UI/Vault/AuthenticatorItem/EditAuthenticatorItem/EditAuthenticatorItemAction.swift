@@ -5,6 +5,9 @@ enum EditAuthenticatorItemAction: Equatable {
     /// The account name field was changed.
     case accountNameChanged(String)
 
+    /// The advanced button was pressed.
+    case advancedPressed
+
     /// The algorithm field was changed.
     case algorithmChanged(TOTPCryptoHashAlgorithm)
 

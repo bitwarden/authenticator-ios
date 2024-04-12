@@ -37,6 +37,9 @@ struct AuthenticatorItemState: Equatable {
     /// The number of digits in the OTP
     var digits: TotpDigitsOptions
 
+    /// A flag indicating if the advanced section is expanded.
+    var isAdvancedExpanded: Bool = false
+
     /// A flag indicating if the secret field is visible
     var isSecretVisible: Bool = false
 

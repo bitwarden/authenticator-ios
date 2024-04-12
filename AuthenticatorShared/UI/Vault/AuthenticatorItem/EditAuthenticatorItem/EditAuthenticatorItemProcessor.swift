@@ -55,6 +55,8 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
         switch action {
         case let .accountNameChanged(accountName):
             state.accountName = accountName
+        case .advancedPressed:
+            state.isAdvancedExpanded.toggle()
         case let .algorithmChanged(algorithm):
             state.algorithm = algorithm
         case let .digitsChanged(digits):
