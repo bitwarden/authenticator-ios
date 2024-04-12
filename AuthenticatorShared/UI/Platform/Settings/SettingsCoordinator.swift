@@ -1,39 +1,6 @@
 import BitwardenSdk
 import SwiftUI
 
-// MARK: - SettingsCoordinatorDelegate
-
-/// An object that is signaled when specific circumstances in the application flow have been encountered.
-///
-@MainActor
-public protocol SettingsCoordinatorDelegate: AnyObject {
-    /// Called when the active user's account has been deleted.
-    ///
-    func didDeleteAccount()
-
-    /// Called when the user has requested an account vault be locked.
-    ///
-    /// - Parameter userId: The id of the user to lock.
-    ///
-    func lockVault(userId: String?)
-
-    /// Called when the user has requested an account be logged out.
-    ///
-    /// - Parameters:
-    ///   - userId: The id of the account to log out.
-    ///   - userInitiated: Did a user action initiate this logout?
-    ///
-    func logout(userId: String?, userInitiated: Bool)
-
-    /// Called when the user requests an account switch.
-    ///
-    /// - Parameters:
-    ///   - isUserInitiated: Did the user trigger the account switch?
-    ///   - userId: The user Id of the selected account.
-    ///
-    func switchAccount(isAutomatic: Bool, userId: String)
-}
-
 // MARK: - SettingsCoordinator
 
 /// A coordinator that manages navigation in the settings tab.
@@ -50,9 +17,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         & HasTimeProvider
 
     // MARK: Private Properties
-
-    /// The delegate for this coordinator, used to notify when the user logs out.
-    private weak var delegate: SettingsCoordinatorDelegate?
 
     /// The module used to create child coordinators.
     private let module: Module
@@ -76,12 +40,10 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     init(
-        delegate: SettingsCoordinatorDelegate,
         module: Module,
         services: Services,
         stackNavigator: StackNavigator
     ) {
-        self.delegate = delegate
         self.module = module
         self.services = services
         self.stackNavigator = stackNavigator
@@ -89,23 +51,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Methods
 
-    func handleEvent(_ event: SettingsEvent, context: AnyObject?) async {
-        switch event {
-        case let .authAction(action):
-            switch action {
-            case let .lockVault(userId):
-                delegate?.lockVault(userId: userId)
-            case let .logout(userId, userInitiated):
-                delegate?.logout(userId: userId, userInitiated: userInitiated)
-            case let .switchAccount(isAutomatic, userId):
-                delegate?.switchAccount(isAutomatic: isAutomatic, userId: userId)
-            }
-        case .didDeleteAccount:
-            stackNavigator?.dismiss {
-                self.delegate?.didDeleteAccount()
-            }
-        }
-    }
+    func handleEvent(_ event: SettingsEvent, context: AnyObject?) async {}
 
     func navigate(to route: SettingsRoute, context: AnyObject?) {
         switch route {

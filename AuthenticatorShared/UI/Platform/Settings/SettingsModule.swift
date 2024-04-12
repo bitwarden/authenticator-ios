@@ -12,18 +12,15 @@ protocol SettingsModule {
     /// - Returns: A coordinator that can navigate to `SettingsRoute`s.
     ///
     func makeSettingsCoordinator(
-        delegate: SettingsCoordinatorDelegate,
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<SettingsRoute, SettingsEvent>
 }
 
 extension DefaultAppModule: SettingsModule {
     func makeSettingsCoordinator(
-        delegate: SettingsCoordinatorDelegate,
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<SettingsRoute, SettingsEvent> {
         SettingsCoordinator(
-            delegate: delegate,
             module: self,
             services: services,
             stackNavigator: stackNavigator

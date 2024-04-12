@@ -37,9 +37,6 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     /// The coordinator used to navigate to `SettingsRoute`s.
     private var settingsCoordinator: AnyCoordinator<SettingsRoute, SettingsEvent>?
 
-    /// A delegate of the `SettingsCoordinator`.
-    private weak var settingsDelegate: SettingsCoordinatorDelegate?
-
     // MARK: Initialization
 
     /// Creates a new `TabCoordinator`.
@@ -57,13 +54,11 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         errorReporter: ErrorReporter,
         module: Module,
         rootNavigator: RootNavigator,
-        settingsDelegate: SettingsCoordinatorDelegate,
         tabNavigator: TabNavigator
     ) {
         self.errorReporter = errorReporter
         self.module = module
         self.rootNavigator = rootNavigator
-        self.settingsDelegate = settingsDelegate
         self.tabNavigator = tabNavigator
     }
 
@@ -85,7 +80,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     }
 
     func start() {
-        guard let rootNavigator, let tabNavigator, let settingsDelegate else { return }
+        guard let rootNavigator, let tabNavigator else { return }
 
         rootNavigator.show(child: tabNavigator)
 
@@ -98,7 +93,6 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         let settingsNavigator = UINavigationController()
         settingsNavigator.navigationBar.prefersLargeTitles = true
         let settingsCoordinator = module.makeSettingsCoordinator(
-            delegate: settingsDelegate,
             stackNavigator: settingsNavigator
         )
         settingsCoordinator.start()

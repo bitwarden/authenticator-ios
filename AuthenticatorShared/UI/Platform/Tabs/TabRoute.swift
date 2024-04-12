@@ -4,7 +4,7 @@ import UIKit
 
 /// The enumeration of tabs displayed by the application.
 ///
-enum TabRoute: Equatable, Hashable {
+public enum TabRoute: Equatable, Hashable {
     /// The verification codes
     case itemList(ItemListRoute)
 
