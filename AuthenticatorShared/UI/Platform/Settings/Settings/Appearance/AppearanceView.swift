@@ -17,8 +17,6 @@ struct AppearanceView: View {
             language
 
             theme
-
-            webSiteIconsToggle
         }
         .scrollView()
         .navigationBar(title: Localizations.appearance, titleDisplayMode: .inline)
