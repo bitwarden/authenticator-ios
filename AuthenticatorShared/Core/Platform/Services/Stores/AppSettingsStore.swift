@@ -15,6 +15,9 @@ protocol AppSettingsStore: AnyObject {
     /// The app's theme.
     var appTheme: String? { get set }
 
+    /// Whether to disable the website icons.
+    var disableWebIcons: Bool { get set }
+
     /// The user ID for the local user
     var localUserId: String { get }
 
@@ -154,6 +157,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case appId
         case appLocale
         case appTheme
+        case disableWebIcons
         case clearClipboardValue(userId: String)
 
         /// Returns the key used to store the data under for retrieving it later.
@@ -168,6 +172,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "theme"
             case let .clearClipboardValue(userId):
                 key = "clearClipboard_\(userId)"
+            case .disableWebIcons:
+                key = "disableFavicon"
             }
             return "bwaPreferencesStorage:\(key)"
         }
@@ -186,6 +192,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var appTheme: String? {
         get { fetch(for: .appTheme) }
         set { store(newValue, for: .appTheme) }
+    }
+
+    var disableWebIcons: Bool {
+        get { fetch(for: .disableWebIcons) }
+        set { store(newValue, for: .disableWebIcons) }
     }
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {

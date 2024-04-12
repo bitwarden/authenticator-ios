@@ -23,6 +23,12 @@ protocol StateService: AnyObject {
     ///
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue
 
+    /// Get whether to show website icons.
+    ///
+    /// - Returns: Whether to show the website icons.
+    ///
+    func getShowWebIcons() async -> Bool
+
     /// Sets the app theme.
     ///
     /// - Parameter appTheme: The new app theme.
@@ -36,6 +42,26 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
+
+    /// Set whether to show the website icons.
+    ///
+    /// - Parameter showWebIcons: Whether to show the website icons.
+    ///
+    func setShowWebIcons(_ showWebIcons: Bool) async
+
+    // MARK: Publishers
+
+    /// A publisher for the app theme.
+    ///
+    /// - Returns: A publisher for the app theme.
+    ///
+    func appThemePublisher() async -> AnyPublisher<AppTheme, Never>
+
+    /// A publisher for whether or not to show the web icons.
+    ///
+    /// - Returns: A publisher for whether or not to show the web icons.
+    ///
+    func showWebIconsPublisher() async -> AnyPublisher<Bool, Never>
 }
 
 // MARK: - DefaultStateService
@@ -62,6 +88,9 @@ actor DefaultStateService: StateService {
     /// The data store that handles performing data requests.
     private let dataStore: DataStore
 
+    /// A subject containing whether to show the website icons.
+    private var showWebIconsSubject: CurrentValueSubject<Bool, Never>
+
     // MARK: Initialization
 
     /// Initialize a `DefaultStateService`.
@@ -78,6 +107,7 @@ actor DefaultStateService: StateService {
         self.dataStore = dataStore
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
+        showWebIconsSubject = CurrentValueSubject(!appSettingsStore.disableWebIcons)
     }
 
     // MARK: Methods
@@ -91,6 +121,10 @@ actor DefaultStateService: StateService {
         return appSettingsStore.clearClipboardValue(userId: userId)
     }
 
+    func getShowWebIcons() async -> Bool {
+        !appSettingsStore.disableWebIcons
+    }
+
     func setAppTheme(_ appTheme: AppTheme) async {
         appSettingsStore.appTheme = appTheme.value
         appThemeSubject.send(appTheme)
@@ -99,6 +133,21 @@ actor DefaultStateService: StateService {
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
+    }
+
+    func setShowWebIcons(_ showWebIcons: Bool) async {
+        appSettingsStore.disableWebIcons = !showWebIcons
+        showWebIconsSubject.send(showWebIcons)
+    }
+
+    // MARK: Publishers
+
+    func appThemePublisher() async -> AnyPublisher<AppTheme, Never> {
+        appThemeSubject.eraseToAnyPublisher()
+    }
+
+    func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {
+        showWebIconsSubject.eraseToAnyPublisher()
     }
 
     // MARK: Private
