@@ -36,6 +36,9 @@ public class ServiceContainer: Services {
     /// The service used by the application for sharing data with other apps.
     let pasteboardService: PasteboardService
 
+    /// The service used by the application to manage account state.
+    let stateService: StateService
+
     /// Provides the present time for TOTP Code Calculation.
     let timeProvider: TimeProvider
 
@@ -65,6 +68,7 @@ public class ServiceContainer: Services {
         clientService: ClientService,
         errorReporter: ErrorReporter,
         pasteboardService: PasteboardService,
+        stateService: StateService,
         timeProvider: TimeProvider,
         totpService: TOTPService
     ) {
@@ -76,6 +80,7 @@ public class ServiceContainer: Services {
         self.errorReporter = errorReporter
         self.pasteboardService = pasteboardService
         self.timeProvider = timeProvider
+        self.stateService = stateService
         self.totpService = totpService
     }
 
@@ -102,6 +107,7 @@ public class ServiceContainer: Services {
             appIdService: appIdService,
             keychainService: keychainService
         )
+        let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
         let timeProvider = CurrentTime()
 
         let cryptographyKeyService = CryptographyKeyService(
@@ -137,6 +143,7 @@ public class ServiceContainer: Services {
             clientService: clientService,
             errorReporter: errorReporter,
             pasteboardService: pasteboardService,
+            stateService: stateService,
             timeProvider: timeProvider,
             totpService: totpService
         )
