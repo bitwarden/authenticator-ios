@@ -3,7 +3,7 @@ import SwiftUI
 
 // MARK: - AuthenticatorItemCoordinator
 
-/// A coordinator that manages navigation for displaying, editing, and adding individual tokens.
+/// A coordinator that manages navigation for displaying, editing, and adding individual items.
 ///
 class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Types
@@ -84,12 +84,15 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
         stackNavigator?.present(navigationController)
     }
 
-    /// Shows the edit token screen.
+    /// Shows the edit item screen.
     ///
     /// - Parameters:
-    ///   - token: The `Token` to edit.
+    ///   - authenticatorItemView: The `AuthenticatorItemView` to edit.
     ///
-    private func showEditAuthenticatorItem(for authenticatorItemView: AuthenticatorItemView, delegate: AuthenticatorItemOperationDelegate?) {
+    private func showEditAuthenticatorItem(
+        for authenticatorItemView: AuthenticatorItemView,
+        delegate: AuthenticatorItemOperationDelegate?
+    ) {
         guard let stackNavigator else { return }
         if stackNavigator.isEmpty {
             guard let state = AuthenticatorItemState(existing: authenticatorItemView)

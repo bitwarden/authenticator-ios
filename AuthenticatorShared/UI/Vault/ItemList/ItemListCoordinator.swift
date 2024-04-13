@@ -61,7 +61,7 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
         case .addItem:
             break
         case let .editItem(item):
-            showToken(route: .editAuthenticatorItem(item), delegate: context as? AuthenticatorItemOperationDelegate)
+            showItem(route: .editAuthenticatorItem(item), delegate: context as? AuthenticatorItemOperationDelegate)
         case .list:
             showList()
         case .setupTotpManual:
@@ -119,11 +119,11 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
         stackNavigator?.replace(view, animated: false)
     }
 
-    /// Presents a token coordinator, which will navigate to the provided route.
+    /// Presents an item coordinator, which will navigate to the provided route.
     ///
     /// - Parameter route: The route to navigate to in the coordinator.
     ///
-    private func showToken(route: AuthenticatorItemRoute, delegate: AuthenticatorItemOperationDelegate? = nil) {
+    private func showItem(route: AuthenticatorItemRoute, delegate: AuthenticatorItemOperationDelegate? = nil) {
         let navigationController = UINavigationController()
         let coordinator = module.makeAuthenticatorItemCoordinator(stackNavigator: navigationController)
         coordinator.start()

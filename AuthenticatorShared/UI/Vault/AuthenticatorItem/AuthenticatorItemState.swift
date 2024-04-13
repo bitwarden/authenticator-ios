@@ -17,7 +17,7 @@ struct AuthenticatorItemState: Equatable {
         case existing(authenticatorItemView: AuthenticatorItemView)
 
         /// The existing `AuthenticatorItemView` if the configuration is `existing`.
-        var existingToken: AuthenticatorItemView? {
+        var existingItem: AuthenticatorItemView? {
             guard case let .existing(authenticatorItemView) = self else { return nil }
             return authenticatorItemView
         }
