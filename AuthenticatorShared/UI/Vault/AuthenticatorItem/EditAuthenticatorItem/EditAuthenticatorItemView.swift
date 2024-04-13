@@ -74,7 +74,7 @@ struct EditAuthenticatorItemView: View {
             .textFieldConfiguration(.password)
 
             BitwardenTextField(
-                title: "Account name",
+                title: Localizations.accountName,
                 text: store.binding(
                     get: \.accountName,
                     send: EditAuthenticatorItemAction.accountNameChanged
@@ -111,7 +111,7 @@ struct EditAuthenticatorItemView: View {
 
     @ViewBuilder private var advancedOptions: some View {
         BitwardenMenuField(
-            title: "Algorithm",
+            title: Localizations.algorithm,
             options: TOTPCryptoHashAlgorithm.allCases,
             selection: store.binding(
                 get: \.algorithm,
@@ -120,7 +120,7 @@ struct EditAuthenticatorItemView: View {
         )
 
         BitwardenMenuField(
-            title: "Refresh period",
+            title: Localizations.refreshPeriod,
             options: TotpPeriodOptions.allCases,
             selection: store.binding(
                 get: \.period,
@@ -129,7 +129,7 @@ struct EditAuthenticatorItemView: View {
         )
 
         BitwardenMenuField(
-            title: "Number of digits",
+            title: Localizations.numberOfDigits,
             options: TotpDigitsOptions.allCases,
             selection: store.binding(
                 get: \.digits,
