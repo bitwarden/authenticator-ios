@@ -95,13 +95,15 @@ struct ItemListView: View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 7) {
                 ForEach(items) { item in
-                    Button {
+                    vaultItemRow(
+                        for: item,
+                        isLastInSection: true
+                    )
+                    .onTapGesture {
                         store.send(.itemPressed(item))
-                    } label: {
-                        vaultItemRow(
-                            for: item,
-                            isLastInSection: true
-                        )
+                    }
+                    .onLongPressGesture {
+                        await store.perform(.morePressed(item))
                     }
                 }
                 .background(Asset.Colors.backgroundPrimary.swiftUIColor)
