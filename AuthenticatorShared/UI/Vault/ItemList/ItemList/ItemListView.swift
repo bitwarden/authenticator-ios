@@ -93,10 +93,8 @@ private struct SearchableItemListView: View {
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
 
                     if store.state.showAddItemButton {
-                        Button(Localizations.addCode) {
-                            Task {
-                                await store.perform(.addItemPressed)
-                            }
+                        AsyncButton(Localizations.addCode) {
+                            await store.perform(.addItemPressed)
                         }
                         .buttonStyle(.primary())
                     }
@@ -246,44 +244,127 @@ struct ItemListView: View {
 // MARK: Previews
 
 #if DEBUG
-#Preview("Loading") {
-    NavigationView {
-        ItemListView(
-            store: Store(
-                processor: StateProcessor(
-                    state: ItemListState(
-                        loadingState: .loading(nil)
+struct ItemListView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            ItemListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ItemListState(
+                            loadingState: .loading(nil)
+                        )
                     )
-                )
-            ),
-            timeProvider: PreviewTimeProvider()
-        )
-    }
-}
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }.previewDisplayName("Loading")
 
-#Preview("Empty") {
-    NavigationView {
-        ItemListView(
-            store: Store(
-                processor: StateProcessor(
-                    state: ItemListState(
-                        loadingState: .data([])
+        NavigationView {
+            ItemListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ItemListState(
+                            loadingState: .data([])
+                        )
                     )
-                )
-            ),
-            timeProvider: PreviewTimeProvider()
-        )
-    }
-}
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }.previewDisplayName("Empty")
 
-#Preview("Items") {
-    NavigationView {
-        ItemListView(
-            store: Store(
-                processor: StateProcessor(
-                    state: ItemListState(
-                        loadingState: .data(
-                            [
+        NavigationView {
+            ItemListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ItemListState(
+                            loadingState: .data(
+                                [
+                                    ItemListItem(
+                                        id: "One",
+                                        name: "One",
+                                        itemType: .totp(
+                                            model: ItemListTotpItem(
+                                                itemView: AuthenticatorItemView.fixture(),
+                                                totpCode: TOTPCodeModel(
+                                                    code: "123456",
+                                                    codeGenerationDate: Date(),
+                                                    period: 30
+                                                )
+                                            )
+                                        )
+                                    ),
+                                    ItemListItem(
+                                        id: "Two",
+                                        name: "Two",
+                                        itemType: .totp(
+                                            model: ItemListTotpItem(
+                                                itemView: AuthenticatorItemView.fixture(),
+                                                totpCode: TOTPCodeModel(
+                                                    code: "123456",
+                                                    codeGenerationDate: Date(),
+                                                    period: 30
+                                                )
+                                            )
+                                        )
+                                    ),
+                                ]
+                            )
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }.previewDisplayName("Items")
+
+        NavigationView {
+            ItemListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ItemListState(
+                            searchResults: [],
+                            searchText: "Example"
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }.previewDisplayName("0 Search Results")
+
+        NavigationView {
+            ItemListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ItemListState(
+                            searchResults: [
+                                ItemListItem(
+                                    id: "One",
+                                    name: "One",
+                                    itemType: .totp(
+                                        model: ItemListTotpItem(
+                                            itemView: AuthenticatorItemView.fixture(),
+                                            totpCode: TOTPCodeModel(
+                                                code: "123456",
+                                                codeGenerationDate: Date(),
+                                                period: 30
+                                            )
+                                        )
+                                    )
+                                ),
+                            ],
+                            searchText: "One"
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }.previewDisplayName("1 Search Result")
+
+        NavigationView {
+            ItemListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ItemListState(
+                            searchResults: [
                                 ItemListItem(
                                     id: "One",
                                     name: "One",
@@ -300,7 +381,7 @@ struct ItemListView: View {
                                 ),
                                 ItemListItem(
                                     id: "Two",
-                                    name: "Two",
+                                    name: "One Direction",
                                     itemType: .totp(
                                         model: ItemListTotpItem(
                                             itemView: AuthenticatorItemView.fixture(),
@@ -312,120 +393,28 @@ struct ItemListView: View {
                                         )
                                     )
                                 ),
-                            ]
+                                ItemListItem(
+                                    id: "Three",
+                                    name: "One Song",
+                                    itemType: .totp(
+                                        model: ItemListTotpItem(
+                                            itemView: AuthenticatorItemView.fixture(),
+                                            totpCode: TOTPCodeModel(
+                                                code: "123456",
+                                                codeGenerationDate: Date(),
+                                                period: 30
+                                            )
+                                        )
+                                    )
+                                ),
+                            ],
+                            searchText: "One"
                         )
                     )
-                )
-            ),
-            timeProvider: PreviewTimeProvider()
-        )
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }.previewDisplayName("3 Search Results")
     }
 }
-
-#Preview("0 Search Results") {
-    NavigationView {
-        ItemListView(
-            store: Store(
-                processor: StateProcessor(
-                    state: ItemListState(
-                        searchResults: [],
-                        searchText: "Example"
-                    )
-                )
-            ),
-            timeProvider: PreviewTimeProvider()
-        )
-    }
-}
-
-#Preview("1 Search Result") {
-    NavigationView {
-        ItemListView(
-            store: Store(
-                processor: StateProcessor(
-                    state: ItemListState(
-                        searchResults: [
-                            ItemListItem(
-                                id: "One",
-                                name: "One",
-                                itemType: .totp(
-                                    model: ItemListTotpItem(
-                                        itemView: AuthenticatorItemView.fixture(),
-                                        totpCode: TOTPCodeModel(
-                                            code: "123456",
-                                            codeGenerationDate: Date(),
-                                            period: 30
-                                        )
-                                    )
-                                )
-                            ),
-                        ],
-                        searchText: "One"
-                    )
-                )
-            ),
-            timeProvider: PreviewTimeProvider()
-        )
-    }
-}
-
-#Preview("3 Search Results") {
-    NavigationView {
-        ItemListView(
-            store: Store(
-                processor: StateProcessor(
-                    state: ItemListState(
-                        searchResults: [
-                            ItemListItem(
-                                id: "One",
-                                name: "One",
-                                itemType: .totp(
-                                    model: ItemListTotpItem(
-                                        itemView: AuthenticatorItemView.fixture(),
-                                        totpCode: TOTPCodeModel(
-                                            code: "123456",
-                                            codeGenerationDate: Date(),
-                                            period: 30
-                                        )
-                                    )
-                                )
-                            ),
-                            ItemListItem(
-                                id: "Two",
-                                name: "One Direction",
-                                itemType: .totp(
-                                    model: ItemListTotpItem(
-                                        itemView: AuthenticatorItemView.fixture(),
-                                        totpCode: TOTPCodeModel(
-                                            code: "123456",
-                                            codeGenerationDate: Date(),
-                                            period: 30
-                                        )
-                                    )
-                                )
-                            ),
-                            ItemListItem(
-                                id: "Three",
-                                name: "One Song",
-                                itemType: .totp(
-                                    model: ItemListTotpItem(
-                                        itemView: AuthenticatorItemView.fixture(),
-                                        totpCode: TOTPCodeModel(
-                                            code: "123456",
-                                            codeGenerationDate: Date(),
-                                            period: 30
-                                        )
-                                    )
-                                )
-                            ),
-                        ],
-                        searchText: "One"
-                    )
-                )
-            ),
-            timeProvider: PreviewTimeProvider()
-        )
-    }
-}
-
 #endif
