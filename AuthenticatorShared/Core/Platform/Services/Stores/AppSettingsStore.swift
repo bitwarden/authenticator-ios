@@ -205,17 +205,17 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .disableWebIcons) }
     }
 
+    var migrationVersion: Int {
+        get { fetch(for: .migrationVersion) }
+        set { store(newValue, for: .migrationVersion) }
+    }
+
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         if let rawValue: Int = fetch(for: .clearClipboardValue(userId: userId)),
            let value = ClearClipboardValue(rawValue: rawValue) {
             return value
         }
         return .never
-    }
-
-    var migrationVersion: Int {
-        get { fetch(for: .migrationVersion) }
-        set { store(newValue, for: .migrationVersion) }
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
