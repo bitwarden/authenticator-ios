@@ -39,12 +39,12 @@ final class TutorialProcessor: StateProcessor<TutorialState, TutorialAction, Tut
             case .qrScanner:
                 state.page = .uniqueCodes
             case .uniqueCodes:
-                break
+                coordinator.navigate(to: .dismiss)
             }
         case let .pageChanged(page):
             state.page = page
         case .skipTapped:
-            break
+            coordinator.navigate(to: .dismiss)
         }
     }
 }

@@ -50,6 +50,8 @@ final class TutorialCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: TutorialRoute, context: AnyObject?) {
         switch route {
+        case .dismiss:
+            stackNavigator?.dismiss()
         case .tutorial:
             showTutorial()
         }

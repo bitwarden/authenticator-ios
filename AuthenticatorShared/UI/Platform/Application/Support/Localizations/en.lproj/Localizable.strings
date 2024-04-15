@@ -899,3 +899,4 @@
 "SignInUsingUniqueCodes" = "Sign in using unique codes";
 "WhenUsingTwoStepVerification" = "When using 2-step verification, you’ll enter your username and password and a code generated in this app.";
 "GetStarted" = "Get started";
+"LaunchTutorial" = "Launch tutorial";
