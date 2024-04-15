@@ -9,6 +9,14 @@ enum ItemListAction: Equatable {
     ///
     case copyTOTPCode(_ code: String)
 
+    /// The delete item button was pressed.
+    ///
+    case deletePressed(_ item: ItemListItem)
+
+    /// The edit item button was pressed.
+    ///
+    case editPressed(_ item: ItemListItem)
+
     /// An item in the vault group was tapped.
     ///
     /// - Parameter item: The item that was tapped.

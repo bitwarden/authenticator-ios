@@ -95,16 +95,52 @@ struct ItemListView: View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 7) {
                 ForEach(items) { item in
-                    vaultItemRow(
-                        for: item,
-                        isLastInSection: true
-                    )
-                    .onTapGesture {
+                    Menu {
+                        AsyncButton(Localizations.copy) {
+                            await store.perform(.copyPressed(item))
+                        }
+                        Button(Localizations.edit) {
+                            store.send(.editPressed(item))
+                        }
+                        Button(Localizations.delete, role: .destructive) {
+                            store.send(.deletePressed(item))
+                        }
+                    } label: {
+                        vaultItemRow(
+                            for: item,
+                            isLastInSection: true
+                        )
+                    } primaryAction: {
                         store.send(.itemPressed(item))
                     }
-                    .onLongPressGesture {
-                        await store.perform(.morePressed(item))
-                    }
+
+//                    if let totp = authenticatorItemView.totpKey,
+//                       let totpKey = TOTPKeyModel(authenticatorKey: totp) {
+//                        alertActions.append(
+//                            AlertAction(title: Localizations.copy, style: .default) { _, _ in
+//                                await action(.copyTotp(totpKey: totpKey))
+//                            })
+//                    }
+//
+//                    alertActions.append(AlertAction(title: Localizations.edit, style: .default) { _, _ in
+//                        await action(.edit(authenticatorItemView: authenticatorItemView))
+//                    })
+//
+//                    alertActions.append(AlertAction(title: Localizations.delete, style: .destructive) { _, _ in
+//                        await action(.delete(id: id))
+//                    })
+
+
+//                    vaultItemRow(
+//                        for: item,
+//                        isLastInSection: true
+//                    )
+//                    .onTapGesture {
+//                        store.send(.itemPressed(item))
+//                    }
+//                    .onLongPressGesture {
+//                        await store.perform(.morePressed(item))
+//                    }
                 }
                 .background(Asset.Colors.backgroundPrimary.swiftUIColor)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
