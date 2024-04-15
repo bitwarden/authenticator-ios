@@ -4,4 +4,26 @@
 /// 
 struct TutorialState: Equatable {
     // MARK: Properties
+
+    /// The text to use on the continue button
+    var continueButtonText: String = Localizations.continue
+
+    /// If the current page is the last page
+    var isLastPage: Bool {
+        switch page {
+        case .intro, .qrScanner:
+            false
+        case .uniqueCodes:
+            true
+        }
+    }
+
+    /// The current page number
+    var page: TutorialPage = .intro
+}
+
+enum TutorialPage: Equatable {
+    case intro
+    case qrScanner
+    case uniqueCodes
 }

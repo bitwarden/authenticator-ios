@@ -22,26 +22,43 @@ struct TutorialView: View {
     private var content: some View {
         VStack(spacing: 24) {
             Spacer()
-            TabView {
-                page1
-                page2
-                page3
+            TabView(
+                selection: store.binding(
+                    get: \.page,
+                    send: TutorialAction.pageChanged
+                )
+            ) {
+                intoSlide.tag(TutorialPage.intro)
+                qrScannerSlide.tag(TutorialPage.qrScanner)
+                uniqueCodesSlide.tag(TutorialPage.uniqueCodes)
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
             .padding(.top, 16)
+            .animation(.default, value: store.state.page)
+            .transition(.slide)
 
-            Button("Continue") {}
-                .buttonStyle(.primary())
+            Button("Continue") {
+                store.send(.continueTapped)
+            }
+            .buttonStyle(.primary())
 
-            Button("Skip") {}
-                .buttonStyle(InlineButtonStyle())
+            Button {
+                store.send(.skipTapped)
+            } label: {
+                Text("Skip")
+                    .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+            }
+            .buttonStyle(InlineButtonStyle())
+            .hidden(store.state.isLastPage)
+            .animation(.default, value: store.state.isLastPage)
+            .transition(.opacity.animation(.easeIn))
         }
         .padding(16)
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
     }
 
-    private var page1: some View {
+    private var intoSlide: some View {
         VStack(spacing: 24) {
             Asset.Images.recoveryCodes.swiftUIImage
                 .frame(height: 140)
@@ -56,7 +73,7 @@ struct TutorialView: View {
         .multilineTextAlignment(.center)
     }
 
-    private var page2: some View {
+    private var qrScannerSlide: some View {
         VStack(spacing: 24) {
             Asset.Images.qrIllustration.swiftUIImage
                 .frame(height: 140)
@@ -71,7 +88,7 @@ struct TutorialView: View {
         .multilineTextAlignment(.center)
     }
 
-    private var page3: some View {
+    private var uniqueCodesSlide: some View {
         VStack(spacing: 24) {
             Asset.Images.uniqueCodes.swiftUIImage
                 .frame(height: 140)

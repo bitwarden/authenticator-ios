@@ -30,5 +30,21 @@ final class TutorialProcessor: StateProcessor<TutorialState, TutorialAction, Tut
 
     // MARK: Methods
 
-    override func receive(_ action: TutorialAction) {}
+    override func receive(_ action: TutorialAction) {
+        switch action {
+        case .continueTapped:
+            switch state.page {
+            case .intro:
+                state.page = .qrScanner
+            case .qrScanner:
+                state.page = .uniqueCodes
+            case .uniqueCodes:
+                break
+            }
+        case let .pageChanged(page):
+            state.page = page
+        case .skipTapped:
+            break
+        }
+    }
 }
