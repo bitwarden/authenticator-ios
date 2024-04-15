@@ -11,7 +11,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     /// The module types required by this coordinator for creating child coordinators.
     typealias Module = ItemListModule
         & SettingsModule
-    & TutorialModule
+        & TutorialModule
 
     // MARK: Properties
 

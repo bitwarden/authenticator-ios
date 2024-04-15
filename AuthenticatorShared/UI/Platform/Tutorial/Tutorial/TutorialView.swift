@@ -14,7 +14,7 @@ struct TutorialView: View {
 
     var body: some View {
         content
-            .navigationBar(title: "Bitwarden Authenticator", titleDisplayMode: .inline)
+            .navigationBar(title: Localizations.bitwardenAuthenticator, titleDisplayMode: .inline)
     }
 
     // MARK: Private Properties
@@ -38,7 +38,7 @@ struct TutorialView: View {
             .animation(.default, value: store.state.page)
             .transition(.slide)
 
-            Button("Continue") {
+            Button(store.state.continueButtonText) {
                 store.send(.continueTapped)
             }
             .buttonStyle(.primary())
@@ -46,13 +46,11 @@ struct TutorialView: View {
             Button {
                 store.send(.skipTapped)
             } label: {
-                Text("Skip")
+                Text(Localizations.skip)
                     .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
             }
             .buttonStyle(InlineButtonStyle())
             .hidden(store.state.isLastPage)
-            .animation(.default, value: store.state.isLastPage)
-            .transition(.opacity.animation(.easeIn))
         }
         .padding(16)
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
@@ -63,10 +61,10 @@ struct TutorialView: View {
             Asset.Images.recoveryCodes.swiftUIImage
                 .frame(height: 140)
 
-            Text("Secure your accounts with Bitwarden Authenticator")
+            Text(Localizations.secureYourAssetsWithBitwardenAuthenticator)
                 .styleGuide(.title2)
 
-            Text("Get verification codes for all your accounts using 2-step verification.")
+            Text(Localizations.getVerificationCodesForAllYourAccounts)
 
             Spacer()
         }
@@ -78,10 +76,10 @@ struct TutorialView: View {
             Asset.Images.qrIllustration.swiftUIImage
                 .frame(height: 140)
 
-            Text("User your device camera to scan codes")
+            Text(Localizations.useYourDeviceCameraToScanCodes)
                 .styleGuide(.title2)
 
-            Text("Scan the QR code in your 2-step verification settings for any account.")
+            Text(Localizations.scanTheQRCodeInYourSettings)
 
             Spacer()
         }
@@ -93,10 +91,10 @@ struct TutorialView: View {
             Asset.Images.uniqueCodes.swiftUIImage
                 .frame(height: 140)
 
-            Text("Sign in using unique codes")
+            Text(Localizations.signInUsingUniqueCodes)
                 .styleGuide(.title2)
 
-            Text("When using 2-step verification, you’ll enter your username and password and a code generated in this app.")
+            Text(Localizations.whenUsingTwoStepVerification)
 
             Spacer()
         }
