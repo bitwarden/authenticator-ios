@@ -12,6 +12,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// The types of modules used by this coordinator.
     typealias Module = ItemListModule
         & TabModule
+        & TutorialModule
 
     // MARK: Private Properties
 
@@ -61,16 +62,16 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         switch event {
         case .didStart:
             showTab(route: .itemList(.list))
-//            showItemList(route: .list)
+            navigate(to: .tutorial)
         }
     }
 
     func navigate(to route: AppRoute, context _: AnyObject?) {
         switch route {
-        case .onboarding:
-            break
         case let .tab(tabRoute):
             showTab(route: tabRoute)
+        case .tutorial:
+            showTutorial()
         }
     }
 
@@ -119,5 +120,16 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.navigate(to: route)
             childCoordinator = coordinator
         }
+    }
+
+    /// Shows the welcome tutorial.
+    ///
+    private func showTutorial() {
+        let navigationController = UINavigationController()
+        let coordinator = module.makeTutorialCoordinator(
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        rootNavigator?.show(child: navigationController)
     }
 }
