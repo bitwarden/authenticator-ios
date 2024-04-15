@@ -11,6 +11,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     /// The module types required by this coordinator for creating child coordinators.
     typealias Module = ItemListModule
         & SettingsModule
+    & TutorialModule
 
     // MARK: Properties
 
@@ -36,6 +37,8 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
 
     /// The coordinator used to navigate to `SettingsRoute`s.
     private var settingsCoordinator: AnyCoordinator<SettingsRoute, SettingsEvent>?
+
+    private var tutorialCoordinator: AnyCoordinator<TutorialRoute, TutorialEvent>?
 
     // MARK: Initialization
 
@@ -76,6 +79,8 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
             itemListCoordinator?.navigate(to: itemListRoute, context: context)
         case let .settings(settingsRoute):
             settingsCoordinator?.navigate(to: settingsRoute, context: context)
+        case let .tutorial(tutorialRoute):
+            tutorialCoordinator?.navigate(to: tutorialRoute, context: context)
         }
     }
 
@@ -98,9 +103,18 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         settingsCoordinator.start()
         self.settingsCoordinator = settingsCoordinator
 
+        let tutorialNavigator = UINavigationController()
+        tutorialNavigator.navigationBar.prefersLargeTitles = false
+        let tutorialCoordinator = module.makeTutorialCoordinator(
+            stackNavigator: tutorialNavigator
+        )
+        tutorialCoordinator.start()
+        self.tutorialCoordinator = tutorialCoordinator
+
         let tabsAndNavigators: [TabRoute: Navigator] = [
             .itemList(.list): itemListNavigator,
             .settings(.settings): settingsNavigator,
+            .tutorial(.tutorial): tutorialNavigator,
         ]
         tabNavigator.setNavigators(tabsAndNavigators)
     }

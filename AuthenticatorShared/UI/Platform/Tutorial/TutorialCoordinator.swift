@@ -48,7 +48,27 @@ final class TutorialCoordinator: Coordinator, HasStackNavigator {
 
     func handleEvent(_ event: TutorialEvent, context: AnyObject?) async {}
 
-    func navigate(to route: TutorialRoute, context: AnyObject?) {}
+    func navigate(to route: TutorialRoute, context: AnyObject?) {
+        switch route {
+        case .tutorial:
+            showTutorial()
+        }
+    }
 
-    func start() {}
+    func start() {
+        navigate(to: .tutorial)
+    }
+
+    // MARK: Private Methods
+
+    /// Shows the tutorial.
+    ///
+    private func showTutorial() {
+        let processor = TutorialProcessor(
+            coordinator: asAnyCoordinator(),
+            state: TutorialState()
+        )
+        let view = TutorialView(store: Store(processor: processor))
+        stackNavigator?.push(view)
+    }
 }

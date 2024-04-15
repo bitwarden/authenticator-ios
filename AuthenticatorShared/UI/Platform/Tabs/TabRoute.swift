@@ -8,6 +8,8 @@ public enum TabRoute: Equatable, Hashable {
     /// The verification codes
     case itemList(ItemListRoute)
 
+    case tutorial(TutorialRoute)
+
     /// The settings tab.
     case settings(SettingsRoute)
 }
@@ -19,6 +21,7 @@ extension TabRoute: TabRepresentable {
         switch self {
         case .itemList: return Asset.Images.lockedFilled.image
         case .settings: return Asset.Images.gearFilled.image
+        case .tutorial: return Asset.Images.camera.image
         }
     }
 
@@ -26,6 +29,7 @@ extension TabRoute: TabRepresentable {
         switch self {
         case .itemList: return 0
         case .settings: return 1
+        case .tutorial: return 2
         }
     }
 
@@ -33,6 +37,7 @@ extension TabRoute: TabRepresentable {
         switch self {
         case .itemList: return Asset.Images.lockedFilled.image
         case .settings: return Asset.Images.gearFilled.image
+        case .tutorial: return Asset.Images.camera.image
         }
     }
 
@@ -40,6 +45,7 @@ extension TabRoute: TabRepresentable {
         switch self {
         case .itemList: return Localizations.verificationCodes
         case .settings: return Localizations.settings
+        case .tutorial: return "Tutorial"
         }
     }
 }
