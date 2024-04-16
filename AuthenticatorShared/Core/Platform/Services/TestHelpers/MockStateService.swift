@@ -5,6 +5,7 @@ import Foundation
 
 class MockStateService: StateService {
     var appLanguage: LanguageOption = .default
+    var hasSeenWelcomeTutorial: Bool = false
     var appTheme: AppTheme?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
