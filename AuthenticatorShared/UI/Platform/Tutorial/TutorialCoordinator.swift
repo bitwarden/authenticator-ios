@@ -11,6 +11,7 @@ final class TutorialCoordinator: Coordinator, HasStackNavigator {
     typealias Module = DefaultAppModule
 
     typealias Services = HasErrorReporter
+        & HasStateService
 
     // MARK: Private Properties
 
@@ -51,6 +52,7 @@ final class TutorialCoordinator: Coordinator, HasStackNavigator {
     func navigate(to route: TutorialRoute, context: AnyObject?) {
         switch route {
         case .dismiss:
+            services.stateService.hasSeenWelcomeTutorial = true
             stackNavigator?.dismiss()
         case .tutorial:
             showTutorial()

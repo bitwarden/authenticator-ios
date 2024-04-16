@@ -3,9 +3,6 @@
 public enum AppRoute: Equatable {
     /// A route to the tab interface.
     case tab(TabRoute)
-
-    /// A route to the welcome tutorial.
-    case tutorial
 }
 
 public enum AppEvent: Equatable {

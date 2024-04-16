@@ -62,7 +62,9 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         switch event {
         case .didStart:
             showTab(route: .itemList(.list))
-            navigate(to: .tutorial)
+            if (!services.stateService.hasSeenWelcomeTutorial) {
+                showTutorial()
+            }
         }
     }
 
@@ -70,8 +72,6 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         switch route {
         case let .tab(tabRoute):
             showTab(route: tabRoute)
-        case .tutorial:
-            showTutorial()
         }
     }
 
@@ -130,6 +130,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             stackNavigator: navigationController
         )
         coordinator.start()
-        rootNavigator?.show(child: navigationController)
+
+        navigationController.modalPresentationStyle = .overFullScreen
+        rootNavigator?.rootViewController?.present(navigationController, animated: false)
     }
 }
