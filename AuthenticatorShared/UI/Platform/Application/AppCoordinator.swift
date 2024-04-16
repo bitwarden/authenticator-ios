@@ -82,25 +82,6 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     // MARK: Private Methods
 
-    /// Shows the Item List screen.
-    ///
-    /// - Parameter route: The item list route to show.
-    ///
-    private func showItemList(route: ItemListRoute) {
-        if let coordinator = childCoordinator as? AnyCoordinator<ItemListRoute, ItemListEvent> {
-            coordinator.navigate(to: route)
-        } else {
-            let stackNavigator = UINavigationController()
-            let coordinator = module.makeItemListCoordinator(
-                stackNavigator: stackNavigator
-            )
-            coordinator.start()
-            coordinator.navigate(to: .list)
-            childCoordinator = coordinator
-            rootNavigator?.show(child: stackNavigator)
-        }
-    }
-
     /// Shows the tab route.
     ///
     /// - Parameter route: The tab route to show.
