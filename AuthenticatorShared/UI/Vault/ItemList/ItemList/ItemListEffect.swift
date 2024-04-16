@@ -12,13 +12,6 @@ enum ItemListEffect: Equatable {
     ///
     case copyPressed(_ item: ItemListItem)
 
-    /// The more button on an item in the vault group was tapped.
-    ///
-    /// - Parameters:
-    ///   - item: The item associated with the more button that was tapped.
-    ///
-    case morePressed(_ item: ItemListItem)
-
     /// The refresh control was triggered.
     case refresh
 

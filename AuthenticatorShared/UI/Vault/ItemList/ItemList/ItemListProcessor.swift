@@ -69,8 +69,6 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 else { return }
                 await generateAndCopyTotpCode(totpKey: totpKey)
             }
-        case let .morePressed(item):
-            await showMoreOptionsAlert(for: item)
         case .refresh:
             await streamItemList()
         case let .search(text):
@@ -84,9 +82,6 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         switch action {
         case .clearURL:
             break
-        case let .copyTOTPCode(code):
-            services.pasteboardService.copy(code)
-            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
         case let .deletePressed(item):
             confirmDeleteItem(item.id)
         case let .editPressed(item):
@@ -184,22 +179,6 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         } else {
             coordinator.navigate(to: .setupTotpManual, context: self)
         }
-    }
-
-    /// Show the more options alert for the selected item.
-    ///
-    /// - Parameter item: The selected item to show the options for.
-    ///
-    private func showMoreOptionsAlert(for item: ItemListItem) async {
-        guard case let .totp(model) = item.itemType else { return }
-
-        coordinator.showAlert(
-            .moreOptions(
-                authenticatorItemView: model.itemView,
-                id: item.id,
-                action: handleMoreOptionsAction
-            )
-        )
     }
 
     /// Handle the result of the selected option on the More Options alert.

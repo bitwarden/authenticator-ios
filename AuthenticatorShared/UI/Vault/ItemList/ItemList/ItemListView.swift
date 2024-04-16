@@ -210,18 +210,8 @@ private struct SearchableItemListView: View {
                         showWebIcons: state.showWebIcons
                     )
                 },
-                mapAction: { action in
-                    switch action {
-                    case let .copyTOTPCode(code):
-                        return .copyTOTPCode(code)
-                    }
-                },
-                mapEffect: { effect in
-                    switch effect {
-                    case .morePressed:
-                        return .morePressed(item)
-                    }
-                }
+                mapAction: nil,
+                mapEffect: nil
             ),
             timeProvider: timeProvider
         )
