@@ -96,14 +96,39 @@ struct ItemListView: View {
             LazyVStack(alignment: .leading, spacing: 7) {
                 ForEach(items) { item in
                     Menu {
-                        AsyncButton(Localizations.copy) {
+                        AsyncButton {
                             await store.perform(.copyPressed(item))
+                        } label: {
+                            HStack(spacing: 4) {
+                                Text(Localizations.copy)
+                                Spacer()
+                                Image(decorative: Asset.Images.copy)
+                                    .imageStyle(.accessoryIcon(scaleWithFont: true))
+                            }
                         }
-                        Button(Localizations.edit) {
+
+                        Button {
                             store.send(.editPressed(item))
+                        } label: {
+                            HStack(spacing: 4) {
+                                Text(Localizations.edit)
+                                Spacer()
+                                Image(decorative: Asset.Images.pencil)
+                                    .imageStyle(.accessoryIcon(scaleWithFont: true))
+                            }
                         }
-                        Button(Localizations.delete, role: .destructive) {
+
+                        Divider()
+
+                        Button(role: .destructive) {
                             store.send(.deletePressed(item))
+                        } label: {
+                            HStack(spacing: 4) {
+                                Text(Localizations.delete)
+                                Spacer()
+                                Image(decorative: Asset.Images.trash)
+                                    .imageStyle(.accessoryIcon(scaleWithFont: true))
+                            }
                         }
                     } label: {
                         vaultItemRow(
