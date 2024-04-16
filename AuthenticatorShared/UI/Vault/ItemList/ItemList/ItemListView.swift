@@ -113,34 +113,6 @@ struct ItemListView: View {
                     } primaryAction: {
                         store.send(.itemPressed(item))
                     }
-
-//                    if let totp = authenticatorItemView.totpKey,
-//                       let totpKey = TOTPKeyModel(authenticatorKey: totp) {
-//                        alertActions.append(
-//                            AlertAction(title: Localizations.copy, style: .default) { _, _ in
-//                                await action(.copyTotp(totpKey: totpKey))
-//                            })
-//                    }
-//
-//                    alertActions.append(AlertAction(title: Localizations.edit, style: .default) { _, _ in
-//                        await action(.edit(authenticatorItemView: authenticatorItemView))
-//                    })
-//
-//                    alertActions.append(AlertAction(title: Localizations.delete, style: .destructive) { _, _ in
-//                        await action(.delete(id: id))
-//                    })
-
-
-//                    vaultItemRow(
-//                        for: item,
-//                        isLastInSection: true
-//                    )
-//                    .onTapGesture {
-//                        store.send(.itemPressed(item))
-//                    }
-//                    .onLongPressGesture {
-//                        await store.perform(.morePressed(item))
-//                    }
                 }
                 .background(Asset.Colors.backgroundPrimary.swiftUIColor)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
