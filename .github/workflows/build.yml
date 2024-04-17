@@ -172,6 +172,6 @@ jobs:
         run: |
           xcrun altool --upload-app \
             --type ios \
-            --file "build/Bitwarden/Bitwarden.ipa" \
+            --file "build/Authenticator/Authenticator.ipa" \
             --username "$APPLE_ID_USERNAME" \
             --password @env:APPLE_ID_PASSWORD
