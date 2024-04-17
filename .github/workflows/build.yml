@@ -90,6 +90,16 @@ jobs:
               --file $HOME/secrets/$FILE --output none
           done
 
+      - name: Download Google Services secret
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: mobile
+          FILE: GoogleService-Info.plist
+        run: |
+          mkdir -p $HOME/secrets
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
+            --file Authenticator/Application/Support/$FILE --output none
+
       - name: Get certificates
         run: |
           mkdir -p $HOME/certificates
