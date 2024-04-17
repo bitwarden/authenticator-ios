@@ -44,7 +44,7 @@ DEVELOPMENT_TEAM = LTZ2PFU5D6
 ORGANIZATION_IDENTIFIER = com.8bit
 BASE_BUNDLE_ID = ${ios_bundle_id}
 APPICON_NAME = ${app_icon}
-PROVISIONING_PROFILE_SPECIFIER = ${profile_prefix} Authenticator
+PROVISIONING_PROFILE_SPECIFIER = ${profile_prefix} Bitwarden Authenticator
 EOF
 
 cat << EOF > ${export_options_file}
@@ -57,7 +57,7 @@ cat << EOF > ${export_options_file}
     <key>provisioningProfiles</key>
     <dict>
         <key>${ios_bundle_id}</key>
-        <string>${profile_prefix} Authenticator</string>
+        <string>${profile_prefix} Bitwarden Authenticator</string>
     </dict>
     <key>manageAppVersionAndBuildNumber</key>
     <false/>
