@@ -129,30 +129,30 @@ jobs:
         run: |
           mint bootstrap
 
-      - name: Select variant
-        run: |
-          ./Scripts/select_variant.sh ${{ env.build-variant }}
+      # - name: Select variant
+      #   run: |
+      #     ./Scripts/select_variant.sh ${{ env.build-variant }}
 
-      - name: Update build version
-        if: ${{ inputs.build-version }}
-        run: |
-          yq -i '.settings.MARKETING_VERSION = "${{ inputs.build-version }}"' 'project.yml'
+      # - name: Update build version
+      #   if: ${{ inputs.build-version }}
+      #   run: |
+      #     yq -i '.settings.MARKETING_VERSION = "${{ inputs.build-version }}"' 'project.yml'
 
-      - name: Update build number
-        run: |
-          BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
-          yq -i ".settings.CURRENT_PROJECT_VERSION = ${{ inputs.build-number || '$BUILD_NUMBER' }}" 'project.yml'
+      # - name: Update build number
+      #   run: |
+      #     BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
+      #     yq -i ".settings.CURRENT_PROJECT_VERSION = ${{ inputs.build-number || '$BUILD_NUMBER' }}" 'project.yml'
 
-      - name: Build iOS app
-        run: |
-          BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
-          ./Scripts/build.sh
+      # - name: Build iOS app
+      #   run: |
+      #     BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
+      #     ./Scripts/build.sh
 
-      - name: Upload IPA
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
-        with:
-          name: Authenticator iOS
-          path: build/Authenticator/Authenticator.ipa
+      # - name: Upload IPA
+      #   uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+      #   with:
+      #     name: Authenticator iOS
+      #     path: build/Authenticator/Authenticator.ipa
 
       # - name: Validate app with App Store Connect
       #   env:
