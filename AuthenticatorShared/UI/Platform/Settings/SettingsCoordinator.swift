@@ -125,6 +125,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     private func showSettings() {
         let processor = SettingsProcessor(
             coordinator: asAnyCoordinator(),
+            services: services,
             state: SettingsState()
         )
         let view = SettingsView(store: Store(processor: processor))
