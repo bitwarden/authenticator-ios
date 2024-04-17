@@ -86,9 +86,6 @@ struct ItemListItemRowView: View {
         Text(model.displayCode)
             .styleGuide(.bodyMonospaced, weight: .regular, monoSpacedDigit: true)
             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-
-        Image(decorative: Asset.Images.copy)
-            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
     }
 }
 
