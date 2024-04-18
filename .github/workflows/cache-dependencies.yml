@@ -41,4 +41,3 @@ jobs:
         if: steps.mint-cache.outputs.cache-hit != 'true'
         run: |
           mint bootstrap
-  
