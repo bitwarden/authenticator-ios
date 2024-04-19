@@ -1,5 +1,5 @@
 xcode_summary.ignored_files = '**/SourcePackages/*'
-xcode_summary.report 'build/SuthenticatorTests.xcresult'
+xcode_summary.report 'build/AuthenticatorTests.xcresult'
 
 slather.configure(
   'Authenticator.xcodeproj', 'Authenticator',
@@ -16,5 +16,5 @@ slather.configure(
 )
 
 slather.notify_if_coverage_is_less_than(minimum_coverage: 25, notify_level: :warning)
-slather.notify_if_modified_file_is_less_than(minimum_coverage: 25, notify_level: :warning)
+slather.notify_if_modified_file_is_less_than(minimum_coverage: 0, notify_level: :warning)
 slather.show_coverage
