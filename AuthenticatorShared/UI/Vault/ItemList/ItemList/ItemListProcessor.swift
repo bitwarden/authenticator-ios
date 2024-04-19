@@ -1,5 +1,7 @@
 import Foundation
 
+// swiftlint:disable file_length
+
 // MARK: - ItemListProcessor
 
 /// A `Processor` that can process `ItemListAction` and `ItemListEffect` objects.

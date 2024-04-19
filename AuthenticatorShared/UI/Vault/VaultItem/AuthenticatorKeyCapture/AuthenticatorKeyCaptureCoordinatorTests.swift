@@ -63,8 +63,8 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
     func test_navigateTo_complete() {
         let result = ScanResult(content: "example.com", codeType: .qr)
         subject.navigate(to: .complete(value: result))
-        XCTAssertTrue(delegate.didCompleteCaptureCalled)
-        XCTAssertEqual(delegate.didCompleteCaptureKey, "example.com")
+        XCTAssertTrue(delegate.didCompleteAutomaticCaptureCalled)
+        XCTAssertEqual(delegate.didCompleteAutomaticCaptureKey, "example.com")
         XCTAssertNil(delegate.didCompleteCaptureName)
     }
 

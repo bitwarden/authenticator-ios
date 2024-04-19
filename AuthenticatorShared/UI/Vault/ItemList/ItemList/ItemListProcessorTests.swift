@@ -80,6 +80,7 @@ class ItemListProcessorTests: AuthenticatorTestCase {
         }
         XCTAssertNotNil(dismissAction)
         dismissAction?.action()
+        waitFor(!authItemRepository.addAuthItemAuthItems.isEmpty)
         guard let item = authItemRepository.addAuthItemAuthItems.first
         else {
             XCTFail("Unable to get authenticator item")
