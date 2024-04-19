@@ -87,7 +87,7 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
         case let .issuerChanged(issuer):
             state.issuer = issuer
         case let .nameChanged(newValue):
-            state.name = newValue
+            state.issuer = newValue
         case let .periodChanged(period):
             state.period = period
         case let .secretChanged(secret):
