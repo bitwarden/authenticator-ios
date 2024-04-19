@@ -36,7 +36,7 @@ public class ServiceContainer: Services {
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 
-    /// THe service used to export items.
+    /// The service used to export items.
     let exportItemsService: ExportItemsService
 
     /// The service used to perform app data migrations.
@@ -143,7 +143,6 @@ public class ServiceContainer: Services {
         let cryptographyService = DefaultCryptographyService(
             cryptographyKeyService: cryptographyKeyService
         )
-
 
         let migrationService = DefaultMigrationService(
             appSettingsStore: appSettingsStore,

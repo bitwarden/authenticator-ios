@@ -51,7 +51,7 @@ class SelectLanguageViewTests: AuthenticatorTestCase {
     func test_viewRender() {
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5()]
         )
     }
 }
