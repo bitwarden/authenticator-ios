@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import OSLog
 
 // MARK: - AuthenticatorItemRepository
 
@@ -115,8 +114,6 @@ class DefaultAuthenticatorItemRepository {
             try await self.cryptographyService.decrypt(item)
         }
         .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-
-        Logger.application.log("Items: \(items)")
 
         let allItems = items.compactMap(ItemListItem.init)
 
