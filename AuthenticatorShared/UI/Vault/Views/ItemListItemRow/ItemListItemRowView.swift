@@ -76,16 +76,26 @@ struct ItemListItemRowView: View {
     @ViewBuilder
     private func totpCodeRow(name: String, accountName: String?, model: TOTPCodeModel) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(name)
-                .styleGuide(.headline)
-                .lineLimit(1)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-            if let accountName {
-                Text(accountName)
-                    .styleGuide(.subheadline)
+            if let name = name.nilIfEmpty {
+                Text(name)
+                    .styleGuide(.headline)
                     .lineLimit(1)
-                    .foregroundColor(
-                        Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                if let accountName {
+                    Text(accountName)
+                        .styleGuide(.subheadline)
+                        .lineLimit(1)
+                        .foregroundColor(
+                            Asset.Colors.textSecondary.swiftUIColor)
+                }
+            } else {
+                if let accountName {
+                    Text(accountName)
+                        .styleGuide(.headline)
+                        .lineLimit(1)
+                        .foregroundColor(
+                            Asset.Colors.textPrimary.swiftUIColor)
+                }
             }
         }
         Spacer()
@@ -139,6 +149,35 @@ struct ItemListItemRowView: View {
                         id: UUID().uuidString,
                         name: "Example",
                         accountName: nil,
+                        itemType: .totp(
+                            model: ItemListTotpItem(
+                                itemView: AuthenticatorItemView.fixture(),
+                                totpCode: TOTPCodeModel(
+                                    code: "123456",
+                                    codeGenerationDate: Date(),
+                                    period: 30
+                                )
+                            )
+                        )
+                    ),
+                    hasDivider: true,
+                    showWebIcons: true
+                )
+            )
+        ),
+        timeProvider: PreviewTimeProvider()
+    )
+}
+
+#Preview("With just account name") {
+    ItemListItemRowView(
+        store: Store(
+            processor: StateProcessor(
+                state: ItemListItemRowState(
+                    item: ItemListItem(
+                        id: UUID().uuidString,
+                        name: "",
+                        accountName: "person@example.com",
                         itemType: .totp(
                             model: ItemListTotpItem(
                                 itemView: AuthenticatorItemView.fixture(),

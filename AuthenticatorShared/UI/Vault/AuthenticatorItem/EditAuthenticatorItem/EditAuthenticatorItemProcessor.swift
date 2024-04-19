@@ -129,7 +129,7 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
         defer { coordinator.hideLoadingOverlay() }
         do {
             try EmptyInputValidator(fieldName: Localizations.name)
-                .validate(input: state.name)
+                .validate(input: state.issuer)
             coordinator.showLoadingOverlay(title: Localizations.saving)
             switch state.configuration {
             case .add:
@@ -147,7 +147,7 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
 
                 let newAuthenticatorItemView = AuthenticatorItemView(
                     id: authenticatorItemView.id,
-                    name: state.name,
+                    name: state.issuer,
                     totpKey: newOtpUri.otpAuthUri
                 )
                 try await updateAuthenticatorItem(authenticatorItem: newAuthenticatorItemView)

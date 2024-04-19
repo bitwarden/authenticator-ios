@@ -342,7 +342,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
     func didCompleteAutomaticCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         key: String
-    )  {
+    ) {
         let dismissAction = DismissAction(action: { [weak self] in
             Task {
                 await self?.parseAndValidateAutomaticCaptureKey(key)
@@ -391,9 +391,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
                 let newOtpAuthUri = OTPAuthModel(issuer: name, secret: key)
                 let newKeyModel = try services.totpService.getTOTPConfiguration(key: newOtpAuthUri.otpAuthUri)
                 loginTotpState = LoginTOTPState(authKeyModel: newKeyModel)
-            case .otpAuthUri:
-                loginTotpState = LoginTOTPState(authKeyModel: authKeyModel)
-            case .steamUri:
+            case .otpAuthUri, .steamUri:
                 loginTotpState = LoginTOTPState(authKeyModel: authKeyModel)
             }
 

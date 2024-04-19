@@ -39,7 +39,7 @@ extension ItemListItem {
         let totpCode = TOTPCodeModel(code: "123456", codeGenerationDate: .now, period: 30)
         let totpModel = ItemListTotpItem(itemView: authenticatorItemView, totpCode: totpCode)
         self.init(id: authenticatorItemView.id,
-                  name: authenticatorItemView.name,
+                  name: totpKey.issuer ?? "",
                   accountName: totpKey.accountName,
                   itemType: .totp(model: totpModel))
     }

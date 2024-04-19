@@ -57,8 +57,8 @@ struct EditAuthenticatorItemView: View {
             BitwardenTextField(
                 title: Localizations.name,
                 text: store.binding(
-                    get: \.name,
-                    send: EditAuthenticatorItemAction.nameChanged
+                    get: \.issuer,
+                    send: EditAuthenticatorItemAction.issuerChanged
                 )
             )
 
@@ -80,14 +80,6 @@ struct EditAuthenticatorItemView: View {
                 text: store.binding(
                     get: \.accountName,
                     send: EditAuthenticatorItemAction.accountNameChanged
-                )
-            )
-
-            BitwardenTextField(
-                title: Localizations.issuer,
-                text: store.binding(
-                    get: \.issuer,
-                    send: EditAuthenticatorItemAction.issuerChanged
                 )
             )
         }

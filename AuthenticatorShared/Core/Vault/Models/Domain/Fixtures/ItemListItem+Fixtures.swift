@@ -26,15 +26,11 @@ extension ItemListTotpItem {
             code: "123456",
             codeGenerationDate: Date(),
             period: 30
-        ),
-        totpKey: TOTPKeyModel = TOTPKeyModel(
-            authenticatorKey: "example"
-        )!
+        )
     ) -> ItemListTotpItem {
         ItemListTotpItem(
             itemView: itemView,
-            totpCode: totpCode,
-            totpKey: totpKey
+            totpCode: totpCode
         )
     }
 }
