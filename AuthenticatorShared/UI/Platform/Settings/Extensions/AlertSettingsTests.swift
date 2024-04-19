@@ -62,7 +62,7 @@ class AlertSettingsTests: AuthenticatorTestCase {
     /// `confirmExportItems(action:)` constructs an `Alert`
     ///  with the title, message, and Yes and Export items buttons.
     func test_confirmExportVault() {
-        var subject = Alert.confirmExportItems {}
+        let subject = Alert.confirmExportItems {}
 
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.preferredStyle, .alert)

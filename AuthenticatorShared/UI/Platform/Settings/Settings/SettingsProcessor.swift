@@ -80,9 +80,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
 
     /// Shows the alert to confirm the items export.
     private func confirmExportItems() {
-        let format = ExportFileType.json
-
-        coordinator.showAlert(.confirmExportItems() {
+        coordinator.showAlert(.confirmExportItems {
             do {
                 let fileUrl = try await self.services.exportItemsService.exportItems(format: .json)
                 self.coordinator.navigate(to: .shareExportedItems(fileUrl))

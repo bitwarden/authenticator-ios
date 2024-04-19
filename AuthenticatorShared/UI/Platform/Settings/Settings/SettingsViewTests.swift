@@ -86,6 +86,9 @@ class SettingsViewTests: AuthenticatorTestCase {
 
     /// Tests the view renders correctly.
     func test_viewRender() {
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
     }
 }
