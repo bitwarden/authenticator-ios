@@ -82,6 +82,7 @@ struct EditAuthenticatorItemView: View {
                     send: EditAuthenticatorItemAction.accountNameChanged
                 )
             )
+            .textFieldConfiguration(.username)
         }
     }
 
