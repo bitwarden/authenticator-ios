@@ -137,7 +137,7 @@ struct ManualEntryView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: PreviewState(
                             authenticatorKey: "manualEntry",
-                            name: "Amazon"
+                            name: "Manual Name"
                         ).manualEntryState
                     )
                 )
