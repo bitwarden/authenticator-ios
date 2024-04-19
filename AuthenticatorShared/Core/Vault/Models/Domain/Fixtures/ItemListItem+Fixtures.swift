@@ -3,6 +3,16 @@ import Foundation
 
 @testable import AuthenticatorShared
 
+extension ItemListSection {
+    static func fixture() -> ItemListSection {
+        ItemListSection(
+            id: "example",
+            items: [ItemListItem.fixture()],
+            name: "Section"
+        )
+    }
+}
+
 extension ItemListItem {
     static func fixture(
         id: String = "123",

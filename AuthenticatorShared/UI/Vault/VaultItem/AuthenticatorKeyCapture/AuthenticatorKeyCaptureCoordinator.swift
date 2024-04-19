@@ -8,27 +8,28 @@ import SwiftUI
 ///
 @MainActor
 protocol AuthenticatorKeyCaptureDelegate: AnyObject {
-    /// Called when the scan flow has been completed.
+    /// Called when the QR scan flow has been completed.
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator sending the action.
-    ///   - value: The code value that was captured.
+    ///   - key: The key that was captured.
     ///
-    func didCompleteCapture(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
-        key: String,
-        name: String?
-    )
-
     func didCompleteAutomaticCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         key: String
     )
 
+    /// Called when the manual key entry flow has been completed.
+    ///
+    /// - Parameters:
+    ///   - coordinator: The coordinator sending the action.
+    ///   - key: The key the user input.
+    ///   - name: The name the user input.
+    ///
     func didCompleteManualCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
-        name: String,
-        key: String
+        key: String,
+        name: String
     )
 
     /// Called when the scan flow requests the scan code screen.
@@ -118,8 +119,8 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
         case let .addManual(key: authKey, name: name):
             delegate?.didCompleteManualCapture(
                 asAnyCoordinator(),
-                name: name,
-                key: authKey
+                key: authKey,
+                name: name
             )
         case .manualKeyEntry:
             guard let stackNavigator else { return }

@@ -270,8 +270,8 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
 
     func didCompleteManualCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
-        name: String,
-        key: String
+        key: String,
+        name: String
     ) {
         didCompleteManualCaptureCalled = true
         capturedCaptureCoordinator = captureCoordinator
