@@ -80,7 +80,7 @@ struct ItemListItemRowView: View {
                 .styleGuide(.headline)
                 .lineLimit(1)
                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-            if let accountName = accountName {
+            if let accountName {
                 Text(accountName)
                     .styleGuide(.subheadline)
                     .lineLimit(1)
@@ -117,8 +117,7 @@ struct ItemListItemRowView: View {
                                     code: "123456",
                                     codeGenerationDate: Date(),
                                     period: 30
-                                ),
-                                totpKey: TOTPKeyModel(authenticatorKey: "example")!
+                                )
                             )
                         )
                     ),
@@ -147,8 +146,7 @@ struct ItemListItemRowView: View {
                                     code: "123456",
                                     codeGenerationDate: Date(),
                                     period: 30
-                                ),
-                                totpKey: TOTPKeyModel(authenticatorKey: "example")!
+                                )
                             )
                         )
                     ),
