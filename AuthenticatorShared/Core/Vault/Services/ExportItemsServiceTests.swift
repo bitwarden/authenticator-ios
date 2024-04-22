@@ -60,8 +60,9 @@ final class ExportItemsServiceTests: AuthenticatorTestCase {
         let exported = try await subject.exportFileContents(format: fileType)
 
         let decoder = JSONDecoder()
-        let actual = try decoder.decode([AuthenticatorItemView].self, from: exported.data(using: .utf8)!)
-        XCTAssertEqual(items, actual)
+        let actual = try decoder.decode([CipherLike].self, from: exported.data(using: .utf8)!)
+        let expected = items.map(CipherLike.init)
+        XCTAssertEqual(actual, expected)
     }
 
     /// `generateExportFileName` handles the JSON extension

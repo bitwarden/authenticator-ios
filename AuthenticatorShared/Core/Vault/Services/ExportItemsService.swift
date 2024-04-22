@@ -114,6 +114,7 @@ class DefaultExportItemsService: ExportItemsService {
 
     func exportFileContents(format: ExportFileType) async throws -> String {
         let items = try await authenticatorItemRepository.fetchAllAuthenticatorItems()
+            .compactMap(CipherLike.init)
         let sortedItems = items.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         let encoder = JSONEncoder()
