@@ -1,6 +1,6 @@
 // MARK: - ExportFormatType
 
-/// An enum describing the format of the vault export.
+/// An enum describing the format of the items export.
 ///
 enum ExportFormatType: Menuable {
     /// A CSV file.

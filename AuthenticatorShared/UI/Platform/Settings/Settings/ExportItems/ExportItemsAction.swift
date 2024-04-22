@@ -9,5 +9,5 @@ enum ExportItemsAction: Equatable {
     case fileFormatTypeChanged(ExportFormatType)
 
     /// The export button was tapped.
-    case exportTapped
+    case exportItemsTapped
 }

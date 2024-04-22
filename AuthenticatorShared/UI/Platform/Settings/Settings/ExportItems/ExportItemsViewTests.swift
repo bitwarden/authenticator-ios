@@ -36,12 +36,12 @@ class ExportItemsViewTests: AuthenticatorTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
     }
 
-    /// Tapping the export items button sends the `.exportTapped` action.
+    /// Tapping the export items button sends the `.exportItemsTapped` action.
     func test_exportItemsButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.exportItems)
         try button.tap()
 
-        XCTAssertEqual(processor.dispatchedActions.last, .exportTapped)
+        XCTAssertEqual(processor.dispatchedActions.last, .exportItemsTapped)
     }
 
     /// Updating the value of the file format sends the  `.fileFormatTypeChanged()` action.

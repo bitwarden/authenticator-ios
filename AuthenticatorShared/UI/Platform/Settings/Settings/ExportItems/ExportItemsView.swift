@@ -35,7 +35,7 @@ struct ExportItemsView: View {
     /// The button to export the items.
     private var exportButton: some View {
         Button(Localizations.exportItems) {
-            store.send(.exportTapped)
+            store.send(.exportItemsTapped)
         }
         .buttonStyle(.tertiary())
         .accessibilityIdentifier("ExportItemsButton")
