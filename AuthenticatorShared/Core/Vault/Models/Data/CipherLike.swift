@@ -53,3 +53,13 @@ struct LoginLike: Codable, Equatable {
         algorithm = key.algorithm.rawValue
     }
 }
+
+// MARK: VaultLike
+
+/// A data model used to export/import authenticator items in a way that resembles
+/// a full vault export/import from the PM app.
+///
+struct VaultLike: Codable, Equatable {
+    let encrypted: Bool
+    let items: [CipherLike]
+}

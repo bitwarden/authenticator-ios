@@ -117,9 +117,10 @@ class DefaultExportItemsService: ExportItemsService {
             .compactMap(CipherLike.init)
         let sortedItems = items.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
+        let vault = VaultLike(encrypted: false, items: sortedItems)
         let encoder = JSONEncoder()
         encoder.outputFormatting = .sortedKeys
-        let data = try encoder.encode(sortedItems)
+        let data = try encoder.encode(vault)
         guard let contents = String(data: data, encoding: .utf8) else {
             throw ExportItemsError.unableToSerializeData
         }
