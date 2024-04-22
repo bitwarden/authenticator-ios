@@ -13,11 +13,10 @@ struct CipherLike: Codable, Equatable {
     let collectionIds: [String]?
     let notes: String?
     let type: Int
-    let login: LoginLike
+    let login: LoginLike?
     let favorite: Bool
 
     init?(_ item: AuthenticatorItemView) {
-        guard let login = LoginLike(item) else { return nil }
         id = item.id
         name = item.name
         folderId = nil
@@ -26,7 +25,7 @@ struct CipherLike: Codable, Equatable {
         notes = nil
         type = 1
         favorite = false
-        self.login = login
+        login = LoginLike(item)
     }
 }
 
@@ -36,21 +35,14 @@ struct CipherLike: Codable, Equatable {
 /// the `Login` part of a `Cipher` object.
 ///
 struct LoginLike: Codable, Equatable {
-    let totp: String
-    let issuer: String?
-    let period: Int
-    let digits: Int
-    let algorithm: String
+    let totp: String?
+    let username: String?
 
     init?(_ item: AuthenticatorItemView) {
-        guard let totpKey = item.totpKey,
-              let key = TOTPKey(totpKey)
+        guard let key = TOTPKeyModel(authenticatorKey: item.totpKey)
         else { return nil }
-        totp = key.base32Key
-        issuer = key.issuer
-        period = key.period
-        digits = key.period
-        algorithm = key.algorithm.rawValue
+        totp = key.rawAuthenticatorKey
+        username = key.accountName
     }
 }
 
