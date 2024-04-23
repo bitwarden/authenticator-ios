@@ -97,6 +97,8 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
             state.isSecretVisible = isVisible
         case let .toastShown(toast):
             state.toast = toast
+        case let .totpTypeChanged(type):
+            state.totpType = type
         }
     }
 
@@ -139,6 +141,7 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
                 return
             case let .existing(authenticatorItemView: authenticatorItemView):
                 guard let secret = state.totpState.authKeyModel?.base32Key else { return }
+                let newAuthenticatorItemView: AuthenticatorItemView
                 let newOtpUri = OTPAuthModel(
                     accountName: state.accountName.nilIfEmpty,
                     algorithm: state.algorithm,
@@ -148,7 +151,7 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
                     secret: secret
                 )
 
-                let newAuthenticatorItemView = AuthenticatorItemView(
+                newAuthenticatorItemView = AuthenticatorItemView(
                     favorite: authenticatorItemView.favorite,
                     id: authenticatorItemView.id,
                     name: state.issuer,

@@ -106,35 +106,48 @@ struct EditAuthenticatorItemView: View {
 
     @ViewBuilder private var advancedOptions: some View {
         BitwardenMenuField(
-            title: Localizations.algorithm,
-            options: TOTPCryptoHashAlgorithm.allCases,
+            title: Localizations.otpAuthentication,
+            options: TotpTypeOptions.allCases,
             selection: store.binding(
-                get: \.algorithm,
-                send: EditAuthenticatorItemAction.algorithmChanged
+                get: \.totpType,
+                send: EditAuthenticatorItemAction.totpTypeChanged
             )
         )
 
-        BitwardenMenuField(
-            title: Localizations.refreshPeriod,
-            options: TotpPeriodOptions.allCases,
-            selection: store.binding(
-                get: \.period,
-                send: EditAuthenticatorItemAction.periodChanged
+        if store.state.totpType == .totp {
+            BitwardenMenuField(
+                title: Localizations.algorithm,
+                options: TOTPCryptoHashAlgorithm.allCases,
+                selection: store.binding(
+                    get: \.algorithm,
+                    send: EditAuthenticatorItemAction.algorithmChanged
+                )
             )
-        )
 
-        StepperFieldView(
-            field: StepperField<EditAuthenticatorItemState>(
-                accessibilityId: nil,
-                keyPath: \.digits,
-                range: 5 ... 10,
-                title: Localizations.numberOfDigits,
-                value: store.state.digits
-            ),
-            action: { newValue in
-                store.send(.digitsChanged(newValue))
-            }
-        )
+            BitwardenMenuField(
+                title: Localizations.refreshPeriod,
+                options: TotpPeriodOptions.allCases,
+                selection: store.binding(
+                    get: \.period,
+                    send: EditAuthenticatorItemAction.periodChanged
+                )
+            )
+
+            StepperFieldView(
+                field: StepperField<EditAuthenticatorItemState>(
+                    accessibilityId: nil,
+                    keyPath: \.digits,
+                    range: 5 ... 10,
+                    title: Localizations.numberOfDigits,
+                    value: store.state.digits
+                ),
+                action: { newValue in
+                    store.send(.digitsChanged(newValue))
+                }
+            )
+        }
+
+        Divider()
     }
 
     private var saveButton: some View {
@@ -178,7 +191,8 @@ struct EditAuthenticatorItemView: View {
                             codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
                             period: 30
                         )
-                    )
+                    ),
+                    totpType: .totp
                 )
                 .editState
             )
@@ -186,7 +200,7 @@ struct EditAuthenticatorItemView: View {
     )
 }
 
-#Preview("Advanced Open") {
+#Preview("Advanced Open, TOTP") {
     EditAuthenticatorItemView(
         store: Store(
             processor: StateProcessor(
@@ -210,7 +224,45 @@ struct EditAuthenticatorItemView: View {
                             codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
                             period: 30
                         )
-                    )
+                    ),
+                    totpType: .totp
+                )
+                .editState
+            )
+        )
+    )
+}
+
+#Preview("Advanced Open, Steam") {
+    EditAuthenticatorItemView(
+        store: Store(
+            processor: StateProcessor(
+                state: AuthenticatorItemState(
+                    accountName: "Account",
+                    algorithm: .sha1,
+                    configuration: .existing(
+                        authenticatorItemView: AuthenticatorItemView(
+                            id: "Example",
+                            name: "Example",
+                            totpKey: "example"
+                        )
+                    ),
+                    digits: 6,
+                    id: "1",
+                    isAdvancedExpanded: true,
+                    issuer: "Issuer",
+                    name: "Example",
+                    period: .thirty,
+                    secret: "example",
+                    totpState: LoginTOTPState(
+                        authKeyModel: TOTPKeyModel(authenticatorKey: "example")!,
+                        codeModel: TOTPCodeModel(
+                            code: "123456",
+                            codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
+                            period: 30
+                        )
+                    ),
+                    totpType: .steam
                 )
                 .editState
             )
