@@ -1,4 +1,3 @@
-import OSLog
 import SwiftUI
 
 // MARK: - SettingsCoordinator
@@ -15,6 +14,7 @@ final class SettingsCoordinator: NSObject, Coordinator, HasStackNavigator {
         & HasBiometricsRepository
         & HasErrorReporter
         & HasExportItemsService
+        & HasImportItemsService
         & HasPasteboardService
         & HasStateService
         & HasTimeProvider
@@ -86,11 +86,9 @@ final class SettingsCoordinator: NSObject, Coordinator, HasStackNavigator {
     private func showExportedItemsUrl(_ fileUrl: URL) {
         let activityVC = UIActivityViewController(activityItems: [fileUrl], applicationActivities: nil)
         activityVC.completionWithItemsHandler = { activityType, completed, returnedItems, activityError in
-            Logger.application.log("Donedone \(completed) \(activityError)")
+            // TODO: Toast!
         }
-        stackNavigator?.present(activityVC) {
-            Logger.application.log("Done")
-        }
+        stackNavigator?.present(activityVC)
     }
 
     /// Shows the export vault screen.
@@ -154,29 +152,13 @@ final class SettingsCoordinator: NSObject, Coordinator, HasStackNavigator {
 
 extension SettingsCoordinator: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        guard let url = urls.first else { return }
         Task {
             do {
-                let importData = try Data(contentsOf: urls.first!)
-                let decoder = JSONDecoder()
-                let vaultLike = try decoder.decode(VaultLike.self, from: importData)
-                let items = vaultLike.items
-                try await items.asyncForEach { cipherLike in
-                    let item = AuthenticatorItemView(
-                        favorite: cipherLike.favorite,
-                        id: cipherLike.id,
-                        name: cipherLike.name,
-                        totpKey: cipherLike.login?.totp,
-                        username: cipherLike.login?.username
-                    )
-                    try await services.authenticatorItemRepository.addAuthenticatorItem(item)
-                }
+                try await services.importItemsService.importItems(url: url, format: .json)
             } catch {
-                Logger.application.log("\(error)")
+                services.errorReporter.log(error: error)
             }
         }
-    }
-
-    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
-        Logger.application.log("Cancelled! (???)")
     }
 }

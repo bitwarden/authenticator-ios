@@ -52,9 +52,11 @@ class DefaultImportItemsService: ImportItemsService {
         }
         try await items.asyncForEach { cipherLike in
             let item = AuthenticatorItemView(
+                favorite: cipherLike.favorite,
                 id: cipherLike.id,
                 name: cipherLike.name,
-                totpKey: cipherLike.login?.totp
+                totpKey: cipherLike.login?.totp,
+                username: cipherLike.login?.username
             )
             try await authenticatorItemRepository.addAuthenticatorItem(item)
         }
