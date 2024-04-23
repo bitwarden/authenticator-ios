@@ -1,17 +1,18 @@
-import BitwardenSdk
+import OSLog
 import SwiftUI
 
 // MARK: - SettingsCoordinator
 
 /// A coordinator that manages navigation in the settings tab.
 ///
-final class SettingsCoordinator: Coordinator, HasStackNavigator {
+final class SettingsCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Types
 
     /// The module types required by this coordinator for creating child coordinators.
     typealias Module = TutorialModule
 
-    typealias Services = HasBiometricsRepository
+    typealias Services = HasAuthenticatorItemRepository
+        & HasBiometricsRepository
         & HasErrorReporter
         & HasExportItemsService
         & HasPasteboardService
@@ -61,6 +62,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             stackNavigator?.dismiss()
         case .exportItems:
             showExportItems()
+        case .importItems:
+            showImportItems()
         case let .selectLanguage(currentLanguage: currentLanguage):
             showSelectLanguage(currentLanguage: currentLanguage, delegate: context as? SelectLanguageDelegate)
         case .settings:
@@ -95,6 +98,15 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let view = ExportItemsView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
         stackNavigator?.present(navController)
+    }
+
+    /// Presents an activity controller for importing items.
+    ///
+    private func showImportItems() {
+        let documentPicker = UIDocumentPickerViewController(forOpeningContentTypes: [.json])
+        documentPicker.delegate = self
+//        documentPicker.allowsMultipleSelection = false
+        stackNavigator?.present(documentPicker)
     }
 
     /// Shows the select language screen.
@@ -132,5 +144,34 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         )
         coordinator.start()
         stackNavigator?.present(navigationController, overFullscreen: true)
+    }
+}
+
+extension SettingsCoordinator: UIDocumentPickerDelegate {
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        Task {
+            do {
+                let importData = try Data(contentsOf: urls.first!)
+                let decoder = JSONDecoder()
+                let vaultLike = try decoder.decode(VaultLike.self, from: importData)
+                let items = vaultLike.items
+                try await items.asyncForEach { cipherLike in
+                    let item = AuthenticatorItemView(
+                        favorite: cipherLike.favorite,
+                        id: cipherLike.id,
+                        name: cipherLike.name,
+                        totpKey: cipherLike.login?.totp,
+                        username: cipherLike.login?.username
+                    )
+                    try await services.authenticatorItemRepository.addAuthenticatorItem(item)
+                }
+            } catch {
+                Logger.application.log("\(error)")
+            }
+        }
+    }
+
+    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+        Logger.application.log("Cancelled! (???)")
     }
 }

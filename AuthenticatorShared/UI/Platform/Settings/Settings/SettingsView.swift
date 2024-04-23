@@ -94,6 +94,10 @@ struct SettingsView: View {
 
             SectionView(Localizations.vault) {
                 VStack(spacing: 0) {
+                    SettingsListItem(Localizations.import) {
+                        store.send(.importItemsTapped)
+                    }
+
                     SettingsListItem(Localizations.export, hasDivider: false) {
                         store.send(.exportItemsTapped)
                     }
