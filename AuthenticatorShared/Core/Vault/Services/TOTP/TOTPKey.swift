@@ -45,8 +45,14 @@ enum TOTPKey: Equatable {
     /// The issuer for the TOTP code.
     /// Only works for `otpAuthUri` types.
     var issuer: String? {
-        guard case let .otpAuthUri(model) = self else { return nil }
-        return model.issuer
+        switch self {
+        case .base32:
+            nil
+        case let .otpAuthUri(model):
+            model.issuer
+        case .steamUri:
+            "Steam"
+        }
     }
 
     /// The key used for generating the TOTP code.

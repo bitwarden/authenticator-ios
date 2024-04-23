@@ -142,22 +142,33 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
             case let .existing(authenticatorItemView: authenticatorItemView):
                 guard let secret = state.totpState.authKeyModel?.base32Key else { return }
                 let newAuthenticatorItemView: AuthenticatorItemView
-                let newOtpUri = OTPAuthModel(
-                    accountName: state.accountName.nilIfEmpty,
-                    algorithm: state.algorithm,
-                    digits: state.digits,
-                    issuer: state.issuer.nilIfEmpty,
-                    period: state.period.rawValue,
-                    secret: secret
-                )
+                switch state.totpType {
+                case .steam:
+                    newAuthenticatorItemView = AuthenticatorItemView(
+                        favorite: false,
+                        id: authenticatorItemView.id,
+                        name: "Steam",
+                        totpKey: "steam://\(secret)",
+                        username: authenticatorItemView.username
+                    )
+                case .totp:
+                    let newOtpUri = OTPAuthModel(
+                        accountName: state.accountName.nilIfEmpty,
+                        algorithm: state.algorithm,
+                        digits: state.digits,
+                        issuer: state.issuer.nilIfEmpty,
+                        period: state.period.rawValue,
+                        secret: secret
+                    )
 
-                newAuthenticatorItemView = AuthenticatorItemView(
-                    favorite: authenticatorItemView.favorite,
-                    id: authenticatorItemView.id,
-                    name: state.issuer,
-                    totpKey: newOtpUri.otpAuthUri,
-                    username: state.accountName
-                )
+                    newAuthenticatorItemView = AuthenticatorItemView(
+                        favorite: authenticatorItemView.favorite,
+                        id: authenticatorItemView.id,
+                        name: state.issuer,
+                        totpKey: newOtpUri.otpAuthUri,
+                        username: state.accountName
+                    )
+                }
                 try await updateAuthenticatorItem(authenticatorItem: newAuthenticatorItemView)
             }
         } catch let error as InputValidationError {
