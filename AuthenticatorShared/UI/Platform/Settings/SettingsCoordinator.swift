@@ -105,7 +105,7 @@ final class SettingsCoordinator: NSObject, Coordinator, HasStackNavigator {
     private func showImportItems() {
         let documentPicker = UIDocumentPickerViewController(forOpeningContentTypes: [.json])
         documentPicker.delegate = self
-//        documentPicker.allowsMultipleSelection = false
+        documentPicker.allowsMultipleSelection = false
         stackNavigator?.present(documentPicker)
     }
 
