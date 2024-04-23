@@ -85,7 +85,12 @@ final class SettingsCoordinator: NSObject, Coordinator, HasStackNavigator {
     ///
     private func showExportedItemsUrl(_ fileUrl: URL) {
         let activityVC = UIActivityViewController(activityItems: [fileUrl], applicationActivities: nil)
-        stackNavigator?.present(activityVC)
+        activityVC.completionWithItemsHandler = { activityType, completed, returnedItems, activityError in
+            Logger.application.log("Donedone \(completed) \(activityError)")
+        }
+        stackNavigator?.present(activityVC) {
+            Logger.application.log("Done")
+        }
     }
 
     /// Shows the export vault screen.
