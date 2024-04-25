@@ -68,14 +68,18 @@ extension AuthenticatorItemData {
 }
 
 struct AuthenticatorItemDataModel: Codable {
+    let favorite: Bool
     let id: String
     let name: String
     let totpKey: String?
+    let username: String?
 
     init(item: AuthenticatorItem) throws {
+        favorite = item.favorite
         id = item.id
         name = item.name
         totpKey = item.totpKey
+        username = item.username
     }
 }
 

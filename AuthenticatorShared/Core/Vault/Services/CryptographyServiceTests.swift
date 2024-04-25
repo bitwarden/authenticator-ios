@@ -42,9 +42,11 @@ class CryptographyServiceTests: AuthenticatorTestCase {
         stateService.getSecretKeyResult = .success(SymmetricKey(size: .bits256).base64EncodedString())
 
         let item = AuthenticatorItemView(
+            favorite: false,
             id: "ID",
             name: "Name",
-            totpKey: "otpauth://totp/ACME%20Co:john.doe@email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&algorithm=SHA1&digits=6&period=30"
+            totpKey: "otpauth://totp/ACME%20Co:john.doe@email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&algorithm=SHA1&digits=6&period=30",
+            username: "john.doe@email.com"
         )
 
         let encrypted = try await subject.encrypt(item)

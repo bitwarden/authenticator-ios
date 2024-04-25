@@ -44,9 +44,11 @@ class DefaultCryptographyService: CryptographyService {
         }
 
         return AuthenticatorItem(
+            favorite: authenticatorItemView.favorite,
             id: authenticatorItemView.id,
             name: authenticatorItemView.name,
-            totpKey: text
+            totpKey: text,
+            username: authenticatorItemView.username
         )
     }
 
@@ -69,9 +71,11 @@ class DefaultCryptographyService: CryptographyService {
         )
 
         return AuthenticatorItemView(
+            favorite: authenticatorItem.favorite,
             id: authenticatorItem.id,
             name: authenticatorItem.name,
-            totpKey: String(data: decryptedBox, encoding: .utf8)
+            totpKey: String(data: decryptedBox, encoding: .utf8),
+            username: authenticatorItem.username
         )
     }
 }
