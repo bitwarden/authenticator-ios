@@ -104,8 +104,9 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             )
 
             coordinator.start()
-            childCoordinator = coordinator
-            coordinator.navigate(to: authRoute)
+            navigationController.modalPresentationStyle = .overFullScreen
+            navigationController.isNavigationBarHidden = true
+            rootNavigator.rootViewController?.present(navigationController, animated: false)
         }
     }
 
@@ -127,6 +128,9 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.start()
             coordinator.navigate(to: route)
             childCoordinator = coordinator
+            if rootNavigator.isPresenting {
+                rootNavigator.rootViewController?.dismiss(animated: true)
+            }
         }
     }
 

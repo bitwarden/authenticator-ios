@@ -12,7 +12,7 @@ class VaultUnlockProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasBiometricsRepository
-    & HasErrorReporter
+        & HasErrorReporter
 
     // MARK: Private Properties
 
@@ -92,10 +92,7 @@ class VaultUnlockProcessor: StateProcessor<
 
         do {
             let key = try await services.biometricsRepository.getUserAuthKey()
-//            try await services.authRepository.unlockVaultWithBiometrics()
-//            await coordinator.handleEvent(.didCompleteAuth)
-//            state.unsuccessfulUnlockAttemptsCount = 0
-//            await services.stateService.setUnsuccessfulUnlockAttempts(0)
+            await coordinator.handleEvent(.didCompleteAuth)
         } catch let error as BiometricsServiceError {
             Logger.processor.error("BiometricsServiceError unlocking vault with biometrics: \(error)")
             if case .biometryCancelled = error {

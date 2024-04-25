@@ -86,8 +86,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator, HasRouter
     }
 
     func start() {
-        guard let stackNavigator else { return }
-        rootNavigator?.show(child: stackNavigator)
+        navigate(to: .vaultUnlock)
     }
 
     // MARK: Private Methods
