@@ -51,9 +51,11 @@ class CryptographyServiceTests: AuthenticatorTestCase {
 
         let encrypted = try await subject.encrypt(item)
 
+        XCTAssertEqual(encrypted.favorite, item.favorite)
         XCTAssertEqual(encrypted.id, item.id)
-        XCTAssertEqual(encrypted.name, item.name)
+        XCTAssertNotEqual(encrypted.name, item.name)
         XCTAssertNotEqual(encrypted.totpKey, item.totpKey)
+        XCTAssertNotEqual(encrypted.username, item.username)
 
         let decrypted = try await subject.decrypt(encrypted)
 

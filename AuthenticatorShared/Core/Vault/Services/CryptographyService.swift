@@ -78,6 +78,34 @@ class DefaultCryptographyService: CryptographyService {
             username: authenticatorItem.username
         )
     }
+
+    // MARK: Private Methods
+
+    func encryptData(_ data: Data, withKey secretKey: SymmetricKey) throws -> String {
+        let encryptedSealedBox = try AES.GCM.seal(
+            data,
+            using: secretKey
+        )
+
+        guard let text = encryptedSealedBox.combined?.base64EncodedString() else {
+            throw CryptographyError.unableToSerializeSealedBox
+        }
+
+        return text
+    }
+
+    func decryptData(_ data: Data, withKey secretKey: SymmetricKey) throws -> String? {
+        let encryptedSealedBox = try AES.GCM.SealedBox(
+            combined: data
+        )
+
+        let decryptedBox = try AES.GCM.open(
+            encryptedSealedBox,
+            using: secretKey
+        )
+
+        return String(data: decryptedBox, encoding: .utf8)
+    }
 }
 
 // MARK: - CryptographyError
