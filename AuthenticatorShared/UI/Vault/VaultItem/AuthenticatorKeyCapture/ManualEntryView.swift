@@ -72,7 +72,7 @@ struct ManualEntryView: View {
     ///
     private var footer: some View {
         Group {
-            Text(Localizations.onceTheKeyIsSuccessfullyEntered)
+            Text(Localizations.onceTheKeyIsSuccessfullyEnteredAddCode)
                 .styleGuide(.callout)
             footerButtonContainer
         }
@@ -83,7 +83,7 @@ struct ManualEntryView: View {
     @ViewBuilder private var footerButtonContainer: some View {
         if store.state.deviceSupportsCamera {
             VStack(alignment: .leading, spacing: 0.0, content: {
-                Text(Localizations.cannotAddAuthenticatorKey)
+                Text(Localizations.cannotAddKey)
                     .styleGuide(.callout)
                 AsyncButton {
                     await store.perform(.scanCodePressed)
