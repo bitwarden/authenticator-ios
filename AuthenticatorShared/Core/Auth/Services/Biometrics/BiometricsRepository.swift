@@ -116,8 +116,8 @@ class DefaultBiometricsRepository: BiometricsRepository {
         case let .authorized(type):
             return .available(
                 type,
-                enabled: hasEnabledBiometricUnlock,
-                hasValidIntegrity: hasValidIntegrityState
+                enabled: true,//hasEnabledBiometricUnlock,
+                hasValidIntegrity: true//hasValidIntegrityState
             )
         case .denied,
              .lockedOut,

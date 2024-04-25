@@ -90,42 +90,22 @@ class VaultUnlockProcessor: StateProcessor<
             return
         }
 
-//        do {
+        do {
+            let key = try await services.biometricsRepository.getUserAuthKey()
 //            try await services.authRepository.unlockVaultWithBiometrics()
 //            await coordinator.handleEvent(.didCompleteAuth)
 //            state.unsuccessfulUnlockAttemptsCount = 0
 //            await services.stateService.setUnsuccessfulUnlockAttempts(0)
-//        } catch let error as BiometricsServiceError {
-//            Logger.processor.error("BiometricsServiceError unlocking vault with biometrics: \(error)")
-//            // If the user has locked biometry, logout immediately.
-//            if case .biometryLocked = error {
-//                await logoutUser(userInitiated: true)
-//                return
-//            }
-//            if case .biometryCancelled = error {
-//                // Do nothing if the user cancels.
-//                return
-//            }
-//            // There is no biometric auth key stored, set user preference to false.
-//            if case .getAuthKeyFailed = error {
-//                try? await services.authRepository.allowBioMetricUnlock(false)
-//            }
-//            await loadData()
-//        } catch let error as StateServiceError {
-//            // If there is no active account, don't add to the unsuccessful count.
-//            Logger.processor.error("StateServiceError unlocking vault with biometrics: \(error)")
-//            // Just send the user back to landing.
-//            coordinator.navigate(to: .landing)
-//        } catch {
-//            Logger.processor.error("Error unlocking vault with biometrics: \(error)")
-//            state.unsuccessfulUnlockAttemptsCount += 1
-//            await services.stateService
-//                .setUnsuccessfulUnlockAttempts(state.unsuccessfulUnlockAttemptsCount)
-//            if state.unsuccessfulUnlockAttemptsCount >= 5 {
-//                await logoutUser(resetAttempts: true, userInitiated: true)
-//                return
-//            }
-//            await loadData()
-//        }
+        } catch let error as BiometricsServiceError {
+            Logger.processor.error("BiometricsServiceError unlocking vault with biometrics: \(error)")
+            if case .biometryCancelled = error {
+                // Do nothing if the user cancels.
+                return
+            }
+            await loadData()
+        } catch {
+            Logger.processor.error("Error unlocking vault with biometrics: \(error)")
+            await loadData()
+        }
     }
 }
