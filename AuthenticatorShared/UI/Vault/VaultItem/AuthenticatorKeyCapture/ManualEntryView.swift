@@ -13,7 +13,7 @@ struct ManualEntryView: View {
     var body: some View {
         content
             .navigationBar(
-                title: Localizations.authenticatorKeyScanner,
+                title: Localizations.key,
                 titleDisplayMode: .inline
             )
             .toolbar {
@@ -26,7 +26,7 @@ struct ManualEntryView: View {
     /// A button to trigger an `.addPressed(:)` action.
     ///
     private var addButton: some View {
-        Button(Localizations.addTotp) {
+        Button(Localizations.addCode) {
             store.send(
                 ManualEntryAction.addPressed(
                     code: store.state.authenticatorKey,
@@ -52,7 +52,7 @@ struct ManualEntryView: View {
             )
 
             BitwardenTextField(
-                title: Localizations.authenticatorKeyScanner,
+                title: Localizations.key,
                 text: store.binding(
                     get: \.authenticatorKey,
                     send: ManualEntryAction.authenticatorKeyChanged

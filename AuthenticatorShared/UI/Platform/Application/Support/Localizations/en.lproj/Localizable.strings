@@ -673,14 +673,14 @@
 "Totp" = "TOTP";
 "VerificationCodes" = "Verification codes";
 "PremiumSubscriptionRequired" = "Premium subscription required";
-"CannotAddAuthenticatorKey" = "Cannot add authenticator key?";
+"CannotAddAuthenticatorKey" = "Cannot add key?";
 "ScanQRCode" = "Scan QR Code";
 "CannotScanQRCode" = "Cannot scan QR Code?";
 "AuthenticatorKeyScanner" = "Authenticator key";
 "EnterKeyManually" = "Enter key manually";
 "AddTotp" = "Add TOTP";
 "SetupTotp" = "Set up TOTP";
-"OnceTheKeyIsSuccessfullyEntered" = "Once the key is successfully entered,\nselect Add TOTP to store the key safely";
+"OnceTheKeyIsSuccessfullyEntered" = "Once the key is successfully entered,\nselect Add code to store the key safely";
 "NeverLockWarning" = "Setting your lock options to “Never” keeps your vault available to anyone with access to your device. If you use this option, you should ensure that you keep your device properly protected.";
 "EnvironmentPageUrlsError" = "One or more of the URLs entered are invalid. Please revise it and try to save again.";
 "GenericErrorMessage" = "We were unable to process your request. Please try again or contact us.";
@@ -905,3 +905,6 @@
 "ExportItems" = "Export items";
 "ExportItemsWarning" = "This export contains your item data in an unencrypted format. You should not store or send the exported file over unsecure channels (such as email). Delete it immediately after you are done using it.";
 "Export" = "Export";
+"Key" = "Key";
+"KeyAdded" = "Key added.";
+"KeyReadError" = "Cannot read key.";
