@@ -62,7 +62,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     func handleEvent(_ event: AppEvent, context: AnyObject?) async {
         switch event {
         case .didStart:
-            if false {
+            let isEnabled = (try? await services.biometricsRepository.getBiometricUnlockStatus().isEnabled) ?? false
+            if isEnabled {
                 showAuth(.vaultUnlock)
             } else {
                 showTab(route: .itemList(.list))
