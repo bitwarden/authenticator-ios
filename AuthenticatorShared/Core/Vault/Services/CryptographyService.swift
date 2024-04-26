@@ -72,7 +72,7 @@ class DefaultCryptographyService: CryptographyService {
     }
 
     func decryptString(_ string: String?, withKey secretKey: SymmetricKey) throws -> String? {
-        guard let string, let data = Data(base64Encoded: string) else {
+        guard let string = string?.nilIfEmpty, let data = Data(base64Encoded: string) else {
             return nil
         }
 
