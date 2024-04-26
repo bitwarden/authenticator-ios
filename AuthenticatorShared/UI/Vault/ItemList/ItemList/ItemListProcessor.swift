@@ -362,10 +362,17 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
             else { return }
 
             let itemName = authKeyModel.issuer ?? authKeyModel.accountName ?? ""
-            let newItem = AuthenticatorItemView(id: UUID().uuidString, name: itemName, totpKey: key)
+            let accountName = itemName == authKeyModel.accountName ? nil : authKeyModel.accountName
+            let newItem = AuthenticatorItemView(
+                favorite: false,
+                id: UUID().uuidString,
+                name: itemName,
+                totpKey: key,
+                username: accountName
+            )
             try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
             await perform(.refresh)
-            state.toast = Toast(text: Localizations.authenticatorKeyAdded)
+            state.toast = Toast(text: Localizations.keyAdded)
         } catch {
             coordinator.showAlert(.totpScanFailureAlert())
         }
@@ -401,11 +408,17 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
             else { return }
 
             let itemName = name
-            let newItem = AuthenticatorItemView(id: UUID().uuidString, name: itemName, totpKey: key)
+            let newItem = AuthenticatorItemView(
+                favorite: false,
+                id: UUID().uuidString,
+                name: itemName,
+                totpKey: key,
+                username: nil
+            )
             try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
             await perform(.refresh)
 
-            state.toast = Toast(text: Localizations.authenticatorKeyAdded)
+            state.toast = Toast(text: Localizations.keyAdded)
         } catch {
             coordinator.showAlert(.totpScanFailureAlert())
         }

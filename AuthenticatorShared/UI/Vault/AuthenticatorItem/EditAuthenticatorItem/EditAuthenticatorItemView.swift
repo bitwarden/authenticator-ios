@@ -63,7 +63,7 @@ struct EditAuthenticatorItemView: View {
             )
 
             BitwardenTextField(
-                title: Localizations.authenticatorKey,
+                title: Localizations.key,
                 text: store.binding(
                     get: \.secret,
                     send: EditAuthenticatorItemAction.secretChanged
@@ -163,11 +163,7 @@ struct EditAuthenticatorItemView: View {
                     accountName: "Account",
                     algorithm: .sha1,
                     configuration: .existing(
-                        authenticatorItemView: AuthenticatorItemView(
-                            id: "Example",
-                            name: "Example",
-                            totpKey: "example"
-                        )
+                        authenticatorItemView: AuthenticatorItemView.fixture()
                     ),
                     digits: 6,
                     id: "1",
@@ -198,11 +194,7 @@ struct EditAuthenticatorItemView: View {
                     accountName: "Account",
                     algorithm: .sha1,
                     configuration: .existing(
-                        authenticatorItemView: AuthenticatorItemView(
-                            id: "Example",
-                            name: "Example",
-                            totpKey: "example"
-                        )
+                        authenticatorItemView: AuthenticatorItemView.fixture()
                     ),
                     digits: 6,
                     id: "1",

@@ -131,7 +131,7 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
         do {
             try EmptyInputValidator(fieldName: Localizations.name)
                 .validate(input: state.issuer)
-            try EmptyInputValidator(fieldName: Localizations.authenticatorKey)
+            try EmptyInputValidator(fieldName: Localizations.key)
                 .validate(input: state.secret)
             coordinator.showLoadingOverlay(title: Localizations.saving)
             switch state.configuration {
@@ -149,9 +149,11 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
                 )
 
                 let newAuthenticatorItemView = AuthenticatorItemView(
+                    favorite: authenticatorItemView.favorite,
                     id: authenticatorItemView.id,
                     name: state.issuer,
-                    totpKey: newOtpUri.otpAuthUri
+                    totpKey: newOtpUri.otpAuthUri,
+                    username: state.accountName
                 )
                 try await updateAuthenticatorItem(authenticatorItem: newAuthenticatorItemView)
             }
