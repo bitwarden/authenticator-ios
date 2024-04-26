@@ -74,21 +74,55 @@ struct VaultUnlockView: View {
 // MARK: - Previews
 
 #if DEBUG
-#Preview("Unlock") {
-    NavigationView {
-        VaultUnlockView(
-            store: Store(
-                processor: StateProcessor(
-                    state: VaultUnlockState(
-                        biometricUnlockStatus: .available(
-                            .faceID,
-                            enabled: true,
-                            hasValidIntegrity: true
+struct VaultUnlockView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            VaultUnlockView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultUnlockState(
+                            biometricUnlockStatus: .available(
+                                .faceID,
+                                enabled: false,
+                                hasValidIntegrity: false
+                            )
                         )
                     )
                 )
             )
-        )
+        }.previewDisplayName("No Button")
+
+        NavigationView {
+            VaultUnlockView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultUnlockState(
+                            biometricUnlockStatus: .available(
+                                .faceID,
+                                enabled: true,
+                                hasValidIntegrity: true
+                            )
+                        )
+                    )
+                )
+            )
+        }.previewDisplayName("Face ID Button")
+
+        NavigationView {
+            VaultUnlockView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultUnlockState(
+                            biometricUnlockStatus: .available(
+                                .touchID,
+                                enabled: true,
+                                hasValidIntegrity: true
+                            )
+                        )
+                    )
+                )
+            )
+        }.previewDisplayName("Touch ID Button")
     }
 }
 #endif
