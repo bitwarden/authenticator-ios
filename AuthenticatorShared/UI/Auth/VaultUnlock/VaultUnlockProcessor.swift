@@ -75,7 +75,7 @@ class VaultUnlockProcessor: StateProcessor<
         if case .available(_, true, true) = state.biometricUnlockStatus,
            shouldAttemptAutomaticBiometricUnlock {
             shouldAttemptAutomaticBiometricUnlock = false
-//            await unlockWithBiometrics()
+            await unlockWithBiometrics()
         }
     }
 
@@ -91,7 +91,7 @@ class VaultUnlockProcessor: StateProcessor<
         }
 
         do {
-            let key = try await services.biometricsRepository.getUserAuthKey()
+            let _ = try await services.biometricsRepository.getUserAuthKey()
             await coordinator.handleEvent(.didCompleteAuth)
         } catch let error as BiometricsServiceError {
             Logger.processor.error("BiometricsServiceError unlocking vault with biometrics: \(error)")
