@@ -27,18 +27,19 @@ struct VaultUnlockView: View {
         ZStack {
             if colorScheme == .light {
                 Asset.Colors.primaryBitwarden.swiftUIColor
-                    .ignoresSafeArea()
+            } else {
+                Asset.Colors.backgroundSecondary.swiftUIColor
             }
 
-            VStack(spacing: 48) {
-                Image(decorative: Asset.Images.authenticatorLogo)
-                    .resizable()
-                    .frame(width: 232, height: 63)
+            Image(decorative: Asset.Images.authenticatorLogo)
+                .resizable()
+                .frame(width: 232, height: 63)
 
-                biometricAuthButton
-            }
-            .padding(16)
+            biometricAuthButton
+                .offset(y: 63 + 48)
+                .padding(16)
         }
+        .ignoresSafeArea()
     }
 
     /// A button to trigger a biometric auth unlock.
