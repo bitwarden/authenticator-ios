@@ -58,9 +58,8 @@ struct TutorialView: View {
 
     private var intoSlide: some View {
         VStack(spacing: 24) {
-            Asset.Images.recoveryCodes.swiftUIImage
-                .resizable()
-                .frame(width:140, height: 140)
+            Asset.Images.recoveryCodesBig.swiftUIImage
+                .frame(height: 140)
 
             Text(Localizations.secureYourAssetsWithBitwardenAuthenticator)
                 .styleGuide(.title2)
@@ -89,7 +88,7 @@ struct TutorialView: View {
 
     private var uniqueCodesSlide: some View {
         VStack(spacing: 24) {
-            Asset.Images.uniqueCodes.swiftUIImage
+            Asset.Images.verificationCode.swiftUIImage
                 .frame(height: 140)
 
             Text(Localizations.signInUsingUniqueCodes)
@@ -103,14 +102,40 @@ struct TutorialView: View {
     }
 }
 
-#Preview("Tutorial") {
+#if DEBUG
+#Preview("Intro") {
     NavigationView {
         TutorialView(
             store: Store(
                 processor: StateProcessor(
-                    state: TutorialState()
+                    state: TutorialState(page: .intro)
                 )
             )
         )
     }
 }
+
+#Preview("QR Scanner") {
+    NavigationView {
+        TutorialView(
+            store: Store(
+                processor: StateProcessor(
+                    state: TutorialState(page: .qrScanner)
+                )
+            )
+        )
+    }
+}
+
+#Preview("Unique Codes") {
+    NavigationView {
+        TutorialView(
+            store: Store(
+                processor: StateProcessor(
+                    state: TutorialState(page: .uniqueCodes)
+                )
+            )
+        )
+    }
+}
+#endif
