@@ -113,39 +113,37 @@ struct TutorialView: View {
 }
 
 #if DEBUG
-#Preview("Intro") {
-    NavigationView {
-        TutorialView(
-            store: Store(
-                processor: StateProcessor(
-                    state: TutorialState(page: .intro)
+struct TutorialView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            TutorialView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: TutorialState(page: .intro)
+                    )
                 )
             )
-        )
-    }
-}
+        }.previewDisplayName("Intro")
 
-#Preview("QR Scanner") {
-    NavigationView {
-        TutorialView(
-            store: Store(
-                processor: StateProcessor(
-                    state: TutorialState(page: .qrScanner)
+        NavigationView {
+            TutorialView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: TutorialState(page: .qrScanner)
+                    )
                 )
             )
-        )
-    }
-}
+        }.previewDisplayName("QR Scanner")
 
-#Preview("Unique Codes") {
-    NavigationView {
-        TutorialView(
-            store: Store(
-                processor: StateProcessor(
-                    state: TutorialState(page: .uniqueCodes)
+        NavigationView {
+            TutorialView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: TutorialState(page: .uniqueCodes)
+                    )
                 )
             )
-        )
+        }.previewDisplayName("Unique Codes")
     }
 }
 #endif
