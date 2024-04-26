@@ -94,8 +94,4 @@ class DefaultCryptographyService: CryptographyService {
 enum CryptographyError: Error {
     case unableToEncryptRequiredField
     case unableToParseSecretKey
-    case unableToReadEncryptedData
-    case unableToReadDecryptedData
-    case unableToRetrieveTotpKey
-    case unableToSerializeSealedBox
 }
