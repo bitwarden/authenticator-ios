@@ -30,71 +30,52 @@ class DefaultCryptographyService: CryptographyService {
 
     func encrypt(_ authenticatorItemView: AuthenticatorItemView) async throws -> AuthenticatorItem {
         let secretKey = try await cryptographyKeyService.getOrCreateSecretKey(userId: "local")
-        guard let totpKeyData = authenticatorItemView.totpKey?.data(using: .utf8) else {
-            throw CryptographyError.unableToRetrieveTotpKey
+
+        guard let encryptedName = try encryptString(authenticatorItemView.name, withKey: secretKey) else {
+            throw CryptographyError.unableToEncryptRequiredField
         }
 
-        let encryptedSealedBox = try AES.GCM.seal(
-            totpKeyData,
-            using: secretKey
-        )
-
-        guard let text = encryptedSealedBox.combined?.base64EncodedString() else {
-            throw CryptographyError.unableToSerializeSealedBox
-        }
-
-        return AuthenticatorItem(
+        return try AuthenticatorItem(
             favorite: authenticatorItemView.favorite,
             id: authenticatorItemView.id,
-            name: authenticatorItemView.name,
-            totpKey: text,
-            username: authenticatorItemView.username
+            name: encryptedName,
+            totpKey: encryptString(authenticatorItemView.totpKey, withKey: secretKey),
+            username: encryptString(authenticatorItemView.username, withKey: secretKey)
         )
     }
 
     func decrypt(_ authenticatorItem: AuthenticatorItem) async throws -> AuthenticatorItemView {
         let secretKey = try await cryptographyKeyService.getOrCreateSecretKey(userId: "local")
 
-        guard let totpKey = authenticatorItem.totpKey,
-              let totpKeyData = Data(base64Encoded: totpKey)
-        else {
-            throw CryptographyError.unableToRetrieveTotpKey
-        }
-
-        let encryptedSealedBox = try AES.GCM.SealedBox(
-            combined: totpKeyData
-        )
-
-        let decryptedBox = try AES.GCM.open(
-            encryptedSealedBox,
-            using: secretKey
-        )
-
-        return AuthenticatorItemView(
+        return try AuthenticatorItemView(
             favorite: authenticatorItem.favorite,
             id: authenticatorItem.id,
-            name: authenticatorItem.name,
-            totpKey: String(data: decryptedBox, encoding: .utf8),
-            username: authenticatorItem.username
+            name: decryptString(authenticatorItem.name, withKey: secretKey) ?? "",
+            totpKey: decryptString(authenticatorItem.totpKey, withKey: secretKey),
+            username: decryptString(authenticatorItem.username, withKey: secretKey)
         )
     }
 
     // MARK: Private Methods
 
-    func encryptData(_ data: Data, withKey secretKey: SymmetricKey) throws -> String {
+    func encryptString(_ string: String?, withKey secretKey: SymmetricKey) throws -> String? {
+        guard let data = string?.data(using: .utf8) else {
+            return nil
+        }
+
         let encryptedSealedBox = try AES.GCM.seal(
             data,
             using: secretKey
         )
 
-        guard let text = encryptedSealedBox.combined?.base64EncodedString() else {
-            throw CryptographyError.unableToSerializeSealedBox
-        }
-
-        return text
+        return encryptedSealedBox.combined?.base64EncodedString()
     }
 
-    func decryptData(_ data: Data, withKey secretKey: SymmetricKey) throws -> String? {
+    func decryptString(_ string: String?, withKey secretKey: SymmetricKey) throws -> String? {
+        guard let string, let data = Data(base64Encoded: string) else {
+            return nil
+        }
+
         let encryptedSealedBox = try AES.GCM.SealedBox(
             combined: data
         )
@@ -111,7 +92,10 @@ class DefaultCryptographyService: CryptographyService {
 // MARK: - CryptographyError
 
 enum CryptographyError: Error {
+    case unableToEncryptRequiredField
     case unableToParseSecretKey
+    case unableToReadEncryptedData
+    case unableToReadDecryptedData
     case unableToRetrieveTotpKey
     case unableToSerializeSealedBox
 }
