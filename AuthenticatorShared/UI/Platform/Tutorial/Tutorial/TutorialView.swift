@@ -10,6 +10,9 @@ struct TutorialView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<TutorialState, TutorialAction, TutorialEffect>
 
+    /// The vertical size class to determine if we're in landscape mode.
+    @Environment(\.verticalSizeClass) var verticalSizeClass
+
     // MARK: View
 
     var body: some View {
@@ -20,6 +23,14 @@ struct TutorialView: View {
     // MARK: Private Properties
 
     private var content: some View {
+//        if verticalSizeClass == .regular {
+//            portraitContent
+//        } else {
+//            landscapeContent
+//        }
+//    }
+//
+//    private var portraitContent: some View {
         VStack(spacing: 24) {
             Spacer()
             TabView(
@@ -28,7 +39,7 @@ struct TutorialView: View {
                     send: TutorialAction.pageChanged
                 )
             ) {
-                intoSlide.tag(TutorialPage.intro)
+                introSlide.tag(TutorialPage.intro)
                 qrScannerSlide.tag(TutorialPage.qrScanner)
                 uniqueCodesSlide.tag(TutorialPage.uniqueCodes)
             }
@@ -43,38 +54,100 @@ struct TutorialView: View {
             }
             .buttonStyle(.primary())
 
-            Button {
-                store.send(.skipTapped)
-            } label: {
-                Text(Localizations.skip)
-                    .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+            if verticalSizeClass == .regular {
+                Button {
+                    store.send(.skipTapped)
+                } label: {
+                    Text(Localizations.skip)
+                        .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                }
+                .buttonStyle(InlineButtonStyle())
+                .hidden(store.state.isLastPage)
             }
-            .buttonStyle(InlineButtonStyle())
-            .hidden(store.state.isLastPage)
         }
         .padding(16)
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
     }
 
-    private var intoSlide: some View {
-        VStack(spacing: 24) {
-            Asset.Images.recoveryCodesBig.swiftUIImage
-                .frame(height: 140)
+//    private var landscapeContent: some View {
+//        VStack(spacing: 24) {
+//            Spacer()
+//            TabView(
+//                selection: store.binding(
+//                    get: \.page,
+//                    send: TutorialAction.pageChanged
+//                )
+//            ) {
+//                introSlide.tag(TutorialPage.intro)
+//                qrScannerSlide.tag(TutorialPage.qrScanner)
+//                uniqueCodesSlide.tag(TutorialPage.uniqueCodes)
+//            }
+//            .tabViewStyle(.page(indexDisplayMode: .always))
+//            .indexViewStyle(.page(backgroundDisplayMode: .always))
+//            .padding(.top, 16)
+//            .animation(.default, value: store.state.page)
+//            .transition(.slide)
+//
+//            Button(store.state.continueButtonText) {
+//                store.send(.continueTapped)
+//            }
+//            .buttonStyle(.primary())
+//
+//            Button {
+//                store.send(.skipTapped)
+//            } label: {
+//                Text(Localizations.skip)
+//                    .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+//            }
+//            .buttonStyle(InlineButtonStyle())
+//            .hidden(store.state.isLastPage)
+//        }
+//        .padding(16)
+//        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+//    }
 
-            Text(Localizations.secureYourAssetsWithBitwardenAuthenticator)
-                .styleGuide(.title2)
+    @ViewBuilder private var introSlide: some View {
+        if verticalSizeClass == .regular {
+            VStack(spacing: 24) {
+                Image(decorative: Asset.Images.recoveryCodesBig)
+                    .frame(height: 146)
 
-            Text(Localizations.getVerificationCodesForAllYourAccounts)
+                Text(Localizations.secureYourAssetsWithBitwardenAuthenticator)
+                    .styleGuide(.title2)
+                    .fixedSize(horizontal: false, vertical: true)
 
-            Spacer()
+                Text(Localizations.getVerificationCodesForAllYourAccounts)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Spacer()
+            }
+            .multilineTextAlignment(.center)
+        } else {
+            HStack(spacing: 24) {
+                Image(decorative: Asset.Images.recoveryCodesBig)
+                    .frame(height: 146)
+
+                VStack(spacing: 24) {
+                    Spacer()
+
+                    Text(Localizations.secureYourAssetsWithBitwardenAuthenticator)
+                        .styleGuide(.title2)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    Text(Localizations.getVerificationCodesForAllYourAccounts)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    Spacer()
+                }
+            }
+            .multilineTextAlignment(.center)
         }
-        .multilineTextAlignment(.center)
     }
 
     private var qrScannerSlide: some View {
         VStack(spacing: 24) {
-            Asset.Images.qrIllustration.swiftUIImage
-                .frame(height: 140)
+            Image(decorative: Asset.Images.qrIllustration)
+                .frame(height: 146)
 
             Text(Localizations.useYourDeviceCameraToScanCodes)
                 .styleGuide(.title2)
@@ -89,7 +162,7 @@ struct TutorialView: View {
     private var uniqueCodesSlide: some View {
         VStack(spacing: 24) {
             Asset.Images.verificationCode.swiftUIImage
-                .frame(height: 140)
+                .frame(height: 146)
 
             Text(Localizations.signInUsingUniqueCodes)
                 .styleGuide(.title2)
