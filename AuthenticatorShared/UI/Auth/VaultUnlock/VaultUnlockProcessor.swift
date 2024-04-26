@@ -75,7 +75,7 @@ class VaultUnlockProcessor: StateProcessor<
         if case .available(_, true, true) = state.biometricUnlockStatus,
            shouldAttemptAutomaticBiometricUnlock {
             shouldAttemptAutomaticBiometricUnlock = false
-            await unlockWithBiometrics()
+//            await unlockWithBiometrics()
         }
     }
 

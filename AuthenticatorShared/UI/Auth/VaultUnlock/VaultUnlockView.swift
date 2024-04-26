@@ -10,6 +10,8 @@ struct VaultUnlockView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultUnlockState, VaultUnlockAction, VaultUnlockEffect>
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         content
             .task {
@@ -22,11 +24,21 @@ struct VaultUnlockView: View {
     }
 
     private var content: some View {
-        VStack(spacing: 48) {
-            Image(decorative: Asset.Images.logo)
-            biometricAuthButton
+        ZStack {
+            if colorScheme == .light {
+                Asset.Colors.primaryBitwarden.swiftUIColor
+                    .ignoresSafeArea()
+            }
+
+            VStack(spacing: 48) {
+                Image(decorative: Asset.Images.authenticatorLogo)
+                    .resizable()
+                    .frame(width: 232, height: 63)
+
+                biometricAuthButton
+            }
+            .padding(16)
         }
-        .padding(16)
     }
 
     /// A button to trigger a biometric auth unlock.
@@ -37,7 +49,14 @@ struct VaultUnlockView: View {
             } label: {
                 biometricUnlockText(biometryType)
             }
-            .buttonStyle(.primary(shouldFillWidth: true))
+            .if(colorScheme == .light) { view in
+                view.buttonStyle(.secondary(shouldFillWidth: true))
+                    .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .if(colorScheme == .dark) { view in
+                view.buttonStyle(.primary(shouldFillWidth: true))
+            }
         }
     }
 
