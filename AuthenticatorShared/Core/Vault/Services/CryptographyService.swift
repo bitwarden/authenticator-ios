@@ -20,6 +20,11 @@ class DefaultCryptographyService: CryptographyService {
 
     // MARK: Initialization
 
+    /// Initializes a `CryptographyService`.
+    ///
+    /// - Parameters:
+    ///   - cryptographyKeyService: A service for getting the cryptography key
+    ///
     init(
         cryptographyKeyService: CryptographyKeyService
     ) {
@@ -28,6 +33,12 @@ class DefaultCryptographyService: CryptographyService {
 
     // MARK: Methods
 
+    /// Encrypts an `AuthenticatorItemView` so that it can be stored in Core Data.
+    ///
+    /// - Parameters:
+    ///   - authenticatorItemView: The item to encrypt.
+    /// - Returns: An encrypted `AuthenticatorItem`.
+    ///
     func encrypt(_ authenticatorItemView: AuthenticatorItemView) async throws -> AuthenticatorItem {
         let secretKey = try await cryptographyKeyService.getOrCreateSecretKey(userId: "local")
 
@@ -44,6 +55,12 @@ class DefaultCryptographyService: CryptographyService {
         )
     }
 
+    /// Decrypts an `AuthenticatorItem`.
+    ///
+    /// - Parameters:
+    ///   - authenticatorItem: The item to decrypt.
+    /// - Returns: An unencrypted `AuthenticatorItemView`.
+    ///
     func decrypt(_ authenticatorItem: AuthenticatorItem) async throws -> AuthenticatorItemView {
         let secretKey = try await cryptographyKeyService.getOrCreateSecretKey(userId: "local")
 
@@ -58,6 +75,13 @@ class DefaultCryptographyService: CryptographyService {
 
     // MARK: Private Methods
 
+    /// Encrypts a string given a key.
+    ///
+    /// - Parameters:
+    ///   - string: The string to encrypt.
+    ///   - withKey: The key to encrypt with.
+    /// - Returns: An encrypted string, or `nil` if it was unable to convert the passed-in string into data.
+    ///
     func encryptString(_ string: String?, withKey secretKey: SymmetricKey) throws -> String? {
         guard let data = string?.data(using: .utf8) else {
             return nil
@@ -71,6 +95,12 @@ class DefaultCryptographyService: CryptographyService {
         return encryptedSealedBox.combined?.base64EncodedString()
     }
 
+    /// Decrypts a string given a key.
+    ///
+    /// - Parameters:
+    ///   - string: The string to decrypt.
+    ///   - withKey: The key to decrypt with.
+    /// - Returns: A decrypted string, or `nil` if the passed-in string was not encoded in Base64.
     func decryptString(_ string: String?, withKey secretKey: SymmetricKey) throws -> String? {
         guard let string = string?.nilIfEmpty, let data = Data(base64Encoded: string) else {
             return nil
