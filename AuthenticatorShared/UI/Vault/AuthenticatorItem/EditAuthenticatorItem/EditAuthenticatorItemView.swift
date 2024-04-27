@@ -1,6 +1,8 @@
 import BitwardenSdk
 import SwiftUI
 
+// MARK: - EditAuthenticatorItemView
+
 /// A view for editing an item
 struct EditAuthenticatorItemView: View {
     // MARK: Properties
@@ -167,102 +169,108 @@ struct EditAuthenticatorItemView: View {
     }
 }
 
+// MARK: - EditAuthenticatorItemView_Previews
+
 #if DEBUG
-#Preview("Advanced Closed") {
-    EditAuthenticatorItemView(
-        store: Store(
-            processor: StateProcessor(
-                state: AuthenticatorItemState(
-                    accountName: "Account",
-                    algorithm: .sha1,
-                    configuration: .existing(
-                        authenticatorItemView: AuthenticatorItemView.fixture()
-                    ),
-                    digits: 6,
-                    id: "1",
-                    issuer: "Issuer",
-                    name: "Example",
-                    period: .thirty,
-                    secret: "example",
-                    totpState: LoginTOTPState(
-                        authKeyModel: TOTPKeyModel(authenticatorKey: "example")!,
-                        codeModel: TOTPCodeModel(
-                            code: "123456",
-                            codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
-                            period: 30
+struct EditAuthenticatorItemView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            EditAuthenticatorItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: AuthenticatorItemState(
+                            accountName: "Account",
+                            algorithm: .sha1,
+                            configuration: .existing(
+                                authenticatorItemView: AuthenticatorItemView.fixture()
+                            ),
+                            digits: 6,
+                            id: "1",
+                            issuer: "Issuer",
+                            name: "Example",
+                            period: .thirty,
+                            secret: "example",
+                            totpState: LoginTOTPState(
+                                authKeyModel: TOTPKeyModel(authenticatorKey: "example")!,
+                                codeModel: TOTPCodeModel(
+                                    code: "123456",
+                                    codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
+                                    period: 30
+                                )
+                            ),
+                            totpType: .totp
                         )
-                    ),
-                    totpType: .totp
+                        .editState
+                    )
                 )
-                .editState
             )
-        )
-    )
-}
+        }.previewDisplayName("Advanced Closed")
 
-#Preview("Advanced Open, TOTP") {
-    EditAuthenticatorItemView(
-        store: Store(
-            processor: StateProcessor(
-                state: AuthenticatorItemState(
-                    accountName: "Account",
-                    algorithm: .sha1,
-                    configuration: .existing(
-                        authenticatorItemView: AuthenticatorItemView.fixture()
-                    ),
-                    digits: 6,
-                    id: "1",
-                    isAdvancedExpanded: true,
-                    issuer: "Issuer",
-                    name: "Example",
-                    period: .thirty,
-                    secret: "example",
-                    totpState: LoginTOTPState(
-                        authKeyModel: TOTPKeyModel(authenticatorKey: "example")!,
-                        codeModel: TOTPCodeModel(
-                            code: "123456",
-                            codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
-                            period: 30
+        NavigationView {
+            EditAuthenticatorItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: AuthenticatorItemState(
+                            accountName: "Account",
+                            algorithm: .sha1,
+                            configuration: .existing(
+                                authenticatorItemView: AuthenticatorItemView.fixture()
+                            ),
+                            digits: 6,
+                            id: "1",
+                            isAdvancedExpanded: true,
+                            issuer: "Issuer",
+                            name: "Example",
+                            period: .thirty,
+                            secret: "example",
+                            totpState: LoginTOTPState(
+                                authKeyModel: TOTPKeyModel(authenticatorKey: "example")!,
+                                codeModel: TOTPCodeModel(
+                                    code: "123456",
+                                    codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
+                                    period: 30
+                                )
+                            ),
+                            totpType: .totp
                         )
-                    ),
-                    totpType: .totp
+                        .editState
+                    )
                 )
-                .editState
             )
-        )
-    )
-}
+        }.previewDisplayName("Advanced Open, TOTP")
 
-#Preview("Advanced Open, Steam") {
-    EditAuthenticatorItemView(
-        store: Store(
-            processor: StateProcessor(
-                state: AuthenticatorItemState(
-                    accountName: "Account",
-                    algorithm: .sha1,
-                    configuration: .existing(
-                        authenticatorItemView: AuthenticatorItemView.fixture()
-                    ),
-                    digits: 6,
-                    id: "1",
-                    isAdvancedExpanded: true,
-                    issuer: "Issuer",
-                    name: "Example",
-                    period: .thirty,
-                    secret: "example",
-                    totpState: LoginTOTPState(
-                        authKeyModel: TOTPKeyModel(authenticatorKey: "example")!,
-                        codeModel: TOTPCodeModel(
-                            code: "123456",
-                            codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
-                            period: 30
+        NavigationView {
+            EditAuthenticatorItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: AuthenticatorItemState(
+                            accountName: "Account",
+                            algorithm: .sha1,
+                            configuration: .existing(
+                                authenticatorItemView: AuthenticatorItemView.fixture()
+                            ),
+                            digits: 6,
+                            id: "1",
+                            isAdvancedExpanded: true,
+                            issuer: "Issuer",
+                            name: "Example",
+                            period: .thirty,
+                            secret: "example",
+                            totpState: LoginTOTPState(
+                                authKeyModel: TOTPKeyModel(authenticatorKey: "example")!,
+                                codeModel: TOTPCodeModel(
+                                    code: "123456",
+                                    codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
+                                    period: 30
+                                )
+                            ),
+                            totpType: .steam
                         )
-                    ),
-                    totpType: .steam
+                        .editState
+                    )
                 )
-                .editState
             )
-        )
-    )
+        }.previewDisplayName("Advanced Open, Steam")
+    }
 }
 #endif

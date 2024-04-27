@@ -50,7 +50,3 @@ protocol EditAuthenticatorItemState: Sendable {
     /// The currently selected TOTP type.
     var totpType: TotpTypeOptions { get set }
 }
-
-// MARK: - TotpType
-
-
