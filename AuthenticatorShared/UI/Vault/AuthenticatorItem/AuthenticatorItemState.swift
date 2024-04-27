@@ -110,12 +110,12 @@ struct AuthenticatorItemState: Equatable {
         }
 
         self.init(
-            accountName: keyModel.accountName ?? "",
+            accountName: keyModel.accountName ?? authenticatorItemView.username ?? "",
             algorithm: keyModel.algorithm,
             configuration: .existing(authenticatorItemView: authenticatorItemView),
             digits: keyModel.digits,
             id: authenticatorItemView.id,
-            issuer: keyModel.issuer ?? "",
+            issuer: keyModel.issuer ?? authenticatorItemView.name,
             name: keyModel.issuer ?? authenticatorItemView.name,
             period: TotpPeriodOptions(rawValue: keyModel.period) ?? .thirty,
             secret: keyModel.base32Key,

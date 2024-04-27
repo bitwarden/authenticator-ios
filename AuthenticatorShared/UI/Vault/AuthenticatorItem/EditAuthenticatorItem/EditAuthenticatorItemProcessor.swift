@@ -147,9 +147,9 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
                     newAuthenticatorItemView = AuthenticatorItemView(
                         favorite: false,
                         id: authenticatorItemView.id,
-                        name: "Steam",
+                        name: state.issuer,
                         totpKey: "steam://\(secret)",
-                        username: authenticatorItemView.username
+                        username: state.accountName
                     )
                 case .totp:
                     let newOtpUri = OTPAuthModel(

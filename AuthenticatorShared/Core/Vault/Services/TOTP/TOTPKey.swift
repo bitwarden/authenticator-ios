@@ -46,12 +46,11 @@ enum TOTPKey: Equatable {
     /// Only works for `otpAuthUri` types.
     var issuer: String? {
         switch self {
-        case .base32:
+        case .base32,
+             .steamUri:
             nil
         case let .otpAuthUri(model):
             model.issuer
-        case .steamUri:
-            "Steam"
         }
     }
 
