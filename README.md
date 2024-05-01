@@ -7,7 +7,7 @@
 
 The Bitwarden Authenticator iOS application is written in Swift.
 
-<img src="https://raw.githubusercontent.com/bitwarden/brand/master/screenshots/mobile-ios-myvault.png" alt="" width="300" height="650" />
+<img src="https://raw.githubusercontent.com/bitwarden/brand/master/screenshots/authenticator-ios-codes.png" alt="" width="300" height="650" />
 
 ## Contents
 
