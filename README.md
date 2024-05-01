@@ -9,12 +9,6 @@ The Bitwarden Authenticator iOS application is written in Swift.
 
 <img src="https://raw.githubusercontent.com/bitwarden/brand/master/screenshots/authenticator-ios-codes.png" alt="" width="300" height="650" />
 
-## Contents
-
-- [Compatibility](#compatibility)
-- [Setup](#setup)
-- [Project Structure](#project-structure)
-
 ## Compatibility
 
 - **Minimum iOS**: 15.0
@@ -98,7 +92,7 @@ This project's structure is split into separate sections to support sharing as m
 
 `GlobalTestHelpers` is a directory that contains helper files used in all test targets. This directory is included in each target that is defined in the `project.yml` file.
 
-# Contribute
+## Contribute
 
 Code contributions are welcome! Please commit any pull requests against the `main` branch. Learn more about how to contribute by reading the [Contributing Guidelines](https://contributing.bitwarden.com/contributing/). Check out the [Contributing Documentation](https://contributing.bitwarden.com/) for how to get started with your first contribution.
 
