@@ -112,14 +112,21 @@ final class SettingsCoordinator: NSObject, Coordinator, HasStackNavigator {
     /// Presents an activity controller for importing items.
     ///
     private func showImportItems(delegate: FileSelectionDelegate) {
-        guard let stackNavigator else { return }
-        let coordinator = module.makeFileSelectionCoordinator(
-            delegate: delegate,
-            stackNavigator: stackNavigator
+        let processor = ImportItemsProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services
         )
-        coordinator.start()
-        coordinator.navigate(to: .jsonFile)
-        fileSelectionCoordinator = coordinator
+        let view = ImportItemsView(store: Store(processor: processor))
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator?.present(navController)
+//        guard let stackNavigator else { return }
+//        let coordinator = module.makeFileSelectionCoordinator(
+//            delegate: delegate,
+//            stackNavigator: stackNavigator
+//        )
+//        coordinator.start()
+//        coordinator.navigate(to: .jsonFile)
+//        fileSelectionCoordinator = coordinator
     }
 
     /// Shows the select language screen.
