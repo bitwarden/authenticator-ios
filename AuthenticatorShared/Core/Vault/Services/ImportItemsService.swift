@@ -8,10 +8,23 @@ protocol ImportItemsService: AnyObject {
     /// Import items with a given format.
     ///
     /// - Parameters:
+    ///   - data: The data to import.
+    ///   - format: The format of the file to import.
+    ///
+    func importItems(data: Data, format: ImportFileType) async throws
+}
+
+extension ImportItemsService {
+    /// Import items with a given format.
+    ///
+    /// - Parameters:
     ///   - url: The URL of the file to import.
     ///   - format: The format of the file to import.
     ///
-    func importItems(url: URL, format: ImportFileType) async throws
+    func importItems(url: URL, format: ImportFileType) async throws {
+        let data = try Data(contentsOf: url)
+        try await importItems(data: data, format: format)
+    }
 }
 
 class DefaultImportItemsService: ImportItemsService {
@@ -43,8 +56,7 @@ class DefaultImportItemsService: ImportItemsService {
 
     // MARK: Methods
 
-    func importItems(url: URL, format: ImportFileType) async throws {
-        let data = try Data(contentsOf: url)
+    func importItems(data: Data, format: ImportFileType) async throws {
         let items: [CipherLike]
         switch format {
         case .json:

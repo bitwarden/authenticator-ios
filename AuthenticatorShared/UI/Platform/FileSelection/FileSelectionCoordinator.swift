@@ -52,7 +52,9 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
         case .camera:
             showCamera()
         case .file:
-            showFileBrowser()
+            showFileBrowser(type: .data)
+        case .jsonFile:
+            showFileBrowser(type: .json)
         case .photo:
             showPhotoLibrary()
         }
@@ -115,8 +117,8 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     /// Shows the file browser screen.
     ///
-    private func showFileBrowser() {
-        let viewController = UIDocumentPickerViewController(forOpeningContentTypes: [.data])
+    private func showFileBrowser(type: UTType) {
+        let viewController = UIDocumentPickerViewController(forOpeningContentTypes: [type])
         viewController.allowsMultipleSelection = false
         viewController.shouldShowFileExtensions = true
         viewController.delegate = self

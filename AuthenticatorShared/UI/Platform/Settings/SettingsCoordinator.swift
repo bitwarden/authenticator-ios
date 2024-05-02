@@ -8,7 +8,8 @@ final class SettingsCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Types
 
     /// The module types required by this coordinator for creating child coordinators.
-    typealias Module = TutorialModule
+    typealias Module = FileSelectionModule
+        & TutorialModule
 
     typealias Services = HasAuthenticatorItemRepository
         & HasBiometricsRepository
@@ -20,6 +21,10 @@ final class SettingsCoordinator: NSObject, Coordinator, HasStackNavigator {
         & HasTimeProvider
 
     // MARK: Private Properties
+
+    /// The most recent coordinator used to navigate to a `FileSelectionRoute`. Used to keep the
+    /// coordinator in memory.
+    private var fileSelectionCoordinator: AnyCoordinator<FileSelectionRoute, Void>?
 
     /// The module used to create child coordinators.
     private let module: Module
@@ -63,7 +68,8 @@ final class SettingsCoordinator: NSObject, Coordinator, HasStackNavigator {
         case .exportItems:
             showExportItems()
         case .importItems:
-            showImportItems()
+            guard let delegate = self as? FileSelectionDelegate else { return }
+            showImportItems(delegate: delegate)
         case let .selectLanguage(currentLanguage: currentLanguage):
             showSelectLanguage(currentLanguage: currentLanguage, delegate: context as? SelectLanguageDelegate)
         case .settings:
@@ -105,11 +111,15 @@ final class SettingsCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     /// Presents an activity controller for importing items.
     ///
-    private func showImportItems() {
-        let documentPicker = UIDocumentPickerViewController(forOpeningContentTypes: [.json])
-        documentPicker.delegate = self
-        documentPicker.allowsMultipleSelection = false
-        stackNavigator?.present(documentPicker)
+    private func showImportItems(delegate: FileSelectionDelegate) {
+        guard let stackNavigator else { return }
+        let coordinator = module.makeFileSelectionCoordinator(
+            delegate: delegate,
+            stackNavigator: stackNavigator
+        )
+        coordinator.start()
+        coordinator.navigate(to: .jsonFile)
+        fileSelectionCoordinator = coordinator
     }
 
     /// Shows the select language screen.
@@ -156,6 +166,18 @@ extension SettingsCoordinator: UIDocumentPickerDelegate {
         Task {
             do {
                 try await services.importItemsService.importItems(url: url, format: .json)
+            } catch {
+                services.errorReporter.log(error: error)
+            }
+        }
+    }
+}
+
+extension SettingsCoordinator: FileSelectionDelegate {
+    func fileSelectionCompleted(fileName: String, data: Data) {
+        Task {
+            do {
+                try await services.importItemsService.importItems(data: data, format: .json)
             } catch {
                 services.errorReporter.log(error: error)
             }
