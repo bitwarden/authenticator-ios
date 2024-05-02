@@ -2,7 +2,7 @@
 
 /// An enum describing the format of an import file.
 ///
-enum ImportFileType: Equatable {
+public enum ImportFileType: Equatable {
     /// A `.json` file type.
     case json
 

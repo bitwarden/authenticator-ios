@@ -48,7 +48,7 @@ final class ImportItemsProcessor: StateProcessor<ImportItemsState, ImportItemsAc
         case .dismiss:
             coordinator.navigate(to: .dismiss)
         case .importItemsTapped:
-            confirmImportItems()
+            showImportItemsFileSelection()
         case let .fileFormatTypeChanged(fileFormat):
             state.fileFormat = fileFormat
         }
@@ -56,20 +56,25 @@ final class ImportItemsProcessor: StateProcessor<ImportItemsState, ImportItemsAc
 
     // MARK: - Private Methods
 
-    /// Shows the alert to confirm the items import.
-    private func confirmImportItems() {
+    /// Show the dialog to select file to import.
+    private func showImportItemsFileSelection() {
         let importFormat: ImportFileType
         switch state.fileFormat {
         case .bitwardenJson:
             importFormat = .json
         }
+        coordinator.navigate(to: .importItemsFileSelection(type: importFormat), context: self)
+    }
+}
 
-        do {
-//            try await self.services.importItemsService
-//            let fileUrl = try await self.services.importItemsService.importItems(format: importFormat)
-//            self.coordinator.navigate(to: .shareImportedItems(fileUrl))
-        } catch {
-            self.services.errorReporter.log(error: error)
+extension ImportItemsProcessor: FileSelectionDelegate {
+    func fileSelectionCompleted(fileName: String, data: Data) {
+        Task {
+            do {
+                try await services.importItemsService.importItems(data: data, format: .json)
+            } catch {
+                services.errorReporter.log(error: error)
+            }
         }
     }
 }

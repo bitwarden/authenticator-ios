@@ -68,8 +68,10 @@ final class SettingsCoordinator: NSObject, Coordinator, HasStackNavigator {
         case .exportItems:
             showExportItems()
         case .importItems:
-            guard let delegate = self as? FileSelectionDelegate else { return }
-            showImportItems(delegate: delegate)
+            showImportItems()
+        case .importItemsFileSelection:
+            guard let delegate = context as? FileSelectionDelegate else { return }
+            showImportItemsFileSelection(delegate: delegate)
         case let .selectLanguage(currentLanguage: currentLanguage):
             showSelectLanguage(currentLanguage: currentLanguage, delegate: context as? SelectLanguageDelegate)
         case .settings:
@@ -111,7 +113,7 @@ final class SettingsCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     /// Presents an activity controller for importing items.
     ///
-    private func showImportItems(delegate: FileSelectionDelegate) {
+    private func showImportItems() {
         let processor = ImportItemsProcessor(
             coordinator: asAnyCoordinator(),
             services: services
@@ -119,14 +121,19 @@ final class SettingsCoordinator: NSObject, Coordinator, HasStackNavigator {
         let view = ImportItemsView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
         stackNavigator?.present(navController)
-//        guard let stackNavigator else { return }
-//        let coordinator = module.makeFileSelectionCoordinator(
-//            delegate: delegate,
-//            stackNavigator: stackNavigator
-//        )
-//        coordinator.start()
-//        coordinator.navigate(to: .jsonFile)
-//        fileSelectionCoordinator = coordinator
+    }
+
+    /// Presents an activity controller for importing items.
+    ///
+    private func showImportItemsFileSelection(delegate: FileSelectionDelegate) {
+        guard let stackNavigator else { return }
+        let coordinator = module.makeFileSelectionCoordinator(
+            delegate: delegate,
+            stackNavigator: stackNavigator
+        )
+        coordinator.start()
+        coordinator.navigate(to: .jsonFile)
+        fileSelectionCoordinator = coordinator
     }
 
     /// Shows the select language screen.
