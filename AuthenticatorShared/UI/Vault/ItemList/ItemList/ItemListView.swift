@@ -68,25 +68,8 @@ private struct SearchableItemListView: View {
             if items.isEmpty {
                 emptyView
             } else {
-                vaultContents(with: items)
+                itemListView(with: items)
             }
-        }
-    }
-
-    /// A view that displays the main vault interface, including sections for groups and
-    /// vault items.
-    ///
-    /// - Parameter sections: The sections of the vault list to display.
-    ///
-    @ViewBuilder
-    private func vaultContents(with sections: [ItemListSection]) -> some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                ForEach(sections) { section in
-                    groupView(title: section.name, items: section.items)
-                }
-            }
-            .padding(16)
         }
     }
 
@@ -134,7 +117,7 @@ private struct SearchableItemListView: View {
                         Button {
                             store.send(.itemPressed(item))
                         } label: {
-                            vaultItemRow(
+                            itemListItemRow(
                                 for: item,
                                 isLastInSection: store.state.searchResults.last == item
                             )
@@ -155,59 +138,71 @@ private struct SearchableItemListView: View {
     ///
     @ViewBuilder
     private func groupView(title: String, items: [ItemListItem]) -> some View {
-//        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 7) {
-                SectionHeaderView(title)
-                ForEach(items) { item in
-                    Menu {
-                        AsyncButton {
-                            await store.perform(.copyPressed(item))
-                        } label: {
-                            HStack(spacing: 4) {
-                                Text(Localizations.copy)
-                                Spacer()
-                                Image(decorative: Asset.Images.copy)
-                                    .imageStyle(.accessoryIcon(scaleWithFont: true))
-                            }
-                        }
-
-                        Button {
-                            store.send(.editPressed(item))
-                        } label: {
-                            HStack(spacing: 4) {
-                                Text(Localizations.edit)
-                                Spacer()
-                                Image(decorative: Asset.Images.pencil)
-                                    .imageStyle(.accessoryIcon(scaleWithFont: true))
-                            }
-                        }
-
-                        Divider()
-
-                        Button(role: .destructive) {
-                            store.send(.deletePressed(item))
-                        } label: {
-                            HStack(spacing: 4) {
-                                Text(Localizations.delete)
-                                Spacer()
-                                Image(decorative: Asset.Images.trash)
-                                    .imageStyle(.accessoryIcon(scaleWithFont: true))
-                            }
-                        }
+        LazyVStack(alignment: .leading, spacing: 7) {
+            SectionHeaderView(title)
+            ForEach(items) { item in
+                Menu {
+                    AsyncButton {
+                        await store.perform(.copyPressed(item))
                     } label: {
-                        vaultItemRow(
-                            for: item,
-                            isLastInSection: true
-                        )
-                    } primaryAction: {
-                        store.send(.itemPressed(item))
+                        HStack(spacing: 4) {
+                            Text(Localizations.copy)
+                            Spacer()
+                            Image(decorative: Asset.Images.copy)
+                                .imageStyle(.accessoryIcon(scaleWithFont: true))
+                        }
                     }
+
+                    Button {
+                        store.send(.editPressed(item))
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(Localizations.edit)
+                            Spacer()
+                            Image(decorative: Asset.Images.pencil)
+                                .imageStyle(.accessoryIcon(scaleWithFont: true))
+                        }
+                    }
+
+                    Divider()
+
+                    Button(role: .destructive) {
+                        store.send(.deletePressed(item))
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(Localizations.delete)
+                            Spacer()
+                            Image(decorative: Asset.Images.trash)
+                                .imageStyle(.accessoryIcon(scaleWithFont: true))
+                        }
+                    }
+                } label: {
+                    itemListItemRow(
+                        for: item,
+                        isLastInSection: true
+                    )
+                } primaryAction: {
+                    store.send(.itemPressed(item))
                 }
-                .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
-//            .padding(16)
-//        }
+            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+        }
+    }
+
+    /// A view that displays the main list of items, split into sections
+    ///
+    /// - Parameter sections: The sections of the vault list to display.
+    @ViewBuilder
+    private func itemListView(with sections: [ItemListSection]) -> some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                ForEach(sections) { section in
+                    groupView(title: section.name, items: section.items)
+                }
+            }
+            .padding(16)
+        }
     }
 
     /// Creates a row in the list for the provided item.
@@ -217,7 +212,7 @@ private struct SearchableItemListView: View {
     ///   - isLastInSection: A flag indicating if this item is the last one in the section.
     ///
     @ViewBuilder
-    private func vaultItemRow(for item: ItemListItem, isLastInSection: Bool = false) -> some View {
+    private func itemListItemRow(for item: ItemListItem, isLastInSection: Bool = false) -> some View {
         ItemListItemRowView(
             store: store.child(
                 state: { state in
@@ -324,21 +319,23 @@ struct ItemListView_Previews: PreviewProvider {
                                 [
                                     ItemListSection(
                                         id: "Favorites",
-                                        items: [ItemListItem(
-                                            id: "Favorited",
-                                            name: "Favorited",
-                                            accountName: nil,
-                                            itemType: .totp(
-                                                model: ItemListTotpItem(
-                                                    itemView: .fixture(),
-                                                    totpCode: TOTPCodeModel(
-                                                        code: "123456",
-                                                        codeGenerationDate: Date(),
-                                                        period: 30
+                                        items: [
+                                            ItemListItem(
+                                                id: "Favorited",
+                                                name: "Favorited",
+                                                accountName: nil,
+                                                itemType: .totp(
+                                                    model: ItemListTotpItem(
+                                                        itemView: .fixture(),
+                                                        totpCode: TOTPCodeModel(
+                                                            code: "123456",
+                                                            codeGenerationDate: Date(),
+                                                            period: 30
+                                                        )
                                                     )
                                                 )
-                                            )
-                                        )],
+                                            ),
+                                        ],
                                         name: "Favorites"
                                     ),
                                     ItemListSection(
