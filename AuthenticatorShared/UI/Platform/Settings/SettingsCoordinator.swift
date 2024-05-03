@@ -4,7 +4,7 @@ import SwiftUI
 
 /// A coordinator that manages navigation in the settings tab.
 ///
-final class SettingsCoordinator: NSObject, Coordinator, HasStackNavigator {
+final class SettingsCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     /// The module types required by this coordinator for creating child coordinators.
@@ -173,19 +173,6 @@ final class SettingsCoordinator: NSObject, Coordinator, HasStackNavigator {
         )
         coordinator.start()
         stackNavigator?.present(navigationController, overFullscreen: true)
-    }
-}
-
-extension SettingsCoordinator: UIDocumentPickerDelegate {
-    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        guard let url = urls.first else { return }
-        Task {
-            do {
-                try await services.importItemsService.importItems(url: url, format: .json)
-            } catch {
-                services.errorReporter.log(error: error)
-            }
-        }
     }
 }
 
