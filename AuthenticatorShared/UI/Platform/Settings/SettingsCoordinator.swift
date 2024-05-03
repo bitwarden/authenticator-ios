@@ -174,15 +174,3 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         stackNavigator?.present(navigationController, overFullscreen: true)
     }
 }
-
-extension SettingsCoordinator: FileSelectionDelegate {
-    func fileSelectionCompleted(fileName: String, data: Data) {
-        Task {
-            do {
-                try await services.importItemsService.importItems(data: data, format: .json)
-            } catch {
-                services.errorReporter.log(error: error)
-            }
-        }
-    }
-}
