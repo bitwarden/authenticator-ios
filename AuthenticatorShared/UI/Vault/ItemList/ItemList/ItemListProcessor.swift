@@ -371,8 +371,8 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
                 username: accountName
             )
             try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
+            state.toast = Toast(text: Localizations.verificationCodeAdded)
             await perform(.refresh)
-            state.toast = Toast(text: Localizations.keyAdded)
         } catch {
             coordinator.showAlert(.totpScanFailureAlert())
         }
@@ -416,9 +416,8 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
                 username: nil
             )
             try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
+            state.toast = Toast(text: Localizations.verificationCodeAdded)
             await perform(.refresh)
-
-            state.toast = Toast(text: Localizations.keyAdded)
         } catch {
             coordinator.showAlert(.totpScanFailureAlert())
         }
