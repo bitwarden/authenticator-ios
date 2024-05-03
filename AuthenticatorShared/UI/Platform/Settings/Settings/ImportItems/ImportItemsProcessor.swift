@@ -51,6 +51,8 @@ final class ImportItemsProcessor: StateProcessor<ImportItemsState, ImportItemsAc
             showImportItemsFileSelection()
         case let .fileFormatTypeChanged(fileFormat):
             state.fileFormat = fileFormat
+        case let .toastShown(toast):
+            state.toast = toast
         }
     }
 
@@ -72,6 +74,7 @@ extension ImportItemsProcessor: FileSelectionDelegate {
         Task {
             do {
                 try await services.importItemsService.importItems(data: data, format: .json)
+                state.toast = Toast(text: Localizations.itemsImported)
             } catch {
                 services.errorReporter.log(error: error)
             }

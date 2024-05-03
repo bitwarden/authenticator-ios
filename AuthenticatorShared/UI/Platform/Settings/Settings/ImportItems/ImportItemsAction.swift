@@ -10,4 +10,7 @@ enum ImportItemsAction: Equatable {
 
     /// The export button was tapped.
     case importItemsTapped
+
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
 }

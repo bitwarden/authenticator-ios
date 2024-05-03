@@ -93,8 +93,10 @@ final class SettingsCoordinator: NSObject, Coordinator, HasStackNavigator {
     ///
     private func showExportedItemsUrl(_ fileUrl: URL) {
         let activityVC = UIActivityViewController(activityItems: [fileUrl], applicationActivities: nil)
-        activityVC.completionWithItemsHandler = { activityType, completed, returnedItems, activityError in
-            // TODO: Toast!
+        activityVC.completionWithItemsHandler = { _, completed, _, _ in
+            if completed {
+                self.showToast(Localizations.itemsExported)
+            }
         }
         stackNavigator?.present(activityVC)
     }

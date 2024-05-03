@@ -6,4 +6,7 @@ struct ImportItemsState: Equatable {
 
     /// The currently selected file format type.
     var fileFormat: ImportFormatType = .bitwardenJson
+
+    /// A toast for views
+    var toast: Toast?
 }

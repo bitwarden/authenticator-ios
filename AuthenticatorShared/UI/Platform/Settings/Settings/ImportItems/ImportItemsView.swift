@@ -23,6 +23,10 @@ struct ImportItemsView: View {
         .task {
             await store.perform(.loadData)
         }
+        .toast(store.binding(
+            get: \.toast,
+            send: ImportItemsAction.toastShown
+        ))
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismiss)

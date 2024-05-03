@@ -914,3 +914,5 @@
 "Steam" = "Steam";
 "OtpType" = "OTP Type";
 "CreateVerificationCode" = "Create verification code";
+"ItemsExported" = "Verification codes exported";
+"ItemsImported" = "Vertification codes imported";
