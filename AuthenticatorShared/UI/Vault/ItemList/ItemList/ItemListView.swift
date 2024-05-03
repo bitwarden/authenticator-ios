@@ -68,8 +68,25 @@ private struct SearchableItemListView: View {
             if items.isEmpty {
                 emptyView
             } else {
-                groupView(with: items)
+                vaultContents(with: items)
             }
+        }
+    }
+
+    /// A view that displays the main vault interface, including sections for groups and
+    /// vault items.
+    ///
+    /// - Parameter sections: The sections of the vault list to display.
+    ///
+    @ViewBuilder
+    private func vaultContents(with sections: [ItemListSection]) -> some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                ForEach(sections) { section in
+                    groupView(title: section.name, items: section.items)
+                }
+            }
+            .padding(16)
         }
     }
 
@@ -137,9 +154,10 @@ private struct SearchableItemListView: View {
     /// A view that displays a list of the sections within this vault group.
     ///
     @ViewBuilder
-    private func groupView(with items: [ItemListItem]) -> some View {
-        ScrollView {
+    private func groupView(title: String, items: [ItemListItem]) -> some View {
+//        ScrollView {
             LazyVStack(alignment: .leading, spacing: 7) {
+                SectionHeaderView(title)
                 ForEach(items) { item in
                     Menu {
                         AsyncButton {
@@ -188,8 +206,8 @@ private struct SearchableItemListView: View {
                 .background(Asset.Colors.backgroundPrimary.swiftUIColor)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             }
-            .padding(16)
-        }
+//            .padding(16)
+//        }
     }
 
     /// Creates a row in the list for the provided item.
@@ -304,35 +322,60 @@ struct ItemListView_Previews: PreviewProvider {
                         state: ItemListState(
                             loadingState: .data(
                                 [
-                                    ItemListItem(
-                                        id: "One",
-                                        name: "One",
-                                        accountName: nil,
-                                        itemType: .totp(
-                                            model: ItemListTotpItem(
-                                                itemView: AuthenticatorItemView.fixture(),
-                                                totpCode: TOTPCodeModel(
-                                                    code: "123456",
-                                                    codeGenerationDate: Date(),
-                                                    period: 30
+                                    ItemListSection(
+                                        id: "Favorites",
+                                        items: [ItemListItem(
+                                            id: "Favorited",
+                                            name: "Favorited",
+                                            accountName: nil,
+                                            itemType: .totp(
+                                                model: ItemListTotpItem(
+                                                    itemView: .fixture(),
+                                                    totpCode: TOTPCodeModel(
+                                                        code: "123456",
+                                                        codeGenerationDate: Date(),
+                                                        period: 30
+                                                    )
                                                 )
                                             )
-                                        )
+                                        )],
+                                        name: "Favorites"
                                     ),
-                                    ItemListItem(
-                                        id: "Two",
-                                        name: "Two",
-                                        accountName: nil,
-                                        itemType: .totp(
-                                            model: ItemListTotpItem(
-                                                itemView: AuthenticatorItemView.fixture(),
-                                                totpCode: TOTPCodeModel(
-                                                    code: "123456",
-                                                    codeGenerationDate: Date(),
-                                                    period: 30
+                                    ItemListSection(
+                                        id: "Section",
+                                        items: [
+                                            ItemListItem(
+                                                id: "One",
+                                                name: "One",
+                                                accountName: nil,
+                                                itemType: .totp(
+                                                    model: ItemListTotpItem(
+                                                        itemView: AuthenticatorItemView.fixture(),
+                                                        totpCode: TOTPCodeModel(
+                                                            code: "123456",
+                                                            codeGenerationDate: Date(),
+                                                            period: 30
+                                                        )
+                                                    )
                                                 )
-                                            )
-                                        )
+                                            ),
+                                            ItemListItem(
+                                                id: "Two",
+                                                name: "Two",
+                                                accountName: nil,
+                                                itemType: .totp(
+                                                    model: ItemListTotpItem(
+                                                        itemView: AuthenticatorItemView.fixture(),
+                                                        totpCode: TOTPCodeModel(
+                                                            code: "123456",
+                                                            codeGenerationDate: Date(),
+                                                            period: 30
+                                                        )
+                                                    )
+                                                )
+                                            ),
+                                        ],
+                                        name: "Personal"
                                     ),
                                 ]
                             )
