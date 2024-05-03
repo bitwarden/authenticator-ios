@@ -120,7 +120,7 @@ class DefaultAuthenticatorItemRepository {
 
         return [
             ItemListSection(id: "Favorites", items: favorites, name: Localizations.favorites),
-            ItemListSection(id: "Unorganized", items: nonFavorites, name: Localizations.myCodes),
+            ItemListSection(id: "Unorganized", items: nonFavorites, name: ""),
         ]
         .filter { !$0.items.isEmpty }
     }

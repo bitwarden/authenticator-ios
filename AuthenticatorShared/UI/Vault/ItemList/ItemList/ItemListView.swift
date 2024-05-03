@@ -64,11 +64,11 @@ private struct SearchableItemListView: View {
     // MARK: Private
 
     @ViewBuilder private var content: some View {
-        LoadingView(state: store.state.loadingState) { items in
-            if items.isEmpty {
+        LoadingView(state: store.state.loadingState) { sections in
+            if sections.isEmpty {
                 emptyView
             } else {
-                itemListView(with: items)
+                itemListView(with: sections)
             }
         }
     }
@@ -137,9 +137,11 @@ private struct SearchableItemListView: View {
     /// A view that displays a list of the sections within this vault group.
     ///
     @ViewBuilder
-    private func groupView(title: String, items: [ItemListItem]) -> some View {
+    private func groupView(title: String?, items: [ItemListItem]) -> some View {
         LazyVStack(alignment: .leading, spacing: 7) {
-            SectionHeaderView(title)
+            if let title = title?.nilIfEmpty {
+                SectionHeaderView(title)
+            }
             ForEach(items) { item in
                 Menu {
                     AsyncButton {
@@ -196,12 +198,20 @@ private struct SearchableItemListView: View {
     @ViewBuilder
     private func itemListView(with sections: [ItemListSection]) -> some View {
         ScrollView {
-            VStack(spacing: 20) {
-                ForEach(sections) { section in
-                    groupView(title: section.name, items: section.items)
+            if sections.count > 1 {
+                VStack(spacing: 20) {
+                    ForEach(sections) { section in
+                        groupView(title: section.name, items: section.items)
+                    }
                 }
+                .padding(16)
+            } else {
+                groupView(
+                    title: nil,
+                    items: sections.first?.items ?? []
+                )
+                .padding(16)
             }
-            .padding(16)
         }
     }
 
@@ -381,7 +391,59 @@ struct ItemListView_Previews: PreviewProvider {
                 ),
                 timeProvider: PreviewTimeProvider()
             )
-        }.previewDisplayName("Items")
+        }.previewDisplayName("Items with Favorite")
+
+        NavigationView {
+            ItemListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ItemListState(
+                            loadingState: .data(
+                                [
+                                    ItemListSection(
+                                        id: "Section",
+                                        items: [
+                                            ItemListItem(
+                                                id: "One",
+                                                name: "One",
+                                                accountName: nil,
+                                                itemType: .totp(
+                                                    model: ItemListTotpItem(
+                                                        itemView: AuthenticatorItemView.fixture(),
+                                                        totpCode: TOTPCodeModel(
+                                                            code: "123456",
+                                                            codeGenerationDate: Date(),
+                                                            period: 30
+                                                        )
+                                                    )
+                                                )
+                                            ),
+                                            ItemListItem(
+                                                id: "Two",
+                                                name: "Two",
+                                                accountName: nil,
+                                                itemType: .totp(
+                                                    model: ItemListTotpItem(
+                                                        itemView: AuthenticatorItemView.fixture(),
+                                                        totpCode: TOTPCodeModel(
+                                                            code: "123456",
+                                                            codeGenerationDate: Date(),
+                                                            period: 30
+                                                        )
+                                                    )
+                                                )
+                                            ),
+                                        ],
+                                        name: ""
+                                    ),
+                                ]
+                            )
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }.previewDisplayName("Items without Favorite")
 
         NavigationView {
             ItemListView(
