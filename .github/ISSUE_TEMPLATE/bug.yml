@@ -15,9 +15,9 @@ body:
       description: How can we reproduce the behavior.
       value: |
         1. Go to '...'
-        2. Click on '....'
-        3. Scroll down to '....'
-        4. Click on '...'
+        2. Tap on '...'
+        3. Scroll down to '...'
+        4. Tap on '...'
     validations:
       required: true
   - type: textarea
