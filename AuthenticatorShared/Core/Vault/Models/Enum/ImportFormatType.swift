@@ -21,6 +21,15 @@ enum ImportFormatType: Menuable {
 
     // MARK: Properties
 
+    /// The file selection route to use for finding files of this type.
+    var fileSelectionRoute: FileSelectionRoute {
+        switch self {
+        case .bitwardenJson,
+             .raivoJson:
+            return .jsonFile
+        }
+    }
+
     /// The name of the type to display in the dropdown menu.
     var localizedName: String {
         switch self {
