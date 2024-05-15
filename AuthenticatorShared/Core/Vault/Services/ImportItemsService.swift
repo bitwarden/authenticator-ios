@@ -57,30 +57,15 @@ class DefaultImportItemsService: ImportItemsService {
     // MARK: Methods
 
     func importItems(data: Data, format: ImportFileFormat) async throws {
-        let items: [CipherLike]
+        let items: [AuthenticatorItemView]
         switch format {
         case .bitwardenJson:
-            items = try importJson(data)
+            items = try BitwardenImporter.importItems(data: data)
         case .raivoJson:
-            items = []
+            items = try RaivoImporter.importItems(data: data)
         }
-        try await items.asyncForEach { cipherLike in
-            let item = AuthenticatorItemView(
-                favorite: cipherLike.favorite,
-                id: cipherLike.id,
-                name: cipherLike.name,
-                totpKey: cipherLike.login?.totp,
-                username: cipherLike.login?.username
-            )
+        try await items.asyncForEach { item in
             try await authenticatorItemRepository.addAuthenticatorItem(item)
         }
-    }
-
-    // MARK: Private Methods
-
-    private func importJson(_ data: Data) throws -> [CipherLike] {
-        let decoder = JSONDecoder()
-        let vaultLike = try decoder.decode(VaultLike.self, from: data)
-        return vaultLike.items
     }
 }

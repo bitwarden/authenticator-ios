@@ -78,7 +78,7 @@ final class ImportItemsServiceTests: AuthenticatorTestCase {
                 username: nil
             ),
         ]
-        try await subject.importItems(data: data, format: .bitwardenJson)
+        try await subject.importItems(data: data, format: .raivoJson)
         let actual = authItemRepository.addAuthItemAuthItems
         XCTAssertEqual(actual, expected)
     }
