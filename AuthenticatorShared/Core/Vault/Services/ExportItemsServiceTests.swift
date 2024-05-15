@@ -45,6 +45,10 @@ final class ExportItemsServiceTests: AuthenticatorTestCase {
     override func tearDown() {
         super.tearDown()
 
+        authItemRepository = nil
+        errorReporter = nil
+        importService = nil
+        timeProvider = nil
         subject = nil
     }
 
