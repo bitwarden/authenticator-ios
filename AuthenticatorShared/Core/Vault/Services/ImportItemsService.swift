@@ -59,8 +59,10 @@ class DefaultImportItemsService: ImportItemsService {
     func importItems(data: Data, format: ImportFileType) async throws {
         let items: [CipherLike]
         switch format {
-        case .json:
+        case .bitwardenJson:
             items = try importJson(data)
+        case .raivoJson:
+            items = []
         }
         try await items.asyncForEach { cipherLike in
             let item = AuthenticatorItemView(

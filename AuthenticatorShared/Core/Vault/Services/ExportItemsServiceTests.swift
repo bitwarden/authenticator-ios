@@ -104,7 +104,7 @@ final class ExportItemsServiceTests: AuthenticatorTestCase {
         let actual = try decoder.decode(VaultLike.self, from: exported.data(using: .utf8)!)
         let expected = VaultLike(encrypted: false, items: items.compactMap(CipherLike.init))
         XCTAssertEqual(actual, expected)
-        try await importService.importItems(data: exported.data(using: .utf8)!, format: .json)
+        try await importService.importItems(data: exported.data(using: .utf8)!, format: .bitwardenJson)
         let importedItems = authItemRepository.addAuthItemAuthItems
         XCTAssertEqual(importedItems, items)
     }
