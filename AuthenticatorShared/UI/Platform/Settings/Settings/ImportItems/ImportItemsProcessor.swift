@@ -68,14 +68,14 @@ extension ImportItemsProcessor: FileSelectionDelegate {
     func fileSelectionCompleted(fileName: String, data: Data) {
         Task {
             do {
-                let importFormat: ImportFileType
+                let importFileFormat: ImportFileFormat
                 switch state.fileFormat {
                 case .bitwardenJson:
-                    importFormat = .bitwardenJson
+                    importFileFormat = .bitwardenJson
                 case .raivoJson:
-                    importFormat = .raivoJson
+                    importFileFormat = .raivoJson
                 }
-                try await services.importItemsService.importItems(data: data, format: importFormat)
+                try await services.importItemsService.importItems(data: data, format: importFileFormat)
                 state.toast = Toast(text: Localizations.itemsImported)
             } catch {
                 services.errorReporter.log(error: error)

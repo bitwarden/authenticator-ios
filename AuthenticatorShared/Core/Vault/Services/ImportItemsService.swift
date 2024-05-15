@@ -11,7 +11,7 @@ protocol ImportItemsService: AnyObject {
     ///   - data: The data to import.
     ///   - format: The format of the file to import.
     ///
-    func importItems(data: Data, format: ImportFileType) async throws
+    func importItems(data: Data, format: ImportFileFormat) async throws
 }
 
 extension ImportItemsService {
@@ -21,7 +21,7 @@ extension ImportItemsService {
     ///   - url: The URL of the file to import.
     ///   - format: The format of the file to import.
     ///
-    func importItems(url: URL, format: ImportFileType) async throws {
+    func importItems(url: URL, format: ImportFileFormat) async throws {
         let data = try Data(contentsOf: url)
         try await importItems(data: data, format: format)
     }
@@ -56,7 +56,7 @@ class DefaultImportItemsService: ImportItemsService {
 
     // MARK: Methods
 
-    func importItems(data: Data, format: ImportFileType) async throws {
+    func importItems(data: Data, format: ImportFileFormat) async throws {
         let items: [CipherLike]
         switch format {
         case .bitwardenJson:
