@@ -1,6 +1,6 @@
 import Foundation
 
-class RaivoImporter: Importer {
+class RaivoImporter {
     static func importItems(data: Data) throws -> [AuthenticatorItemView] {
         let decoder = JSONDecoder()
         let items = try decoder.decode([RavioItem].self, from: data)

@@ -1,6 +1,6 @@
 import Foundation
 
-class BitwardenImporter: Importer {
+class BitwardenImporter {
     static func importItems(data: Data) throws -> [AuthenticatorItemView] {
         let decoder = JSONDecoder()
         let vaultLike = try decoder.decode(VaultLike.self, from: data)
