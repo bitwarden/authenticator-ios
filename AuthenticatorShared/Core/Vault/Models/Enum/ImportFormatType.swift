@@ -20,7 +20,7 @@ enum ImportFormatType: Menuable {
     static let allCases: [ImportFormatType] = [
         .bitwardenJson,
         .raivoJson,
-        .twoFasJason
+        .twoFasJason,
     ]
 
     // MARK: Properties
