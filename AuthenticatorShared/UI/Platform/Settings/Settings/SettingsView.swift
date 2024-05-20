@@ -92,7 +92,7 @@ struct SettingsView: View {
         VStack(spacing: 0) {
             biometricsSetting
 
-            SectionView(Localizations.vault, contentSpacing: 0) {
+            SectionView(Localizations.data, contentSpacing: 0) {
                 VStack(spacing: 0) {
                     SettingsListItem(Localizations.import) {
                         store.send(.importItemsTapped)
