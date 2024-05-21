@@ -98,8 +98,12 @@ struct SettingsView: View {
                         store.send(.importItemsTapped)
                     }
 
-                    SettingsListItem(Localizations.export, hasDivider: false) {
+                    SettingsListItem(Localizations.export) {
                         store.send(.exportItemsTapped)
+                    }
+
+                    SettingsListItem(Localizations.backup, hasDivider: false) {
+                        store.send(.backupTapped)
                     }
                 }
                 .cornerRadius(10)
