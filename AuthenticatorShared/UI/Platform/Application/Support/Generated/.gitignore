@@ -1,2 +1,2 @@
-# Ignore generated files
+# Ignore SwiftGen generated files
 *.swift
