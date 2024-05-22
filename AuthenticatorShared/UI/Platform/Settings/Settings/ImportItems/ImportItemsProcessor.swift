@@ -73,7 +73,7 @@ extension ImportItemsProcessor: FileSelectionDelegate {
                 case .bitwardenJson:
                     importFileFormat = .bitwardenJson
                 case .googleQr:
-                    importFileFormat = .bitwardenJson // TODO FIX
+                    importFileFormat = .googleProtobuf
                 case .raivoJson:
                     importFileFormat = .raivoJson
                 case .twoFasJason:
