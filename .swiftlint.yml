@@ -43,6 +43,7 @@ excluded:
   - AuthenticatorShared/UI/Platform/Application/Support/Generated
   - build
   - vendor/bundle
+  - '**/Generated'
 
 attributes:
   always_on_same_line:
