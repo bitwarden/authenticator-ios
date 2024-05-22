@@ -8,6 +8,9 @@ enum ImportFormatType: Menuable {
     /// A JSON exported from Bitwarden
     case bitwardenJson
 
+    /// A QR code containing protobuf-encoded data exported from Google
+    case googleQr
+
     /// A JSON exported from Raivo
     case raivoJson
 
@@ -19,6 +22,7 @@ enum ImportFormatType: Menuable {
     /// The ordered list of options to display in the menu.
     static let allCases: [ImportFormatType] = [
         .bitwardenJson,
+        .googleQr,
         .raivoJson,
         .twoFasJason,
     ]
@@ -31,6 +35,8 @@ enum ImportFormatType: Menuable {
         case .bitwardenJson,
              .raivoJson:
             return .jsonFile
+        case .googleQr:
+            return .qrScanner
         case .twoFasJason:
             return .file
         }
@@ -41,6 +47,8 @@ enum ImportFormatType: Menuable {
         switch self {
         case .bitwardenJson:
             "Authenticator Export (JSON)"
+        case .googleQr:
+            "Google Authenticator (QR code)"
         case .raivoJson:
             "Raivo (JSON)"
         case .twoFasJason:

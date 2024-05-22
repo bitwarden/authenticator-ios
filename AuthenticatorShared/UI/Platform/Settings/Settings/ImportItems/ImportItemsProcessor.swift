@@ -72,6 +72,8 @@ extension ImportItemsProcessor: FileSelectionDelegate {
                 switch state.fileFormat {
                 case .bitwardenJson:
                     importFileFormat = .bitwardenJson
+                case .googleQr:
+                    importFileFormat = .bitwardenJson // TODO FIX
                 case .raivoJson:
                     importFileFormat = .raivoJson
                 case .twoFasJason:

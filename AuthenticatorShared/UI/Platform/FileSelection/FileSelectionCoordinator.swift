@@ -57,6 +57,18 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
             showFileBrowser(type: .json)
         case .photo:
             showPhotoLibrary()
+        case .qrScanner:
+            Task {
+                await showQrScanner()
+            }
+        }
+    }
+
+    func handleEvent(_ event: FileSelectionEvent, context: AnyObject?) async {
+        switch event {
+        case let .qrScanFinished(value):
+            guard let data = value.content.data(using: .utf8) else { return }
+            delegate?.fileSelectionCompleted(fileName: value.codeType.rawValue, data: data)
         }
     }
 
@@ -134,6 +146,42 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
         let viewController = PHPickerViewController(configuration: configuration)
         viewController.delegate = self
         stackNavigator?.present(viewController)
+    }
+
+    /// Shows the QR code scanner screen.
+    ///
+    private func showQrScanner() async {
+        guard services.cameraService.deviceSupportsCamera(),
+              let session = await getNewCameraSession() else {
+            return
+        }
+        let navigationController = UINavigationController()
+        let processor = QrScannerProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: QrScannerState()
+        )
+        let store = Store(processor: processor)
+        let view = QrScannerView(
+            cameraSession: session,
+            store: store
+        )
+        navigationController.replace(view)
+        stackNavigator?.present(navigationController)
+    }
+
+    private func getNewCameraSession() async -> AVCaptureSession? {
+        guard services.cameraService.deviceSupportsCamera(),
+              case .authorized = await
+              services.cameraService.checkStatusOrRequestCameraAuthorization() else {
+            return nil
+        }
+        do {
+            return try await services.cameraService.startCameraSession()
+        } catch {
+            services.errorReporter.log(error: error)
+            return nil
+        }
     }
 }
 
