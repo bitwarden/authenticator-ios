@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-message MigrationPayload {
+message GoogleMigrationPayload {
   enum Algorithm {
     ALGO_INVALID = 0;
     ALGO_SHA1 = 1;

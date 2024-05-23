@@ -6,20 +6,20 @@ import XCTest
 final class GoogleImporterTests: AuthenticatorTestCase {
     /// Can import Google protobuf
     func test_googleImport() throws {
-        let data = "otpauth-migration://offline?data=ChwKDABEjWzjTY4/7wSo0hIGYW1hem9uIAEoATACEAEYASAAKLvsnOb4/////wE=".data(using: .utf8)!
+        let data = "otpauth-migration://offline?data=ChgKCkhlbGxvId6tvu8SBE5hbWUgASgBMAIKGwoMAESNbONNjj/vBKjSEgVOYW1lMiABKAEwAhACGAEgAA%3D%3D".data(using: .utf8)!
         let expected = [
             AuthenticatorItemView(
                 favorite: false,
                 id: "One",
                 name: "Name",
-                totpKey: "otpauth://totp/Name:person%40example%2Ecom?secret=Secret1One&issuer=Name&algorithm=SHA1&digits=6&period=30",
-                username: "person@example.com"
+                totpKey: "otpauth://totp/?secret=JBSWY3DPEHPK3PXP&algorithm=SHA1&digits=6&period=30",
+                username: nil
             ),
             AuthenticatorItemView(
-                favorite: true,
+                favorite: false,
                 id: "Two",
-                name: "Issuer2",
-                totpKey: "otpauth://totp/?secret=SecretTwo&issuer=Issuer2&algorithm=SHA256&digits=8&period=60",
+                name: "Name2",
+                totpKey: "otpauth://totp/?secret=ABCI23HDJWHD73YEVDJA&algorithm=SHA1&digits=6&period=30",
                 username: nil
             ),
         ]
