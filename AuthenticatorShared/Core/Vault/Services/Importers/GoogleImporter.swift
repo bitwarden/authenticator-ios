@@ -20,7 +20,7 @@ class GoogleImporter {
             guard item.type == .otpTotp else { return nil }
             let secret = item.secret.base32String()
             let otp = OTPAuthModel(
-                accountName: nil,
+                accountName: item.name.nilIfEmpty,
                 algorithm: .sha1,
                 digits: (5 ... 10).contains(Int(item.digits)) ? Int(item.digits) : 6,
                 issuer: item.issuer.nilIfEmpty,
@@ -30,9 +30,9 @@ class GoogleImporter {
             return AuthenticatorItemView(
                 favorite: false,
                 id: UUID().uuidString,
-                name: item.name,
+                name: item.issuer.nilIfEmpty ?? item.name,
                 totpKey: otp.otpAuthUri,
-                username: nil
+                username: item.name.nilIfEmpty
             )
         }
     }

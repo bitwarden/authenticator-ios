@@ -30,13 +30,15 @@ enum ImportFormatType: Menuable {
     // MARK: Properties
 
     /// The file selection route to use for finding files of this type.
-    var fileSelectionRoute: FileSelectionRoute {
+    /// When this returns `nil`, that means some other method needs to be used
+    /// (notably probably QR code scanning)
+    var fileSelectionRoute: FileSelectionRoute? {
         switch self {
         case .bitwardenJson,
              .raivoJson:
             return .jsonFile
         case .googleQr:
-            return .qrScanner
+            return nil
         case .twoFasJason:
             return .file
         }

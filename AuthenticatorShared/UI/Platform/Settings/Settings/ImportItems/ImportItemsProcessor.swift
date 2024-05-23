@@ -60,7 +60,13 @@ final class ImportItemsProcessor: StateProcessor<ImportItemsState, ImportItemsAc
 
     /// Show the dialog to select file to import.
     private func showImportItemsFileSelection() {
-        coordinator.navigate(to: .importItemsFileSelection(route: state.fileFormat.fileSelectionRoute), context: self)
+        if let route = state.fileFormat.fileSelectionRoute {
+            coordinator.navigate(to: .importItemsFileSelection(route: route), context: self)
+        } else {
+            Task {
+                await coordinator.handleEvent(.importItemsQrCode, context: self)
+            }
+        }
     }
 }
 
@@ -86,4 +92,41 @@ extension ImportItemsProcessor: FileSelectionDelegate {
             }
         }
     }
+}
+
+extension ImportItemsProcessor: AuthenticatorKeyCaptureDelegate {
+    func didCompleteAutomaticCapture(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
+        key: String
+    ) {
+        let dismissAction = DismissAction(action: { [weak self] in
+            Task {
+                await self?.parseAndValidateAutomaticCaptureKey(key)
+            }
+        })
+        captureCoordinator.navigate(to: .dismiss(dismissAction))
+    }
+
+    func parseAndValidateAutomaticCaptureKey(_ key: String) async {
+        do {
+            try await services.importItemsService.importItems(data: key.data(using: .utf8)!, format: .googleProtobuf)
+            state.toast = Toast(text: Localizations.itemsImported)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    func didCompleteManualCapture(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
+        key: String,
+        name: String
+    ) {}
+
+    func showCameraScan(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+    ) {}
+
+    func showManualEntry(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+    ) {}
 }

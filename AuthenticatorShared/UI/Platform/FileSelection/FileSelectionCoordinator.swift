@@ -68,6 +68,7 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
         switch event {
         case let .qrScanFinished(value):
             guard let data = value.content.data(using: .utf8) else { return }
+            stackNavigator?.dismiss()
             delegate?.fileSelectionCompleted(fileName: value.codeType.rawValue, data: data)
         }
     }

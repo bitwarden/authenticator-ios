@@ -80,7 +80,6 @@ final class QrScannerProcessor: StateProcessor<QrScannerState, QrScannerAction, 
             guard let value else { continue }
             Logger.application.log("Value is here")
             await coordinator.handleEvent(.qrScanFinished(value: value))
-//            coordinator.navigate(to: .complete(value: value))
             return
         }
     }
