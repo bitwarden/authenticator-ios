@@ -12,15 +12,15 @@ final class GoogleImporterTests: AuthenticatorTestCase {
                 favorite: false,
                 id: "One",
                 name: "Name",
-                totpKey: "otpauth://totp/?secret=JBSWY3DPEHPK3PXP&algorithm=SHA1&digits=6&period=30",
-                username: nil
+                totpKey: "otpauth://totp/Name?secret=JBSWY3DPEHPK3PXP&algorithm=SHA1&digits=6&period=30",
+                username: "Name"
             ),
             AuthenticatorItemView(
                 favorite: false,
                 id: "Two",
                 name: "Name2",
-                totpKey: "otpauth://totp/?secret=ABCI23HDJWHD73YEVDJA&algorithm=SHA1&digits=6&period=30",
-                username: nil
+                totpKey: "otpauth://totp/Name2?secret=ABCI23HDJWHD73YEVDJA&algorithm=SHA1&digits=6&period=30",
+                username: "Name2"
             ),
         ]
         let actual = try GoogleImporter.importItems(data: data)

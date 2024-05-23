@@ -14,7 +14,4 @@ public enum FileSelectionRoute {
 
     /// A route to the photo library screen.
     case photo
-
-    /// A route to the QR code scanner.
-    case qrScanner
 }
