@@ -11,6 +11,9 @@ enum ImportFormatType: Menuable {
     /// A QR code containing protobuf-encoded data exported from Google
     case googleQr
 
+    /// A JSON exported from Lastpass
+    case lastpassJson
+
     /// A JSON exported from Raivo
     case raivoJson
 
@@ -23,6 +26,7 @@ enum ImportFormatType: Menuable {
     static let allCases: [ImportFormatType] = [
         .bitwardenJson,
         .googleQr,
+        .lastpassJson,
         .raivoJson,
         .twoFasJason,
     ]
@@ -35,6 +39,7 @@ enum ImportFormatType: Menuable {
     var fileSelectionRoute: FileSelectionRoute? {
         switch self {
         case .bitwardenJson,
+             .lastpassJson,
              .raivoJson:
             return .jsonFile
         case .googleQr:
@@ -51,6 +56,8 @@ enum ImportFormatType: Menuable {
             "Authenticator Export (JSON)"
         case .googleQr:
             "Google Authenticator (QR code)"
+        case .lastpassJson:
+            "LastPass (JSON)"
         case .raivoJson:
             "Raivo (JSON)"
         case .twoFasJason:

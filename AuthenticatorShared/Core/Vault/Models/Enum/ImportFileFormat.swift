@@ -11,6 +11,9 @@ public enum ImportFileFormat: Equatable {
     /// A Google protobuf file type.
     case googleProtobuf
 
+    /// A Lastpass `.json` file type.
+    case lastpassJson
+
     /// A Raivo `.json` file type.
     case raivoJson
 

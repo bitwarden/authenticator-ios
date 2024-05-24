@@ -80,6 +80,8 @@ extension ImportItemsProcessor: FileSelectionDelegate {
                     importFileFormat = .bitwardenJson
                 case .googleQr:
                     importFileFormat = .googleProtobuf
+                case .lastpassJson:
+                    importFileFormat = .lastpassJson
                 case .raivoJson:
                     importFileFormat = .raivoJson
                 case .twoFasJason:
