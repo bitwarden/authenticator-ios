@@ -137,20 +137,6 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
         viewController.delegate = self
         stackNavigator?.present(viewController)
     }
-
-    private func getNewCameraSession() async -> AVCaptureSession? {
-        guard services.cameraService.deviceSupportsCamera(),
-              case .authorized = await
-              services.cameraService.checkStatusOrRequestCameraAuthorization() else {
-            return nil
-        }
-        do {
-            return try await services.cameraService.startCameraSession()
-        } catch {
-            services.errorReporter.log(error: error)
-            return nil
-        }
-    }
 }
 
 // MARK: - FileSelectionCoordinator:UIDocumentPickerDelegate
