@@ -40,7 +40,6 @@ opt_in_rules:
   - yoda_condition
 
 excluded:
-  - AuthenticatorShared/UI/Platform/Application/Support/Generated
   - build
   - vendor/bundle
   - '**/Generated'
