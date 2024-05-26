@@ -72,8 +72,12 @@ extension ImportItemsProcessor: FileSelectionDelegate {
                 switch state.fileFormat {
                 case .bitwardenJson:
                     importFileFormat = .bitwardenJson
+                case .lastpassJson:
+                    importFileFormat = .lastpassJson
                 case .raivoJson:
                     importFileFormat = .raivoJson
+                case .twoFasJason:
+                    importFileFormat = .twoFasJson
                 }
                 try await services.importItemsService.importItems(data: data, format: importFileFormat)
                 state.toast = Toast(text: Localizations.itemsImported)
