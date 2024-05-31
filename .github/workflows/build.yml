@@ -125,7 +125,11 @@ jobs:
       - name: Install Mint, protobuf, xcbeautify, and yq
         run: |
           brew install mint swift-protobuf xcbeautify yq
-          ./Scripts/bootstrap.sh
+
+      - name: Install Mint packages
+        if: steps.mint-cache.outputs.cache-hit != 'true'
+        run: |
+          mint bootstrap
 
       - name: Select variant
         run: |
