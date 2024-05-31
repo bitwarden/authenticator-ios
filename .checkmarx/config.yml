@@ -8,4 +8,4 @@ checkmarx:
     configs:
       sast:
         # Exclude test directories
-        filter: "!Networking/Tests/**,!GlobalTestHelpers/**"
+        filter: "!**/*Tests*/**,!**/TestHelpers/**,!**/Fixtures/**,!GlobalTestHelpers/**"
