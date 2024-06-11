@@ -1,10 +1,9 @@
----
-name: Cache Dependencies
+name: Cache
 
 on:
   push:
     branches:
-      - main
+      - "main"
 
 env:
   DEVELOPER_DIR: /Applications/Xcode_15.0.1.app/Contents/Developer
@@ -13,19 +12,18 @@ env:
 
 jobs:
   cache-dependencies:
-    name: Cache Dependencies
+    name: Cache dependencies
     runs-on: macos-14
     steps:
-      - name: Checkout
-        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+      - name: Check out repo
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@1198b074305f9356bd56dd4b311757cc0dab2f1c # v1.175.1
+      - name: Configure Ruby
+        uses: ruby/setup-ruby@d5fb7a202fc07872cb44f00ba8e6197b70cb0c55 # v1.179.0
         with:
           bundler-cache: true
-          ruby-version: 3.2.2
 
-      - name: Cache Mint Packages
+      - name: Cache Mint packages
         uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: .mint
@@ -33,11 +31,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-mint-
 
+      - name: Cache SPM packages
+        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: build/DerivedData/SourcePackages
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
       - name: Install Mint
         run: |
           brew install mint
-
-      - name: Install Mint packages
-        if: steps.mint-cache.outputs.cache-hit != 'true'
-        run: |
-          mint bootstrap
+          ./Scripts/bootstrap.sh

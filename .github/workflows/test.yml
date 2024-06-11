@@ -1,30 +1,45 @@
----
 name: Test
 
 on:
-  pull_request:
+  push:
+    branches:
+      - "main"
+      - "rc"
+      - "hotfix-rc"
+  pull_request_target:
+    types: [opened, synchronize]
 
 env:
   DEVELOPER_DIR: /Applications/Xcode_15.0.1.app/Contents/Developer
   MINT_LINK_PATH: .mint/bin
   MINT_PATH: .mint/lib
   SIMULATOR_DESTINATION: platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0.1
+  RESULT_BUNDLE_PATH: build/AuthenticatorTests.xcresult
+  COVERAGE_PATH: build/coverage.xml
 
 jobs:
+  check-run:
+    name: Check PR run
+    uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
+
   test:
     name: Test
     runs-on: macos-14-xlarge
-    steps:
-      - name: Checkout
-        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+    needs: check-run
+    permissions:
+      contents: read
+      pull-requests: write
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@1198b074305f9356bd56dd4b311757cc0dab2f1c # v1.175.1
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+
+      - name: Configure Ruby
+        uses: ruby/setup-ruby@d5fb7a202fc07872cb44f00ba8e6197b70cb0c55 # v1.179.0
         with:
           bundler-cache: true
-          ruby-version: 3.2.2
 
-      - name: Cache Mint Packages
+      - name: Cache Mint packages
         uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: .mint
@@ -32,7 +47,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-mint-
 
-      - name: Cache SPM Packages
+      - name: Cache SPM packages
         uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: build/DerivedData/SourcePackages
@@ -46,12 +61,12 @@ jobs:
           sudo installer -pkg yeetd-normal.pkg -target /
           yeetd &
 
-      - name: Setup
+      - name: Install Mint, protobuf, xcbeautify, and xcresultparser
         run: |
-          brew install mint xcbeautify
+          brew install mint swift-protobuf xcbeautify a7ex/homebrew-formulae/xcresultparser
           ./Scripts/bootstrap.sh
 
-      - name: Build and Test
+      - name: Build and test
         run: |
           set -o pipefail && \
             xcodebuild test \
@@ -59,6 +74,21 @@ jobs:
             -scheme Authenticator \
             -configuration Debug \
             -destination "${{ env.SIMULATOR_DESTINATION }}" \
-            -resultBundlePath build/AuthenticatorTests.xcresult \
+            -resultBundlePath ${{ env.RESULT_BUNDLE_PATH }} \
             -derivedDataPath build/DerivedData \
+            -enableCodeCoverage YES \
             | xcbeautify --renderer github-actions
+
+      - name: Convert coverage to Cobertura
+        run: |
+          set -o pipefail && \
+            xcresultparser --output-format cobertura \
+            "$RESULT_BUNDLE_PATH" >"$COVERAGE_PATH"
+
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@125fc84a9a348dbcf27191600683ec096ec9021c # v4.4.1
+        with:
+          plugin: xcode
+          file: ${{ env.COVERAGE_PATH }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
