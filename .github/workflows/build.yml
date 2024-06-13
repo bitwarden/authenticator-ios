@@ -202,7 +202,7 @@ jobs:
           keyvault: "bitwarden-ci"
           secrets: "crowdin-api-token"
 
-      - name: Upload Sources
+      - name: Upload sources
         uses: crowdin/github-action@67705afb6985401459cd143d5f5f00c9dc212f23 # v1.20.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
