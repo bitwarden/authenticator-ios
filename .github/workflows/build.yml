@@ -185,7 +185,7 @@ jobs:
       - build
     runs-on: ubuntu-22.04
     env:
-      CROWDIN_PROJECT_ID: "673718"
+      _CROWDIN_PROJECT_ID: "673718"
     steps:
       - name: Check out repo
         uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4.1.3
