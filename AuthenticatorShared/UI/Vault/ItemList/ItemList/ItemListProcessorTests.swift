@@ -9,6 +9,7 @@ class ItemListProcessorTests: AuthenticatorTestCase {
 
     var authItemRepository: MockAuthenticatorItemRepository!
     var coordinator: MockCoordinator<ItemListRoute, ItemListEvent>!
+    var errorReporter: MockErrorReporter!
     var totpService: MockTOTPService!
     var subject: ItemListProcessor!
 
@@ -19,10 +20,12 @@ class ItemListProcessorTests: AuthenticatorTestCase {
 
         authItemRepository = MockAuthenticatorItemRepository()
         coordinator = MockCoordinator()
+        errorReporter = MockErrorReporter()
         totpService = MockTOTPService()
 
         let services = ServiceContainer.withMocks(
             authenticatorItemRepository: authItemRepository,
+            errorReporter: errorReporter,
             totpService: totpService
         )
 
@@ -39,6 +42,57 @@ class ItemListProcessorTests: AuthenticatorTestCase {
         coordinator = nil
         subject = nil
     }
+
+    // MARK: Tests
+
+    /// `itemDeleted()` delegate method shows the expected toast.
+    func test_delegate_itemDeleted() {
+        XCTAssertNil(subject.state.toast)
+
+        subject.itemDeleted()
+        XCTAssertEqual(subject.state.toast?.text, Localizations.itemDeleted)
+    }
+
+    /// `perform(_:)` with `.appeared` starts streaming vault items.
+    func test_perform_appeared() {
+        let model = TOTPCodeModel(
+            code: "654321",
+            codeGenerationDate: Date(year: 2024, month: 6, day: 28),
+            period: 30
+        )
+
+        let itemListItem = ItemListItem.fixture(
+            totp: .fixture(totpCode: model)
+        )
+        let itemListSection = ItemListSection(id: "", items: [itemListItem], name: "Items")
+        authItemRepository.itemListSubject.send([itemListSection])
+        totpService.getTotpCodeResult = .success(model)
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        XCTAssertEqual(subject.state.loadingState, .data([itemListSection]))
+    }
+
+    /// `perform(_:)` with `.appeared` records any errors.
+    func test_perform_appeared_error_vaultListGroupSubjectFail() {
+        authItemRepository.itemListSubject.send(completion: .failure(AuthenticatorTestError.example))
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(!errorReporter.errors.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(errorReporter.errors.last as? AuthenticatorTestError, .example)
+    }
+
+    // MARK: AuthenticatorKeyCaptureDelegate Tests
 
     /// `didCompleteAutomaticCapture` failure
     func test_didCompleteAutomaticCapture_failure() {
