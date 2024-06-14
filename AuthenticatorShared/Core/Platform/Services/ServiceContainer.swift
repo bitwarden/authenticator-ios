@@ -192,6 +192,7 @@ public class ServiceContainer: Services {
         let authenticatorItemRepository = DefaultAuthenticatorItemRepository(
             authenticatorItemService: authenticatorItemService,
             cryptographyService: cryptographyService,
+            errorReporter: errorReporter,
             timeProvider: timeProvider,
             totpService: totpService
         )

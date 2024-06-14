@@ -91,6 +91,7 @@ class DefaultAuthenticatorItemRepository {
 
     private let authenticatorItemService: AuthenticatorItemService
     private let cryptographyService: CryptographyService
+    private let errorReporter: ErrorReporter
     private let timeProvider: TimeProvider
     private let totpService: TOTPService
 
@@ -104,11 +105,13 @@ class DefaultAuthenticatorItemRepository {
     init(
         authenticatorItemService: AuthenticatorItemService,
         cryptographyService: CryptographyService,
+        errorReporter: ErrorReporter,
         timeProvider: TimeProvider,
         totpService: TOTPService
     ) {
         self.authenticatorItemService = authenticatorItemService
         self.cryptographyService = cryptographyService
+        self.errorReporter = errorReporter
         self.timeProvider = timeProvider
         self.totpService = totpService
     }
@@ -206,7 +209,11 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
             guard case let .totp(model) = item.itemType,
                   let key = model.itemView.totpKey,
                   let keyModel = TOTPKeyModel(authenticatorKey: key)
-            else { return item }
+            else {
+                errorReporter.log(error: TOTPServiceError
+                    .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
+                return item
+            }
             let code = try await totpService.getTotpCode(for: keyModel)
             var updatedModel = model
             updatedModel.totpCode = code

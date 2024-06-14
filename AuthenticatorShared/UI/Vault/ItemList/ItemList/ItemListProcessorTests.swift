@@ -55,18 +55,19 @@ class ItemListProcessorTests: AuthenticatorTestCase {
 
     /// `perform(_:)` with `.appeared` starts streaming vault items.
     func test_perform_appeared() {
-        let model = TOTPCodeModel(
-            code: "654321",
-            codeGenerationDate: Date(year: 2024, month: 6, day: 28),
-            period: 30
+        let result = ItemListItem.fixture(
+            totp: .fixture(
+                totpCode: TOTPCodeModel(
+                    code: "654321",
+                    codeGenerationDate: Date(year: 2023, month: 12, day: 31),
+                    period: 30
+                )
+            )
         )
+        let resultSection = ItemListSection(id: "", items: [result], name: "Items")
 
-        let itemListItem = ItemListItem.fixture(
-            totp: .fixture(totpCode: model)
-        )
-        let itemListSection = ItemListSection(id: "", items: [itemListItem], name: "Items")
-        authItemRepository.itemListSubject.send([itemListSection])
-        totpService.getTotpCodeResult = .success(model)
+        authItemRepository.itemListSubject.send([resultSection])
+        authItemRepository.refreshTotpCodesResult = .success([result])
 
         let task = Task {
             await subject.perform(.appeared)
@@ -75,7 +76,8 @@ class ItemListProcessorTests: AuthenticatorTestCase {
         waitFor(subject.state.loadingState != .loading(nil))
         task.cancel()
 
-        XCTAssertEqual(subject.state.loadingState, .data([itemListSection]))
+        XCTAssertEqual(authItemRepository.refreshedTotpCodes, [result])
+        XCTAssertEqual(subject.state.loadingState, .data([resultSection]))
     }
 
     /// `perform(_:)` with `.appeared` records any errors.
@@ -90,6 +92,42 @@ class ItemListProcessorTests: AuthenticatorTestCase {
         task.cancel()
 
         XCTAssertEqual(errorReporter.errors.last as? AuthenticatorTestError, .example)
+    }
+
+    /// TOTP Code expiration updates the state's TOTP codes.
+    func test_perform_appeared_totpExpired_single() throws {
+        let result = ItemListItem.fixture(
+            totp: .fixture(
+                totpCode: TOTPCodeModel(
+                    code: "",
+                    codeGenerationDate: Date(year: 2023, month: 12, day: 31),
+                    period: 30
+                )
+            )
+        )
+        let resultSection = ItemListSection(id: "", items: [result], name: "Items")
+        let newResult = ItemListItem.fixture(
+            totp: .fixture(
+                totpCode: TOTPCodeModel(
+                    code: "345678",
+                    codeGenerationDate: Date(),
+                    period: 30
+                )
+            )
+        )
+        let newResultSection = ItemListSection(id: "", items: [newResult], name: "Items")
+
+        authItemRepository.refreshTotpCodesResult = .success([newResult])
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        authItemRepository.itemListSubject.send([resultSection])
+        waitFor(!authItemRepository.refreshedTotpCodes.isEmpty)
+        waitFor(subject.state.loadingState.data == [newResultSection])
+        task.cancel()
+        XCTAssertEqual([result], authItemRepository.refreshedTotpCodes)
+        let first = try XCTUnwrap(subject.state.loadingState.data?.first)
+        XCTAssertEqual(first, newResultSection)
     }
 
     // MARK: AuthenticatorKeyCaptureDelegate Tests

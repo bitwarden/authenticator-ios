@@ -8,6 +8,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase {
 
     var authItemService: MockAuthenticatorItemService!
     var cryptographyService: MockCryptographyService!
+    var errorReporter: MockErrorReporter!
     var timeProvider: MockTimeProvider!
     var totpService: MockTOTPService!
     var subject: DefaultAuthenticatorItemRepository!
@@ -19,12 +20,14 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase {
 
         authItemService = MockAuthenticatorItemService()
         cryptographyService = MockCryptographyService()
+        errorReporter = MockErrorReporter()
         timeProvider = MockTimeProvider(.mockTime(Date()))
         totpService = MockTOTPService()
 
         subject = DefaultAuthenticatorItemRepository(
             authenticatorItemService: authItemService,
             cryptographyService: cryptographyService,
+            errorReporter: errorReporter,
             timeProvider: timeProvider,
             totpService: totpService
         )
