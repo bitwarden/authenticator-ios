@@ -83,6 +83,7 @@ class DefaultAuthenticatorItemRepository {
 
     private let authenticatorItemService: AuthenticatorItemService
     private let cryptographyService: CryptographyService
+    private let timeProvider: TimeProvider
 
     // MARK: Initialization
 
@@ -93,10 +94,12 @@ class DefaultAuthenticatorItemRepository {
     ///   - cryptographyService
     init(
         authenticatorItemService: AuthenticatorItemService,
-        cryptographyService: CryptographyService
+        cryptographyService: CryptographyService,
+        timeProvider: TimeProvider
     ) {
         self.authenticatorItemService = authenticatorItemService
         self.cryptographyService = cryptographyService
+        self.timeProvider = timeProvider
     }
 
     // MARK: Private Methods
@@ -115,8 +118,12 @@ class DefaultAuthenticatorItemRepository {
         }
         .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
-        let favorites = items.filter(\.favorite).compactMap(ItemListItem.init)
-        let nonFavorites = items.filter { !$0.favorite }.compactMap(ItemListItem.init)
+        let favorites = items.filter(\.favorite).compactMap { item in
+            ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
+        }
+        let nonFavorites = items.filter { !$0.favorite }.compactMap { item in
+            ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
+        }
 
         return [
             ItemListSection(id: "Favorites", items: favorites, name: Localizations.favorites),
@@ -176,7 +183,6 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
         return try await items.asyncMap { item in
             try await cryptographyService.decrypt(item)
         }
-        .compactMap { $0 }
     }
 
     func fetchAuthenticatorItem(withId id: String) async throws -> AuthenticatorItemView? {
@@ -218,7 +224,9 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
         try await searchPublisher(
             searchText: searchText
         ).asyncTryMap { items in
-            items.compactMap(ItemListItem.init)
+            items.compactMap { item in
+                ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
+            }
         }
         .eraseToAnyPublisher()
         .values

@@ -191,7 +191,8 @@ public class ServiceContainer: Services {
 
         let authenticatorItemRepository = DefaultAuthenticatorItemRepository(
             authenticatorItemService: authenticatorItemService,
-            cryptographyService: cryptographyService
+            cryptographyService: cryptographyService,
+            timeProvider: timeProvider
         )
 
         let exportItemsService = DefaultExportItemsService(
