@@ -36,6 +36,14 @@ protocol AuthenticatorItemRepository: AnyObject {
     ///
     func fetchAllAuthenticatorItems() async throws -> [AuthenticatorItemView]
 
+    /// Regenerates the TOTP codes for a list of items.
+    ///
+    /// - Parameters:
+    ///   - items: The list of items that need updated TOTP codes.
+    /// - Returns: A list of items with updated TOTP codes.
+    ///
+    func refreshTotpCodes(on items: [ItemListItem]) async throws -> [ItemListItem]
+
     /// Updates an item in the user's storage
     ///
     /// - Parameters:
@@ -84,6 +92,7 @@ class DefaultAuthenticatorItemRepository {
     private let authenticatorItemService: AuthenticatorItemService
     private let cryptographyService: CryptographyService
     private let timeProvider: TimeProvider
+    private let totpService: TOTPService
 
     // MARK: Initialization
 
@@ -95,11 +104,13 @@ class DefaultAuthenticatorItemRepository {
     init(
         authenticatorItemService: AuthenticatorItemService,
         cryptographyService: CryptographyService,
-        timeProvider: TimeProvider
+        timeProvider: TimeProvider,
+        totpService: TOTPService
     ) {
         self.authenticatorItemService = authenticatorItemService
         self.cryptographyService = cryptographyService
         self.timeProvider = timeProvider
+        self.totpService = totpService
     }
 
     // MARK: Private Methods
@@ -188,6 +199,24 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
     func fetchAuthenticatorItem(withId id: String) async throws -> AuthenticatorItemView? {
         guard let item = try await authenticatorItemService.fetchAuthenticatorItem(withId: id) else { return nil }
         return try? await cryptographyService.decrypt(item)
+    }
+
+    func refreshTotpCodes(on items: [ItemListItem]) async throws -> [ItemListItem] {
+        try await items.asyncMap { item in
+            guard case let .totp(model) = item.itemType,
+                  let key = model.itemView.totpKey,
+                  let keyModel = TOTPKeyModel(authenticatorKey: key)
+            else { return item }
+            let code = try await totpService.getTotpCode(for: keyModel)
+            var updatedModel = model
+            updatedModel.totpCode = code
+            return ItemListItem(
+                id: item.id,
+                name: item.name,
+                accountName: item.accountName,
+                itemType: .totp(model: updatedModel)
+            )
+        }
     }
 
     func updateAuthenticatorItem(_ authenticatorItem: AuthenticatorItemView) async throws {

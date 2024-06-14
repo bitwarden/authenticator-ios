@@ -9,6 +9,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase {
     var authItemService: MockAuthenticatorItemService!
     var cryptographyService: MockCryptographyService!
     var timeProvider: MockTimeProvider!
+    var totpService: MockTOTPService!
     var subject: DefaultAuthenticatorItemRepository!
 
     // MARK: Setup & Teardown
@@ -19,11 +20,13 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase {
         authItemService = MockAuthenticatorItemService()
         cryptographyService = MockCryptographyService()
         timeProvider = MockTimeProvider(.mockTime(Date()))
+        totpService = MockTOTPService()
 
         subject = DefaultAuthenticatorItemRepository(
             authenticatorItemService: authItemService,
             cryptographyService: cryptographyService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
+            totpService: totpService
         )
     }
 
@@ -97,6 +100,30 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase {
         let result = try await subject.fetchAuthenticatorItem(withId: "1")
         XCTAssertEqual(authItemService.fetchAuthenticatorItemId, "1")
         XCTAssertNil(result)
+    }
+
+    /// `refreshTotpCodes(on:)` updates the TOTP codes on items.
+    func test_refreshTotpCodes() async throws {
+        let newCode = "987654"
+        let newCodeModel = TOTPCodeModel(
+            code: newCode,
+            codeGenerationDate: timeProvider.presentTime,
+            period: 30
+        )
+        totpService.getTotpCodeResult = .success(newCodeModel)
+
+        let item = ItemListItem.fixture()
+
+        let result = try await subject.refreshTotpCodes(on: [item])
+        let actual = try XCTUnwrap(result[0])
+
+        XCTAssertEqual(actual.id, item.id)
+        XCTAssertEqual(actual.name, item.name)
+        XCTAssertEqual(actual.accountName, item.accountName)
+        switch actual.itemType {
+        case let .totp(model):
+            XCTAssertEqual(model.totpCode, newCodeModel)
+        }
     }
 
     /// `updateAuthenticatorItem()` updates the item in storage.
