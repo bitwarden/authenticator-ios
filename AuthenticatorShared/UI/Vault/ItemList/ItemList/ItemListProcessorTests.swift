@@ -156,6 +156,29 @@ class ItemListProcessorTests: AuthenticatorTestCase {
         XCTAssertEqual(subject.state.searchResults, [result])
     }
 
+    /// `perform(:_)` with `.search` with an empty string gets empty search results
+    func test_perform_search_emptyString() async {
+        await subject.perform(.search("   "))
+        XCTAssertEqual(subject.state.searchResults.count, 0)
+        XCTAssertEqual(
+            subject.state.searchResults,
+            []
+        )
+    }
+
+    /// `perform(.search)` throws error and error is logged.
+    func test_perform_search_error() async {
+        authItemRepository.searchItemListSubject.send(completion: .failure(AuthenticatorTestError.example))
+        await subject.perform(.search("example"))
+
+        XCTAssertEqual(subject.state.searchResults.count, 0)
+        XCTAssertEqual(
+            subject.state.searchResults,
+            []
+        )
+        XCTAssertEqual(errorReporter.errors as? [AuthenticatorTestError], [.example])
+    }
+
     // MARK: AuthenticatorKeyCaptureDelegate Tests
 
     /// `didCompleteAutomaticCapture` failure
