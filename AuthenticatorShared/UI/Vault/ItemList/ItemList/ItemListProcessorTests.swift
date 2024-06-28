@@ -130,6 +130,32 @@ class ItemListProcessorTests: AuthenticatorTestCase {
         XCTAssertEqual(first, newResultSection)
     }
 
+    /// `perform(:_)` with `.search` should update search results in the state.
+    func test_perform_search() {
+        let result = ItemListItem.fixture(
+            totp: .fixture(
+                totpCode: TOTPCodeModel(
+                    code: "654321",
+                    codeGenerationDate: Date(year: 2024, month: 6, day: 28),
+                    period: 30
+                )
+            )
+        )
+
+        authItemRepository.searchItemListSubject.send([result])
+        authItemRepository.refreshTotpCodesResult = .success([result])
+
+        let task = Task {
+            await subject.perform(.search("text"))
+        }
+
+        waitFor(!subject.state.searchResults.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(authItemRepository.refreshedTotpCodes, [result])
+        XCTAssertEqual(subject.state.searchResults, [result])
+    }
+
     // MARK: AuthenticatorKeyCaptureDelegate Tests
 
     /// `didCompleteAutomaticCapture` failure

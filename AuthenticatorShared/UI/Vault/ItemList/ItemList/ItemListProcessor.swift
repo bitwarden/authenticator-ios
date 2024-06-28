@@ -219,23 +219,9 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 searchText: searchText
             )
             for try await items in result {
-                let allItems = try await items.asyncMap { item in
-                    guard case let .totp(model) = item.itemType,
-                          let key = model.itemView.totpKey,
-                          let keyModel = TOTPKeyModel(authenticatorKey: key)
-                    else { return item }
-                    let code = try await services.totpService.getTotpCode(for: keyModel)
-                    var updatedModel = model
-                    updatedModel.totpCode = code
-                    return ItemListItem(
-                        id: item.id,
-                        name: item.name,
-                        accountName: item.accountName,
-                        itemType: .totp(model: updatedModel)
-                    )
-                }
-                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: allItems)
-                return allItems
+                let itemList = try await services.authenticatorItemRepository.refreshTotpCodes(on: items)
+                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: itemList)
+                return itemList
             }
         } catch {
             services.errorReporter.log(error: error)
