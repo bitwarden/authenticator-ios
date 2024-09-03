@@ -35,6 +35,12 @@ struct ItemListState: Equatable {
         true
     }
 
+    /// Whether to show the password manager download card.
+    var showPasswordManagerDownloadCard: Bool = false
+
+    /// Whether to show the password manager sync card.
+    var showPasswordManagerSyncCard: Bool = false
+
     /// Whether to show the special web icons.
     var showWebIcons = true
 

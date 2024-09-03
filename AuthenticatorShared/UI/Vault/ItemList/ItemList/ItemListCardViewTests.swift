@@ -1,0 +1,49 @@
+import SnapshotTesting
+import ViewInspector
+import XCTest
+
+@testable import AuthenticatorShared
+
+// MARK: - ItemListCardViewTests
+
+class ItemListCardViewTests: AuthenticatorTestCase {
+    // MARK: Tests
+
+    /// Test a snapshot of the ItemListView previews.
+    func test_snapshot_ItemListCardView_previews() {
+        for preview in ItemListCardView_Previews._allPreviews {
+            let name = preview.displayName ?? "Unknown"
+            assertSnapshots(
+                of: preview.content,
+                as: [
+                    "\(name)-portrait": .defaultPortrait,
+                    "\(name)-portraitDark": .defaultPortraitDark,
+                    "\(name)-portraitAX5": .defaultPortraitAX5,
+                ]
+            )
+        }
+    }
+
+    func test_snapshot_ItemListCardView_actions() throws {
+        let expectationAction = expectation(description: "action Tapped")
+        let expectationClose = expectation(description: "close Tapped")
+        let subject = ItemListCardView(
+            bodyText: Localizations.cardPasswordManagerSyncBody,
+            buttonText: Localizations.cardPasswordManagerSyncButtonTitle,
+            leftImage: {},
+            titleText: Localizations.cardPasswordManagerSyncButtonTitle,
+            actionTapped: {
+                expectationAction.fulfill()
+            },
+            closeTapped: {
+                expectationClose.fulfill()
+            }
+        )
+
+        try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close).tap()
+        wait(for: [expectationClose])
+
+        try subject.inspect().find(button: Localizations.cardPasswordManagerSyncButtonTitle).tap()
+        wait(for: [expectationAction])
+    }
+}

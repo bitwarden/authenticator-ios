@@ -63,6 +63,14 @@ private struct SearchableItemListView: View {
 
     // MARK: Private
 
+    @ViewBuilder private var cardSection: some View {
+        if store.state.showPasswordManagerSyncCard {
+            itemListCardSync
+        } else if store.state.showPasswordManagerDownloadCard {
+            itemListCardPasswordManagerInstall
+        }
+    }
+
     @ViewBuilder private var content: some View {
         LoadingView(state: store.state.loadingState) { sections in
             if sections.isEmpty {
@@ -78,6 +86,8 @@ private struct SearchableItemListView: View {
         GeometryReader { reader in
             ScrollView {
                 VStack(spacing: 16) {
+                    cardSection
+
                     Spacer()
 
                     Image(decorative: Asset.Images.emptyVault)
@@ -105,6 +115,46 @@ private struct SearchableItemListView: View {
                 .frame(minWidth: reader.size.width, minHeight: reader.size.height)
             }
         }
+    }
+
+    private var itemListCardPasswordManagerInstall: some View {
+        ItemListCardView(
+            bodyText: Localizations.cardPasswordManagerInstallBody,
+            buttonText: Localizations.cardPasswordManagerInstallButtonTitle,
+            leftImage: {
+                Image(decorative: Asset.Images.bwLogo)
+                    .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
+                    .frame(width: 24, height: 24)
+            },
+            titleText: Localizations.cardPasswordManagerInstallTitle,
+            actionTapped: {
+                openURL(ExternalLinksConstants.passwordManagerLink)
+            },
+            closeTapped: {
+                // https://livefront.atlassian.net/browse/BITAU-129
+            }
+        )
+        .padding(.top, 16)
+    }
+
+    private var itemListCardSync: some View {
+        ItemListCardView(
+            bodyText: Localizations.cardPasswordManagerSyncBody,
+            buttonText: Localizations.cardPasswordManagerSyncButtonTitle,
+            leftImage: {
+                Image(decorative: Asset.Images.bwLogo)
+                    .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
+                    .frame(width: 24, height: 24)
+            },
+            titleText: Localizations.cardPasswordManagerSyncButtonTitle,
+            actionTapped: {
+                openURL(ExternalLinksConstants.passwordManagerSettings)
+            },
+            closeTapped: {
+                // https://livefront.atlassian.net/browse/BITAU-129
+            }
+        )
+        .padding(.top, 16)
     }
 
     /// A view that displays the search interface, including search results, an empty search
@@ -198,6 +248,9 @@ private struct SearchableItemListView: View {
     @ViewBuilder
     private func itemListView(with sections: [ItemListSection]) -> some View {
         ScrollView {
+            cardSection
+                .padding(.horizontal, 16)
+
             if sections.count > 1 {
                 VStack(spacing: 20) {
                     ForEach(sections) { section in

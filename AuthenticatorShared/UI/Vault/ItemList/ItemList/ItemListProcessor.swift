@@ -8,8 +8,10 @@ import Foundation
 final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, ItemListEffect> {
     // MARK: Types
 
-    typealias Services = HasAuthenticatorItemRepository
+    typealias Services = HasApplication
+        & HasAuthenticatorItemRepository
         & HasCameraService
+        & HasConfigService
         & HasErrorReporter
         & HasPasteboardService
         & HasTOTPService
@@ -227,6 +229,8 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     /// Stream the items list.
     private func streamItemList() async {
         do {
+            await determinePasswordManagerSyncVisibility()
+
             for try await value in try await services.authenticatorItemRepository.itemListPublisher() {
                 let sectionList = try await value.asyncMap { section in
                     let itemList = try await section.items.asyncMap { item in
@@ -251,6 +255,19 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             }
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    private func determinePasswordManagerSyncVisibility() async {
+        state.showPasswordManagerSyncCard = false
+        state.showPasswordManagerDownloadCard = false
+
+        if await services.configService.getFeatureFlag(.passwordManagerSyncEnabled) {
+            if services.application?.canOpenURL(ExternalLinksConstants.passwordManagerScheme) == true {
+                state.showPasswordManagerSyncCard = true
+            } else {
+                state.showPasswordManagerDownloadCard = true
+            }
         }
     }
 }
