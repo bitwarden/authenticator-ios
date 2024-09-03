@@ -53,6 +53,7 @@ class ItemListViewTests: AuthenticatorTestCase {
         }
     }
 
+    /// Test a snapshot of the ItemListView showing the download card with an empty result.
     func test_snapshot_ItemListView_card_download_empty() {
         let state = ItemListState(
             loadingState: .data([]),
@@ -67,6 +68,7 @@ class ItemListViewTests: AuthenticatorTestCase {
         assertSnapshot(matching: NavigationView { subject }, as: .defaultPortrait)
     }
 
+    /// Test a snapshot of the ItemListView showing the download card with results.
     func test_snapshot_ItemListView_card_download_with_items() {
         let state = ItemListState(
             loadingState: .data([ItemListSection.fixture()]),
@@ -81,6 +83,7 @@ class ItemListViewTests: AuthenticatorTestCase {
         assertSnapshot(matching: NavigationView { subject }, as: .defaultPortrait)
     }
 
+    /// Test a snapshot of the ItemListView showing the sync card with an empty result.
     func test_snapshot_ItemListView_card_sync_empty() {
         let state = ItemListState(
             loadingState: .data([]),
@@ -95,6 +98,7 @@ class ItemListViewTests: AuthenticatorTestCase {
         assertSnapshot(matching: NavigationView { subject }, as: .defaultPortrait)
     }
 
+    /// Test a snapshot of the ItemListView showing the sync card with results.
     func test_snapshot_ItemListView_card_sync_with_items() {
         let state = ItemListState(
             loadingState: .data([ItemListSection.fixture()]),

@@ -24,6 +24,7 @@ class ItemListCardViewTests: AuthenticatorTestCase {
         }
     }
 
+    /// Test the actions are properly wired up in the ItemListCardView.
     func test_snapshot_ItemListCardView_actions() throws {
         let expectationAction = expectation(description: "action Tapped")
         let expectationClose = expectation(description: "close Tapped")
