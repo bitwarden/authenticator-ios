@@ -100,15 +100,13 @@ class ItemListProcessorTests: AuthenticatorTestCase {
     /// Tests that the `showPasswordManagerSyncCard` and `showPasswordManagerDownloadCard` are set
     /// to false if the feature flag is turned off.
     func test_determinePasswordManagerSyncVisibility_FeatureFlag_off() {
-        subject.state.showPasswordManagerSyncCard = true
-        subject.state.showPasswordManagerDownloadCard = true
+        subject.state.itemListCardState = .passwordManagerSync
         configService.featureFlagsBool = [.passwordManagerSyncEnabled: false]
         let task = Task {
             await self.subject.perform(.streamItemList)
         }
 
-        waitFor(!subject.state.showPasswordManagerSyncCard)
-        waitFor(!subject.state.showPasswordManagerDownloadCard)
+        waitFor(subject.state.itemListCardState == .none)
         task.cancel()
     }
 
@@ -120,8 +118,7 @@ class ItemListProcessorTests: AuthenticatorTestCase {
             await self.subject.perform(.streamItemList)
         }
 
-        waitFor(subject.state.showPasswordManagerDownloadCard)
-        XCTAssertFalse(subject.state.showPasswordManagerSyncCard)
+        waitFor(subject.state.itemListCardState == .passwordManagerDownload)
         task.cancel()
     }
 
@@ -133,8 +130,7 @@ class ItemListProcessorTests: AuthenticatorTestCase {
             await self.subject.perform(.streamItemList)
         }
 
-        waitFor(subject.state.showPasswordManagerSyncCard)
-        XCTAssertFalse(subject.state.showPasswordManagerDownloadCard)
+        waitFor(subject.state.itemListCardState == .passwordManagerSync)
         task.cancel()
     }
 }

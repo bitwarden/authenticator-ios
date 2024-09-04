@@ -56,8 +56,8 @@ class ItemListViewTests: AuthenticatorTestCase {
     /// Test a snapshot of the ItemListView showing the download card with an empty result.
     func test_snapshot_ItemListView_card_download_empty() {
         let state = ItemListState(
-            loadingState: .data([]),
-            showPasswordManagerDownloadCard: true
+            itemListCardState: .passwordManagerDownload,
+            loadingState: .data([])
         )
         processor = MockProcessor(state: state)
         subject = ItemListView(
@@ -71,8 +71,8 @@ class ItemListViewTests: AuthenticatorTestCase {
     /// Test a snapshot of the ItemListView showing the download card with results.
     func test_snapshot_ItemListView_card_download_with_items() {
         let state = ItemListState(
-            loadingState: .data([ItemListSection.fixture()]),
-            showPasswordManagerDownloadCard: true
+            itemListCardState: .passwordManagerDownload,
+            loadingState: .data([ItemListSection.fixture()])
         )
         processor = MockProcessor(state: state)
         subject = ItemListView(
@@ -86,8 +86,8 @@ class ItemListViewTests: AuthenticatorTestCase {
     /// Test a snapshot of the ItemListView showing the sync card with an empty result.
     func test_snapshot_ItemListView_card_sync_empty() {
         let state = ItemListState(
-            loadingState: .data([]),
-            showPasswordManagerSyncCard: true
+            itemListCardState: .passwordManagerSync,
+            loadingState: .data([])
         )
         processor = MockProcessor(state: state)
         subject = ItemListView(
@@ -101,8 +101,8 @@ class ItemListViewTests: AuthenticatorTestCase {
     /// Test a snapshot of the ItemListView showing the sync card with results.
     func test_snapshot_ItemListView_card_sync_with_items() {
         let state = ItemListState(
-            loadingState: .data([ItemListSection.fixture()]),
-            showPasswordManagerSyncCard: true
+            itemListCardState: .passwordManagerSync,
+            loadingState: .data([ItemListSection.fixture()])
         )
         processor = MockProcessor(state: state)
         subject = ItemListView(

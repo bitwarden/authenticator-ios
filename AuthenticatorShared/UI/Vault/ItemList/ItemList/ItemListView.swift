@@ -63,11 +63,15 @@ private struct SearchableItemListView: View {
 
     // MARK: Private
 
+    /// The card section to display at the top of the list.
     @ViewBuilder private var cardSection: some View {
-        if store.state.showPasswordManagerSyncCard {
+        switch store.state.itemListCardState {
+        case .passwordManagerSync:
             itemListCardSync
-        } else if store.state.showPasswordManagerDownloadCard {
+        case .passwordManagerDownload:
             itemListCardPasswordManagerInstall
+        case .none:
+            EmptyView()
         }
     }
 
@@ -117,6 +121,7 @@ private struct SearchableItemListView: View {
         }
     }
 
+    /// The Password Manager download card definition.
     private var itemListCardPasswordManagerInstall: some View {
         ItemListCardView(
             bodyText: Localizations.cardPasswordManagerInstallBody,
@@ -137,6 +142,7 @@ private struct SearchableItemListView: View {
         .padding(.top, 16)
     }
 
+    /// The Password Manager sync card definition.
     private var itemListCardSync: some View {
         ItemListCardView(
             bodyText: Localizations.cardPasswordManagerSyncBody,

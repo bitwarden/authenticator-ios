@@ -31,7 +31,7 @@ enum FeatureFlag: String, Codable {
     /// but if `isRemotelyConfigured` is false for the flag, then the value here will be used.
     /// This is a helpful way to manage local feature flags.
     static let initialLocalValues: [FeatureFlag: AnyCodable] = [
-        .passwordManagerSyncEnabled: .bool(false), // set this to true to turn on this feature.
+        .passwordManagerSyncEnabled: .bool(false),
         .testLocalBoolFlag: .bool(true),
         .testLocalIntFlag: .int(42),
         .testLocalStringFlag: .string("Test String"),

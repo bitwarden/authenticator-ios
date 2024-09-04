@@ -258,15 +258,16 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         }
     }
 
+    /// Determine if the ItemListCard should be shown and which state to show.
+    ///
     private func determinePasswordManagerSyncVisibility() async {
-        state.showPasswordManagerSyncCard = false
-        state.showPasswordManagerDownloadCard = false
+        state.itemListCardState = .none
 
         if await services.configService.getFeatureFlag(.passwordManagerSyncEnabled) {
             if services.application?.canOpenURL(ExternalLinksConstants.passwordManagerScheme) == true {
-                state.showPasswordManagerSyncCard = true
+                state.itemListCardState = .passwordManagerSync
             } else {
-                state.showPasswordManagerDownloadCard = true
+                state.itemListCardState = .passwordManagerDownload
             }
         }
     }
