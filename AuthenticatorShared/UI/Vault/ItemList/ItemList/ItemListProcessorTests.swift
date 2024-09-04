@@ -110,7 +110,7 @@ class ItemListProcessorTests: AuthenticatorTestCase {
         task.cancel()
     }
 
-    /// Tests that the `showPasswordManagerDownloadCard` is set to true if the feature flag is turned on.
+    /// Tests that the `itemListCardState` is set to `passwordManagerDownload` if the feature flag is turned on.
     func test_determinePasswordManagerSyncVisibility_FeatureFlag_on_download() {
         configService.featureFlagsBool = [.passwordManagerSyncEnabled: true]
         application.canOpenUrlResponse = false
@@ -122,7 +122,7 @@ class ItemListProcessorTests: AuthenticatorTestCase {
         task.cancel()
     }
 
-    /// Tests that the `showPasswordManagerSyncCard` is set to true if the feature flag is turned on.
+    /// Tests that the `itemListCardState` is set to `passwordManagerSync` if the feature flag is turned on.
     func test_determinePasswordManagerSyncVisibility_FeatureFlag_on_sync() {
         configService.featureFlagsBool = [.passwordManagerSyncEnabled: true]
         application.canOpenUrlResponse = true
