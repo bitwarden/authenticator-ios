@@ -29,10 +29,10 @@ class ItemListCardViewTests: AuthenticatorTestCase {
         let expectationAction = expectation(description: "action Tapped")
         let expectationClose = expectation(description: "close Tapped")
         let subject = ItemListCardView(
-            bodyText: Localizations.cardPasswordManagerSyncBody,
-            buttonText: Localizations.cardPasswordManagerSyncButtonTitle,
+            bodyText: Localizations.inOrderToViewAllOfYourVerificationCodes,
+            buttonText: Localizations.takeMeToTheAppSettings,
             leftImage: {},
-            titleText: Localizations.cardPasswordManagerSyncButtonTitle,
+            titleText: Localizations.syncWithTheBitwardenApp,
             actionTapped: {
                 expectationAction.fulfill()
             },
@@ -44,7 +44,7 @@ class ItemListCardViewTests: AuthenticatorTestCase {
         try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close).tap()
         wait(for: [expectationClose])
 
-        try subject.inspect().find(button: Localizations.cardPasswordManagerSyncButtonTitle).tap()
+        try subject.inspect().find(button: Localizations.takeMeToTheAppSettings).tap()
         wait(for: [expectationAction])
     }
 }

@@ -122,9 +122,8 @@
 "Backup" = "Backup";
 "BitwardenAuthenticatorDataIsBackedUpAndCanBeRestored" = "Bitwarden Authenticator data is backed up and can be restored with your regularly scheduled device backups.";
 "ImportingFromTwoFasPasswordProtectedNotSupported" = "Importing from 2FAS password protected files is not supported. Try again with an exported file that is not password protected.";
-"CardPasswordManagerInstallBody" = "With the Bitwarden app, you can store all of your items and sync directly with the authenticator.";
-"CardPasswordManagerInstallButtonTitle" = "Download the Bitwarden app";
-"CardPasswordManagerInstallTitle" = "Download the Bitwarden app";
-"CardPasswordManagerSyncBody" = "In order to view all of your verification codes, you’ll need to allow for syncing on all of your accounts.";
-"CardPasswordManagerSyncButtonTitle" = "Take me to the app settings";
-"CardPasswordManagerSyncTitle" = "Sync with the Bitwarden app";
+"WithTheBitwardenAppYouCanStore" = "With the Bitwarden app, you can store all of your items and sync directly with the authenticator.";
+"DownloadTheBitwardenApp" = "Download the Bitwarden app";
+"InOrderToViewAllOfYourVerificationCodes" = "In order to view all of your verification codes, you’ll need to allow for syncing on all of your accounts.";
+"TakeMeToTheAppSettings" = "Take me to the app settings";
+"SyncWithTheBitwardenApp" = "Sync with the Bitwarden app";

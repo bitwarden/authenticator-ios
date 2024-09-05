@@ -64,6 +64,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         case .addItemPressed:
             await setupTotp()
         case .appeared:
+            await determineItemListCardState()
             await streamItemList()
         case let .copyPressed(item):
             switch item.itemType {
@@ -229,8 +230,6 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     /// Stream the items list.
     private func streamItemList() async {
         do {
-            await determinePasswordManagerSyncVisibility()
-
             for try await value in try await services.authenticatorItemRepository.itemListPublisher() {
                 let sectionList = try await value.asyncMap { section in
                     let itemList = try await section.items.asyncMap { item in
@@ -260,16 +259,17 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
 
     /// Determine if the ItemListCard should be shown and which state to show.
     ///
-    private func determinePasswordManagerSyncVisibility() async {
-        state.itemListCardState = .none
-
-        if await services.configService.getFeatureFlag(.passwordManagerSyncEnabled) {
-            if services.application?.canOpenURL(ExternalLinksConstants.passwordManagerScheme) == true {
-                state.itemListCardState = .passwordManagerSync
-            } else {
-                state.itemListCardState = .passwordManagerDownload
-            }
+    private func determineItemListCardState() async {
+        guard await services.configService.getFeatureFlag(.passwordManagerSyncEnabled) else {
+            state.itemListCardState = .none
+            return
         }
+
+        guard services.application?.canOpenURL(ExternalLinksConstants.passwordManagerScheme) == true else {
+            state.itemListCardState = .passwordManagerDownload
+            return
+        }
+        state.itemListCardState = .passwordManagerSync
     }
 }
 

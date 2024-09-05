@@ -124,19 +124,19 @@ private struct SearchableItemListView: View {
     /// The Password Manager download card definition.
     private var itemListCardPasswordManagerInstall: some View {
         ItemListCardView(
-            bodyText: Localizations.cardPasswordManagerInstallBody,
-            buttonText: Localizations.cardPasswordManagerInstallButtonTitle,
+            bodyText: Localizations.withTheBitwardenAppYouCanStore,
+            buttonText: Localizations.downloadTheBitwardenApp,
             leftImage: {
                 Image(decorative: Asset.Images.bwLogo)
                     .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
                     .frame(width: 24, height: 24)
             },
-            titleText: Localizations.cardPasswordManagerInstallTitle,
+            titleText: Localizations.downloadTheBitwardenApp,
             actionTapped: {
                 openURL(ExternalLinksConstants.passwordManagerLink)
             },
             closeTapped: {
-                // https://livefront.atlassian.net/browse/BITAU-129
+                // TODO: https://livefront.atlassian.net/browse/BITAU-129
             }
         )
         .padding(.top, 16)
@@ -145,19 +145,19 @@ private struct SearchableItemListView: View {
     /// The Password Manager sync card definition.
     private var itemListCardSync: some View {
         ItemListCardView(
-            bodyText: Localizations.cardPasswordManagerSyncBody,
-            buttonText: Localizations.cardPasswordManagerSyncButtonTitle,
+            bodyText: Localizations.inOrderToViewAllOfYourVerificationCodes,
+            buttonText: Localizations.takeMeToTheAppSettings,
             leftImage: {
                 Image(decorative: Asset.Images.bwLogo)
                     .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
                     .frame(width: 24, height: 24)
             },
-            titleText: Localizations.cardPasswordManagerSyncButtonTitle,
+            titleText: Localizations.syncWithTheBitwardenApp,
             actionTapped: {
                 openURL(ExternalLinksConstants.passwordManagerSettings)
             },
             closeTapped: {
-                // https://livefront.atlassian.net/browse/BITAU-129
+                // TODO: https://livefront.atlassian.net/browse/BITAU-129
             }
         )
         .padding(.top, 16)

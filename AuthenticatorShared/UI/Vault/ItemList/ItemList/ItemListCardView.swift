@@ -79,14 +79,14 @@ struct ItemListCardView<ImageContent: View>: View {
 struct ItemListCardView_Previews: PreviewProvider {
     static var previews: some View {
         ItemListCardView(
-            bodyText: Localizations.cardPasswordManagerSyncBody,
-            buttonText: Localizations.cardPasswordManagerSyncButtonTitle,
+            bodyText: Localizations.inOrderToViewAllOfYourVerificationCodes,
+            buttonText: Localizations.takeMeToTheAppSettings,
             leftImage: {
                 Image(decorative: Asset.Images.bwLogo)
                     .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
                     .frame(width: 24, height: 24)
             },
-            titleText: Localizations.cardPasswordManagerSyncButtonTitle,
+            titleText: Localizations.syncWithTheBitwardenApp,
             actionTapped: {},
             closeTapped: {}
         )

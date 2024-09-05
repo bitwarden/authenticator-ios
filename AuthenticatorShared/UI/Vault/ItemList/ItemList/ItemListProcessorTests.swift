@@ -99,11 +99,11 @@ class ItemListProcessorTests: AuthenticatorTestCase {
 
     /// Tests that the `showPasswordManagerSyncCard` and `showPasswordManagerDownloadCard` are set
     /// to false if the feature flag is turned off.
-    func test_determinePasswordManagerSyncVisibility_FeatureFlag_off() {
+    func test_determineItemListCardState_FeatureFlag_off() {
         subject.state.itemListCardState = .passwordManagerSync
         configService.featureFlagsBool = [.passwordManagerSyncEnabled: false]
         let task = Task {
-            await self.subject.perform(.streamItemList)
+            await self.subject.perform(.appeared)
         }
 
         waitFor(subject.state.itemListCardState == .none)
@@ -111,11 +111,11 @@ class ItemListProcessorTests: AuthenticatorTestCase {
     }
 
     /// Tests that the `itemListCardState` is set to `passwordManagerDownload` if the feature flag is turned on.
-    func test_determinePasswordManagerSyncVisibility_FeatureFlag_on_download() {
+    func test_determineItemListCardState_FeatureFlag_on_download() {
         configService.featureFlagsBool = [.passwordManagerSyncEnabled: true]
         application.canOpenUrlResponse = false
         let task = Task {
-            await self.subject.perform(.streamItemList)
+            await self.subject.perform(.appeared)
         }
 
         waitFor(subject.state.itemListCardState == .passwordManagerDownload)
@@ -123,11 +123,11 @@ class ItemListProcessorTests: AuthenticatorTestCase {
     }
 
     /// Tests that the `itemListCardState` is set to `passwordManagerSync` if the feature flag is turned on.
-    func test_determinePasswordManagerSyncVisibility_FeatureFlag_on_sync() {
+    func test_determineItemListCardState_FeatureFlag_on_sync() {
         configService.featureFlagsBool = [.passwordManagerSyncEnabled: true]
         application.canOpenUrlResponse = true
         let task = Task {
-            await self.subject.perform(.streamItemList)
+            await self.subject.perform(.appeared)
         }
 
         waitFor(subject.state.itemListCardState == .passwordManagerSync)
