@@ -79,7 +79,8 @@ struct ItemListCardView<ImageContent: View>: View {
 struct ItemListCardView_Previews: PreviewProvider {
     static var previews: some View {
         ItemListCardView(
-            bodyText: Localizations.inOrderToViewAllOfYourVerificationCodes,
+            bodyText: Localizations
+                .inOrderToViewAllOfYourVerificationCodesYoullNeedToAllowForSyncingOnAllOfYourAccounts,
             buttonText: Localizations.takeMeToTheAppSettings,
             leftImage: {
                 Image(decorative: Asset.Images.bwLogo)

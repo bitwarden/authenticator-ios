@@ -124,7 +124,7 @@ private struct SearchableItemListView: View {
     /// The Password Manager download card definition.
     private var itemListCardPasswordManagerInstall: some View {
         ItemListCardView(
-            bodyText: Localizations.withTheBitwardenAppYouCanStore,
+            bodyText: Localizations.withTheBitwardenAppYouCanStoreAllOfYourItemsAndSyncDirectlyWithTheAuthenticator,
             buttonText: Localizations.downloadTheBitwardenApp,
             leftImage: {
                 Image(decorative: Asset.Images.bwLogo)
@@ -145,7 +145,8 @@ private struct SearchableItemListView: View {
     /// The Password Manager sync card definition.
     private var itemListCardSync: some View {
         ItemListCardView(
-            bodyText: Localizations.inOrderToViewAllOfYourVerificationCodes,
+            bodyText: Localizations
+                .inOrderToViewAllOfYourVerificationCodesYoullNeedToAllowForSyncingOnAllOfYourAccounts,
             buttonText: Localizations.takeMeToTheAppSettings,
             leftImage: {
                 Image(decorative: Asset.Images.bwLogo)
