@@ -6,8 +6,7 @@ on:
       - "main"
       - "rc"
       - "hotfix-rc"
-  pull_request_target:
-    types: [opened, synchronize]
+  pull_request:
 
 env:
   DEVELOPER_DIR: /Applications/Xcode_15.0.1.app/Contents/Developer
@@ -33,9 +32,6 @@ jobs:
     steps:
       - name: Check out repo
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-        with:
-          fetch-depth: 0
-          ref: ${{ github.head_ref }}
 
       - name: Configure Ruby
         uses: ruby/setup-ruby@a6e6f86333f0a2523ece813039b8b4be04560854 # v1.190.0
