@@ -171,17 +171,19 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase {
             AuthenticatorItem.fixture(id: "2", name: "Two"),
             AuthenticatorItem.fixture(id: "3", name: "Three"),
         ]
+        let codeModel = TOTPCodeModel(
+            code: "123456",
+            codeGenerationDate: timeProvider.presentTime,
+            period: 30
+        )
+        totpService.getTotpCodeResult = .success(codeModel)
         let expected = items.map { item in
             ItemListItem.fixture(
                 id: item.id,
                 name: item.name,
                 totp: ItemListTotpItem.fixture(
                     itemView: AuthenticatorItemView(authenticatorItem: item),
-                    totpCode: TOTPCodeModel(
-                        code: "123456",
-                        codeGenerationDate: timeProvider.presentTime,
-                        period: 30
-                    )
+                    totpCode: codeModel
                 )
             )
         }.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
@@ -257,17 +259,19 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase {
             AuthenticatorItem.fixture(id: "2", name: "Restaurant"),
             AuthenticatorItem.fixture(id: "3", name: "Café"),
         ]
+        let codeModel = TOTPCodeModel(
+            code: "123456",
+            codeGenerationDate: timeProvider.presentTime,
+            period: 30
+        )
+        totpService.getTotpCodeResult = .success(codeModel)
         let expected = items.map { item in
             ItemListItem.fixture(
                 id: item.id,
                 name: item.name,
                 totp: ItemListTotpItem.fixture(
                     itemView: AuthenticatorItemView(authenticatorItem: item),
-                    totpCode: TOTPCodeModel(
-                        code: "123456",
-                        codeGenerationDate: timeProvider.presentTime,
-                        period: 30
-                    )
+                    totpCode: codeModel
                 )
             )
         }
@@ -287,17 +291,19 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase {
             AuthenticatorItem.fixture(id: "2", name: "Teahouse"),
             AuthenticatorItem.fixture(id: "3", name: "Café"),
         ]
+        let codeModel = TOTPCodeModel(
+            code: "123456",
+            codeGenerationDate: timeProvider.presentTime,
+            period: 30
+        )
+        totpService.getTotpCodeResult = .success(codeModel)
         let expected = items.map { item in
             ItemListItem.fixture(
                 id: item.id,
                 name: item.name,
                 totp: ItemListTotpItem.fixture(
                     itemView: AuthenticatorItemView(authenticatorItem: item),
-                    totpCode: TOTPCodeModel(
-                        code: "123456",
-                        codeGenerationDate: timeProvider.presentTime,
-                        period: 30
-                    )
+                    totpCode: codeModel
                 )
             )
         }
