@@ -93,7 +93,7 @@ class AppSettingsStoreTests: AuthenticatorTestCase {
         XCTAssertNil(subject.biometricIntegrityState(userId: "-1"))
     }
 
-    /// `biometricIntegrityState` returns nil if there is no previous value.
+    /// `biometricIntegrityState` can be used to get and set the persisted value in user defaults.
     func test_biometricIntegrityState_withValue() {
         subject.setBiometricIntegrityState("state1", userId: "0")
         subject.setBiometricIntegrityState("state2", userId: "1")
