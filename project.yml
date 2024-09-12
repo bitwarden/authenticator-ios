@@ -19,7 +19,8 @@ packages:
     url: https://github.com/bitwarden/sdk-swift
     revision: 93ce71195a729f30b3edd48caeb7af9a39f35403
   BitwardenShared:
-    path: ../ios
+    url: https://github.com/bitwarden/ios
+    branch: main
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 10.19.0
