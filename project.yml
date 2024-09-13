@@ -140,7 +140,7 @@ targets:
     dependencies:
       - target: Authenticator
       - package: BitwardenShared
-        product: AuthenticatorSyncKit
+        product: AuthenticatorBridgeKit
       - package: SnapshotTesting
       - package: ViewInspector
     randomExecutionOrder: true
@@ -174,7 +174,7 @@ targets:
         optional: true
     dependencies:
       - package: BitwardenShared
-        product: AuthenticatorSyncKit
+        product: AuthenticatorBridgeKit
       - package: BitwardenSdk
       - package: Networking
       - package: SwiftProtobuf
