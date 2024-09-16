@@ -100,7 +100,7 @@ class ItemListProcessorTests: AuthenticatorTestCase {
         XCTAssertEqual(item.totpKey, String.base32Key)
     }
 
-    /// Tests that the `itemListCardState` is set to `none` if the card has been closed.
+    /// Tests that the `itemListCardState` is set to `none` if the download card has been closed.
     func test_determineItemListCardState_closed_download() async {
         configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         application.canOpenUrlResponse = false
@@ -108,7 +108,7 @@ class ItemListProcessorTests: AuthenticatorTestCase {
         XCTAssertEqual(subject.state.itemListCardState, .none)
     }
 
-    /// Tests that the `itemListCardState` is set to `none` if the card has been closed.
+    /// Tests that the `itemListCardState` is set to `none` if the sync card has been closed.
     func test_determineItemListCardState_closed_sync() async {
         configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         application.canOpenUrlResponse = true
