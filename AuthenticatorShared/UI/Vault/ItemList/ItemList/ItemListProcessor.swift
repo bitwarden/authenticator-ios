@@ -44,7 +44,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         self.services = services
 
         super.init(state: state)
-        groupTotpExpirationManager = .init(
+        groupTotpExpirationManager = TOTPExpirationManager(
             timeProvider: services.timeProvider,
             onExpiration: { [weak self] expiredItems in
                 guard let self else { return }
@@ -53,6 +53,11 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 }
             }
         )
+    }
+
+    deinit {
+        groupTotpExpirationManager?.cleanup()
+        groupTotpExpirationManager = nil
     }
 
     // MARK: Methods
