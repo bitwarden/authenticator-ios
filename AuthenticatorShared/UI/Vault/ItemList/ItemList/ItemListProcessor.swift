@@ -151,31 +151,17 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     ///
     private func refreshTOTPCodes(for items: [ItemListItem]) async {
         guard case let .data(currentSections) = state.loadingState else { return }
-        let refreshedItems = await items.asyncMap { item in
-            guard case let .totp(model) = item.itemType,
-                  let key = model.itemView.totpKey,
-                  let keyModel = TOTPKeyModel(authenticatorKey: key),
-                  let code = try? await services.totpService.getTotpCode(for: keyModel)
-            else {
-                services.errorReporter.log(error: TOTPServiceError
-                    .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
-                return item
+        do {
+            let refreshedItems = try await services.authenticatorItemRepository.refreshTotpCodes(on: items)
+            let updatedSections = currentSections.updated(with: refreshedItems)
+            let allItems = updatedSections.flatMap(\.items)
+            groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: allItems)
+            state.loadingState = .data(updatedSections)
+            if !state.searchResults.isEmpty {
+                state.searchResults = await searchItems(for: state.searchText)
             }
-            var updatedModel = model
-            updatedModel.totpCode = code
-            return ItemListItem(
-                id: item.id,
-                name: item.name,
-                accountName: item.accountName,
-                itemType: .totp(model: updatedModel)
-            )
-        }
-        let updatedSections = currentSections.updated(with: refreshedItems)
-        let allItems = updatedSections.flatMap(\.items)
-        groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: allItems)
-        state.loadingState = .data(updatedSections)
-        if !state.searchResults.isEmpty {
-            state.searchResults = await searchItems(for: state.searchText)
+        } catch {
+            services.errorReporter.log(error: error)
         }
     }
 

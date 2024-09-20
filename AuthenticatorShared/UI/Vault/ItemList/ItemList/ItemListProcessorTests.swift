@@ -96,41 +96,64 @@ class ItemListProcessorTests: AuthenticatorTestCase {
 
     /// TOTP Code expiration updates the state's TOTP codes.
     func test_perform_appeared_totpExpired_single() throws {
-        let result = ItemListItem.fixture(
+        let firstItem = ItemListItem.fixture(
             totp: .fixture(
                 totpCode: TOTPCodeModel(
                     code: "",
-                    codeGenerationDate: Date(year: 2023, month: 12, day: 31),
+                    codeGenerationDate: Date(timeIntervalSinceNow: -61),
                     period: 30
                 )
             )
         )
-        let resultSection = ItemListSection(id: "", items: [result], name: "Items")
-        let newResult = ItemListItem.fixture(
+        let firstSection = ItemListSection(
+            id: "",
+            items: [firstItem],
+            name: "Items"
+        )
+
+        let secondItem = ItemListItem.fixture(
             totp: .fixture(
                 totpCode: TOTPCodeModel(
                     code: "345678",
-                    codeGenerationDate: Date(),
+                    codeGenerationDate: Date(timeIntervalSinceNow: -61),
                     period: 30
                 )
             )
         )
-        let newResultSection = ItemListSection(id: "", items: [newResult], name: "Items")
+        let secondSection = ItemListSection(
+            id: "",
+            items: [secondItem],
+            name: "Items"
+        )
 
-        authItemRepository.refreshTotpCodesResult = .success([newResult])
+        let thirdModel = TOTPCodeModel(
+            code: "654321",
+            codeGenerationDate: Date(),
+            period: 30
+        )
+        let thirdItem = ItemListItem.fixture(
+            totp: .fixture(
+                totpCode: thirdModel
+            )
+        )
+        let thirdResultSection = ItemListSection(id: "", items: [thirdItem], name: "Items")
+
+        authItemRepository.refreshTotpCodesResult = .success([secondItem])
         let task = Task {
             await subject.perform(.appeared)
         }
-        authItemRepository.itemListSubject.send([resultSection])
-        waitFor(!authItemRepository.refreshedTotpCodes.isEmpty)
-        waitFor(subject.state.loadingState.data == [newResultSection])
+        authItemRepository.itemListSubject.send([firstSection])
+        waitFor(subject.state.loadingState.data == [secondSection])
+        authItemRepository.refreshTotpCodesResult = .success([thirdItem])
+        waitFor(subject.state.loadingState.data == [thirdResultSection])
+
         task.cancel()
-        XCTAssertEqual([result], authItemRepository.refreshedTotpCodes)
+        XCTAssertEqual([secondItem], authItemRepository.refreshedTotpCodes)
         let first = try XCTUnwrap(subject.state.loadingState.data?.first)
-        XCTAssertEqual(first, newResultSection)
+        XCTAssertEqual(first, thirdResultSection)
     }
 
-    /// `perform(:_)` with `.search` should update search results in the state.
+    /// `perform(:_)` with `.search` updates search results in the state.
     func test_perform_search() {
         let result = ItemListItem.fixture(
             totp: .fixture(
