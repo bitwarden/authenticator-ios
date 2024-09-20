@@ -103,5 +103,8 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
             .settings(.settings): settingsNavigator,
         ]
         tabNavigator.setNavigators(tabsAndNavigators)
+
+        settingsNavigator.tabBarItem.accessibilityIdentifier = TabRoute.settings(.settings).accessibilityIdentifier
+        itemListNavigator.tabBarItem.accessibilityIdentifier = TabRoute.itemList(.list).accessibilityIdentifier
     }
 }

@@ -63,6 +63,7 @@ struct EditAuthenticatorItemView: View {
                     send: EditAuthenticatorItemAction.issuerChanged
                 )
             )
+            .accessibilityIdentifier("EditItemNameField")
 
             BitwardenTextField(
                 title: Localizations.key,
@@ -70,12 +71,15 @@ struct EditAuthenticatorItemView: View {
                     get: \.secret,
                     send: EditAuthenticatorItemAction.secretChanged
                 ),
+                accessibilityIdentifier: "EditItemKeyField",
+                passwordVisibilityAccessibilityId: "EditKeyVisibilityToggle",
                 isPasswordVisible: store.binding(
                     get: \.isSecretVisible,
                     send: EditAuthenticatorItemAction.toggleSecretVisibilityChanged
                 )
             )
             .textFieldConfiguration(.password)
+            //.accessibilityIdentifier("EditItemKeyField")
 
             BitwardenTextField(
                 title: Localizations.username,
@@ -85,13 +89,14 @@ struct EditAuthenticatorItemView: View {
                 )
             )
             .textFieldConfiguration(.username)
+            .accessibilityIdentifier("EditItemUsernameField")
 
             Toggle(Localizations.favorite, isOn: store.binding(
                 get: \.isFavorited,
                 send: EditAuthenticatorItemAction.favoriteChanged
             ))
             .toggleStyle(.bitwarden)
-            .accessibilityIdentifier("ItemFavoriteToggle")
+            .accessibilityIdentifier("EditItemFavoriteToggle")
         }
     }
 
@@ -163,7 +168,7 @@ struct EditAuthenticatorItemView: View {
         AsyncButton(Localizations.save) {
             await store.perform(.savePressed)
         }
-        .accessibilityIdentifier("SaveButton")
+        .accessibilityIdentifier("EditItemSaveButton")
         .buttonStyle(.primary())
     }
 
@@ -171,7 +176,7 @@ struct EditAuthenticatorItemView: View {
         AsyncButton(Localizations.delete) {
             await store.perform(.deletePressed)
         }
-        .accessibilityIdentifier("DeleteButton")
+        .accessibilityIdentifier("EditItemDeleteButton")
         .buttonStyle(.tertiary(isDestructive: true))
     }
 }
