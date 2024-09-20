@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - ItemListProcessorTests
 
-class ItemListProcessorTests: AuthenticatorTestCase {
+class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var authItemRepository: MockAuthenticatorItemRepository!
@@ -135,7 +135,8 @@ class ItemListProcessorTests: AuthenticatorTestCase {
         XCTAssertEqual(errorReporter.errors.last as? AuthenticatorTestError, .example)
     }
 
-    /// TOTP Code expiration updates the state's TOTP codes.
+    /// `perform(_:)` with `.appeared` handles TOTP Code expiration
+    /// with updates the state's TOTP codes.
     func test_perform_appeared_totpExpired_single() throws { // swiftlint:disable:this function_body_length
         let firstItem = ItemListItem.fixture(
             totp: .fixture(
@@ -241,6 +242,57 @@ class ItemListProcessorTests: AuthenticatorTestCase {
             []
         )
         XCTAssertEqual(errorReporter.errors as? [AuthenticatorTestError], [.example])
+    }
+
+    /// `perform(.search)` handles TOTP Code expiration
+    /// with updates the state's TOTP codes.
+    func test_perform_search_totpExpired() throws {
+        let firstItem = ItemListItem.fixture(
+            totp: .fixture(
+                totpCode: TOTPCodeModel(
+                    code: "123456",
+                    codeGenerationDate: Date(timeIntervalSinceNow: -61),
+                    period: 30
+                )
+            )
+        )
+        let firstSection = ItemListSection(id: "", items: [firstItem], name: "Items")
+        subject.state.loadingState = .data([firstSection])
+
+        let secondItem = ItemListItem.fixture(
+            totp: .fixture(
+                totpCode: TOTPCodeModel(
+                    code: "345678",
+                    codeGenerationDate: Date(timeIntervalSinceNow: -61),
+                    period: 30
+                )
+            )
+        )
+
+        let thirdItem = ItemListItem.fixture(
+            totp: .fixture(
+                totpCode: TOTPCodeModel(
+                    code: "654321",
+                    codeGenerationDate: Date(),
+                    period: 30
+                )
+            )
+        )
+
+        authItemRepository.refreshTotpCodesResult = .success([secondItem])
+        let task = Task {
+            subject.receive(.searchTextChanged("text"))
+            await subject.perform(.search("text"))
+        }
+        authItemRepository.searchItemListSubject.send([firstItem])
+        waitFor(!subject.state.searchResults.isEmpty)
+        XCTAssertEqual(subject.state.searchResults, [secondItem])
+
+        authItemRepository.refreshTotpCodesResult = .success([thirdItem])
+        waitFor(authItemRepository.refreshedTotpCodes == [secondItem])
+        waitFor(subject.state.searchResults == [thirdItem])
+
+        task.cancel()
     }
 
     // MARK: AuthenticatorKeyCaptureDelegate Tests
