@@ -1,5 +1,7 @@
 import XCTest
 
+// swiftlint:disable file_length
+
 @testable import AuthenticatorShared
 
 // MARK: - ItemListProcessorTests
