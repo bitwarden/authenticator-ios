@@ -7,8 +7,11 @@ import XCTest
 class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var application: MockApplication!
+    var appSettingsStore: MockAppSettingsStore!
     var authItemRepository: MockAuthenticatorItemRepository!
     var cameraService: MockCameraService!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<ItemListRoute, ItemListEvent>!
     var errorReporter: MockErrorReporter!
     var totpService: MockTOTPService!
@@ -19,15 +22,21 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     override func setUp() {
         super.setUp()
 
+        application = MockApplication()
+        appSettingsStore = MockAppSettingsStore()
         authItemRepository = MockAuthenticatorItemRepository()
         cameraService = MockCameraService()
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         totpService = MockTOTPService()
 
         let services = ServiceContainer.withMocks(
+            application: application,
+            appSettingsStore: appSettingsStore,
             authenticatorItemRepository: authItemRepository,
             cameraService: cameraService,
+            configService: configService,
             errorReporter: errorReporter,
             totpService: totpService
         )
@@ -346,5 +355,58 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         }
         XCTAssertEqual(item.name, "")
         XCTAssertEqual(item.totpKey, String.base32Key)
+    }
+
+    /// Tests that the `itemListCardState` is set to `none` if the download card has been closed.
+    func test_determineItemListCardState_closed_download() async {
+        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
+        application.canOpenUrlResponse = false
+        await subject.perform(.closeCard(.passwordManagerDownload))
+        XCTAssertEqual(subject.state.itemListCardState, .none)
+    }
+
+    /// Tests that the `itemListCardState` is set to `none` if the sync card has been closed.
+    func test_determineItemListCardState_closed_sync() async {
+        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
+        application.canOpenUrlResponse = true
+        await subject.perform(.closeCard(.passwordManagerSync))
+        XCTAssertEqual(subject.state.itemListCardState, .none)
+    }
+
+    /// Tests that the `showPasswordManagerSyncCard` and `showPasswordManagerDownloadCard` are set
+    /// to false if the feature flag is turned off.
+    func test_determineItemListCardState_FeatureFlag_off() {
+        subject.state.itemListCardState = .passwordManagerSync
+        configService.featureFlagsBool = [.enablePasswordManagerSync: false]
+        let task = Task {
+            await self.subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.itemListCardState == .none)
+        task.cancel()
+    }
+
+    /// Tests that the `itemListCardState` is set to `passwordManagerDownload` if the feature flag is turned on.
+    func test_determineItemListCardState_FeatureFlag_on_download() {
+        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
+        application.canOpenUrlResponse = false
+        let task = Task {
+            await self.subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.itemListCardState == .passwordManagerDownload)
+        task.cancel()
+    }
+
+    /// Tests that the `itemListCardState` is set to `passwordManagerSync` if the feature flag is turned on.
+    func test_determineItemListCardState_FeatureFlag_on_sync() {
+        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
+        application.canOpenUrlResponse = true
+        let task = Task {
+            await self.subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.itemListCardState == .passwordManagerSync)
+        task.cancel()
     }
 }

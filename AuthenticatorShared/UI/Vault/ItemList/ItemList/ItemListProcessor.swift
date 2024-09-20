@@ -8,8 +8,11 @@ import Foundation
 final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, ItemListEffect> {
     // MARK: Types
 
-    typealias Services = HasAuthenticatorItemRepository
+    typealias Services = HasAppSettingsStore
+        & HasApplication
+        & HasAuthenticatorItemRepository
         & HasCameraService
+        & HasConfigService
         & HasErrorReporter
         & HasPasteboardService
         & HasTOTPService
@@ -67,7 +70,11 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         case .addItemPressed:
             await setupTotp()
         case .appeared:
+            await determineItemListCardState()
             await streamItemList()
+        case let .closeCard(card):
+            services.appSettingsStore.setCardClosedState(card: card)
+            await determineItemListCardState()
         case let .copyPressed(item):
             switch item.itemType {
             case let .totp(model):
@@ -233,6 +240,28 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             }
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Determine if the ItemListCard should be shown and which state to show.
+    ///
+    private func determineItemListCardState() async {
+        guard await services.configService.getFeatureFlag(.enablePasswordManagerSync),
+              let application = services.application else {
+            state.itemListCardState = .none
+            return
+        }
+
+        let passwordManagerInstalled = application.canOpenURL(ExternalLinksConstants.passwordManagerScheme)
+        let hasClosedDownloadCard = services.appSettingsStore.cardClosedState(card: .passwordManagerDownload)
+        let hasClosedSyncCard = services.appSettingsStore.cardClosedState(card: .passwordManagerSync)
+
+        if !passwordManagerInstalled, !hasClosedDownloadCard {
+            state.itemListCardState = .passwordManagerDownload
+        } else if passwordManagerInstalled, !hasClosedSyncCard {
+            state.itemListCardState = .passwordManagerSync
+        } else {
+            state.itemListCardState = .none
         }
     }
 }

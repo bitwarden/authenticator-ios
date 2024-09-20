@@ -52,4 +52,102 @@ class ItemListViewTests: AuthenticatorTestCase {
             )
         }
     }
+
+    /// Test a snapshot of the ItemListView showing the download card with an empty result.
+    func test_snapshot_ItemListView_card_download_empty() {
+        let state = ItemListState(
+            itemListCardState: .passwordManagerDownload,
+            loadingState: .data([])
+        )
+        processor = MockProcessor(state: state)
+        subject = ItemListView(
+            store: Store(processor: processor),
+            timeProvider: timeProvider
+        )
+
+        assertSnapshot(matching: NavigationView { subject }, as: .defaultPortrait)
+    }
+
+    /// Test a snapshot of the ItemListView showing the download card with results.
+    func test_snapshot_ItemListView_card_download_with_items() {
+        let state = ItemListState(
+            itemListCardState: .passwordManagerDownload,
+            loadingState: .data([ItemListSection.fixture()])
+        )
+        processor = MockProcessor(state: state)
+        subject = ItemListView(
+            store: Store(processor: processor),
+            timeProvider: timeProvider
+        )
+
+        assertSnapshot(matching: NavigationView { subject }, as: .defaultPortrait)
+    }
+
+    /// Test a snapshot of the ItemListView showing the sync card with an empty result.
+    func test_snapshot_ItemListView_card_sync_empty() {
+        let state = ItemListState(
+            itemListCardState: .passwordManagerSync,
+            loadingState: .data([])
+        )
+        processor = MockProcessor(state: state)
+        subject = ItemListView(
+            store: Store(processor: processor),
+            timeProvider: timeProvider
+        )
+
+        assertSnapshot(matching: NavigationView { subject }, as: .defaultPortrait)
+    }
+
+    /// Test a snapshot of the ItemListView showing the sync card with results.
+    func test_snapshot_ItemListView_card_sync_with_items() {
+        let state = ItemListState(
+            itemListCardState: .passwordManagerSync,
+            loadingState: .data([ItemListSection.fixture()])
+        )
+        processor = MockProcessor(state: state)
+        subject = ItemListView(
+            store: Store(processor: processor),
+            timeProvider: timeProvider
+        )
+
+        assertSnapshot(matching: NavigationView { subject }, as: .defaultPortrait)
+    }
+
+    /// Test the close taps trigger the associated effect.
+    func test_itemListCardView_close_download() throws {
+        let state = ItemListState(
+            itemListCardState: .passwordManagerDownload,
+            loadingState: .data([ItemListSection.fixture()])
+        )
+        processor = MockProcessor(state: state)
+        subject = ItemListView(
+            store: Store(processor: processor),
+            timeProvider: timeProvider
+        )
+
+        try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close).tap()
+
+        waitFor(!processor.effects.isEmpty)
+
+        XCTAssertEqual(processor.effects.last, .closeCard(.passwordManagerDownload))
+    }
+
+    /// Test the close taps trigger the associated effect.
+    func test_itemListCardView_close_sync() throws {
+        let state = ItemListState(
+            itemListCardState: .passwordManagerSync,
+            loadingState: .data([])
+        )
+        processor = MockProcessor(state: state)
+        subject = ItemListView(
+            store: Store(processor: processor),
+            timeProvider: timeProvider
+        )
+
+        try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close).tap()
+
+        waitFor(!processor.effects.isEmpty)
+
+        XCTAssertEqual(processor.effects.last, .closeCard(.passwordManagerSync))
+    }
 }
