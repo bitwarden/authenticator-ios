@@ -79,7 +79,6 @@ struct EditAuthenticatorItemView: View {
                 )
             )
             .textFieldConfiguration(.password)
-            //.accessibilityIdentifier("EditItemKeyField")
 
             BitwardenTextField(
                 title: Localizations.username,
