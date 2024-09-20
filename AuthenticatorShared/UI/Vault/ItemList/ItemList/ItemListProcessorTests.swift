@@ -8,6 +8,7 @@ class ItemListProcessorTests: AuthenticatorTestCase {
     // MARK: Properties
 
     var authItemRepository: MockAuthenticatorItemRepository!
+    var cameraService: MockCameraService!
     var coordinator: MockCoordinator<ItemListRoute, ItemListEvent>!
     var errorReporter: MockErrorReporter!
     var totpService: MockTOTPService!
@@ -19,12 +20,14 @@ class ItemListProcessorTests: AuthenticatorTestCase {
         super.setUp()
 
         authItemRepository = MockAuthenticatorItemRepository()
+        cameraService = MockCameraService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         totpService = MockTOTPService()
 
         let services = ServiceContainer.withMocks(
             authenticatorItemRepository: authItemRepository,
+            cameraService: cameraService,
             errorReporter: errorReporter,
             totpService: totpService
         )
@@ -51,6 +54,44 @@ class ItemListProcessorTests: AuthenticatorTestCase {
 
         subject.itemDeleted()
         XCTAssertEqual(subject.state.toast?.text, Localizations.itemDeleted)
+    }
+
+    /// `perform(_:)` with `.addItemPressed` and authorized camera
+    /// navigates to `.showScanCode`
+    func test_perform_addItemPressed_authorizedCamera() {
+        cameraService.deviceHasCamera = true
+        cameraService.cameraAuthorizationStatus = .authorized
+        let task = Task {
+            await subject.perform(.addItemPressed)
+        }
+        waitFor(!coordinator.events.isEmpty)
+        task.cancel()
+        XCTAssertEqual(coordinator.events, [.showScanCode])
+    }
+
+    /// `perform(_:)` with `.addItemPressed` and denied camera
+    /// navigates to `.setupTotpManual`
+    func test_perform_addItemPressed_deniedCamera() {
+        cameraService.deviceHasCamera = true
+        cameraService.cameraAuthorizationStatus = .denied
+        let task = Task {
+            await subject.perform(.addItemPressed)
+        }
+        waitFor(!coordinator.routes.isEmpty)
+        task.cancel()
+        XCTAssertEqual(coordinator.routes, [.setupTotpManual])
+    }
+
+    /// `perform(_:)` with `.addItemPressed` and no camera
+    /// navigates to `.setupTotpManual`
+    func test_perform_addItemPressed_noCamera() {
+        cameraService.deviceHasCamera = false
+        let task = Task {
+            await subject.perform(.addItemPressed)
+        }
+        waitFor(!coordinator.routes.isEmpty)
+        task.cancel()
+        XCTAssertEqual(coordinator.routes, [.setupTotpManual])
     }
 
     /// `perform(_:)` with `.appeared` starts streaming vault items.
@@ -95,7 +136,7 @@ class ItemListProcessorTests: AuthenticatorTestCase {
     }
 
     /// TOTP Code expiration updates the state's TOTP codes.
-    func test_perform_appeared_totpExpired_single() throws {
+    func test_perform_appeared_totpExpired_single() throws { // swiftlint:disable:this function_body_length
         let firstItem = ItemListItem.fixture(
             totp: .fixture(
                 totpCode: TOTPCodeModel(
