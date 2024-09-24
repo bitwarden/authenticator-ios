@@ -104,7 +104,8 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         ]
         tabNavigator.setNavigators(tabsAndNavigators)
 
-        settingsNavigator.tabBarItem.accessibilityIdentifier = TabRoute.settings(.settings).accessibilityIdentifier
-        itemListNavigator.tabBarItem.accessibilityIdentifier = TabRoute.itemList(.list).accessibilityIdentifier
+        tabsAndNavigators.forEach { key, value in
+            (value as? UINavigationController)?.tabBarItem.accessibilityIdentifier = key.accessibilityIdentifier
+        }
     }
 }

@@ -13,8 +13,8 @@ public enum TabRoute: Equatable, Hashable {
 
     public var accessibilityIdentifier: String {
         switch self {
-        case .itemList: return "verificationCodesTabButton"
-        case .settings: return "settingsTabButton"
+        case .itemList: return "VerificationCodesTabButton"
+        case .settings: return "SettingsTabButton"
         }
     }
 }

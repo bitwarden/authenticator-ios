@@ -35,7 +35,7 @@ struct ManualEntryView: View {
             )
         }
         .buttonStyle(.tertiary())
-        .accessibilityIdentifier("manualEntryAddCodeButton")
+        .accessibilityIdentifier("ManualEntryAddCodeButton")
     }
 
     /// The main content of the view.

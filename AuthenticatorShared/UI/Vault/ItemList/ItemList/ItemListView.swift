@@ -115,7 +115,7 @@ private struct SearchableItemListView: View {
 
                     Spacer()
                 }
-                .accessibilityIdentifier("emptyVaultAddCodeButton")
+                .accessibilityIdentifier("EmptyVaultAddCodeButton")
                 .padding(.horizontal, 16)
                 .frame(minWidth: reader.size.width, minHeight: reader.size.height)
             }
