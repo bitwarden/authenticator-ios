@@ -8,7 +8,8 @@ import Foundation
 final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, ItemListEffect> {
     // MARK: Types
 
-    typealias Services = HasApplication
+    typealias Services = HasAppSettingsStore
+        & HasApplication
         & HasAuthenticatorItemRepository
         & HasCameraService
         & HasConfigService
@@ -46,7 +47,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         self.services = services
 
         super.init(state: state)
-        groupTotpExpirationManager = .init(
+        groupTotpExpirationManager = TOTPExpirationManager(
             timeProvider: services.timeProvider,
             onExpiration: { [weak self] expiredItems in
                 guard let self else { return }
@@ -55,6 +56,11 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 }
             }
         )
+    }
+
+    deinit {
+        groupTotpExpirationManager?.cleanup()
+        groupTotpExpirationManager = nil
     }
 
     // MARK: Methods
@@ -66,6 +72,9 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         case .appeared:
             await determineItemListCardState()
             await streamItemList()
+        case let .closeCard(card):
+            services.appSettingsStore.setCardClosedState(card: card)
+            await determineItemListCardState()
         case let .copyPressed(item):
             switch item.itemType {
             case let .totp(model):
@@ -149,29 +158,18 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     ///
     private func refreshTOTPCodes(for items: [ItemListItem]) async {
         guard case let .data(currentSections) = state.loadingState else { return }
-        let refreshedItems = await items.asyncMap { item in
-            guard case let .totp(model) = item.itemType,
-                  let key = model.itemView.totpKey,
-                  let keyModel = TOTPKeyModel(authenticatorKey: key),
-                  let code = try? await services.totpService.getTotpCode(for: keyModel)
-            else {
-                services.errorReporter.log(error: TOTPServiceError
-                    .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
-                return item
+        do {
+            let refreshedItems = try await services.authenticatorItemRepository.refreshTotpCodes(on: items)
+            let updatedSections = currentSections.updated(with: refreshedItems)
+            let allItems = updatedSections.flatMap(\.items)
+            groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: allItems)
+            state.loadingState = .data(updatedSections)
+            if !state.searchResults.isEmpty {
+                state.searchResults = await searchItems(for: state.searchText)
             }
-            var updatedModel = model
-            updatedModel.totpCode = code
-            return ItemListItem(
-                id: item.id,
-                name: item.name,
-                accountName: item.accountName,
-                itemType: .totp(model: updatedModel)
-            )
+        } catch {
+            services.errorReporter.log(error: error)
         }
-        let updatedSections = currentSections.updated(with: refreshedItems)
-        let allItems = updatedSections.flatMap(\.items)
-        groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: allItems)
-        state.loadingState = .data(updatedSections)
     }
 
     /// Kicks off the TOTP setup flow.
@@ -219,7 +217,9 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 searchText: searchText
             )
             for try await items in result {
-                return items
+                let itemList = try await services.authenticatorItemRepository.refreshTotpCodes(on: items)
+                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: itemList)
+                return itemList
             }
         } catch {
             services.errorReporter.log(error: error)
@@ -232,21 +232,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         do {
             for try await value in try await services.authenticatorItemRepository.itemListPublisher() {
                 let sectionList = try await value.asyncMap { section in
-                    let itemList = try await section.items.asyncMap { item in
-                        guard case let .totp(model) = item.itemType,
-                              let key = model.itemView.totpKey,
-                              let keyModel = TOTPKeyModel(authenticatorKey: key)
-                        else { return item }
-                        let code = try await services.totpService.getTotpCode(for: keyModel)
-                        var updatedModel = model
-                        updatedModel.totpCode = code
-                        return ItemListItem(
-                            id: item.id,
-                            name: item.name,
-                            accountName: item.accountName,
-                            itemType: .totp(model: updatedModel)
-                        )
-                    }
+                    let itemList = try await services.authenticatorItemRepository.refreshTotpCodes(on: section.items)
                     return ItemListSection(id: section.id, items: itemList, name: section.name)
                 }
                 groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: sectionList.flatMap(\.items))
@@ -260,16 +246,23 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     /// Determine if the ItemListCard should be shown and which state to show.
     ///
     private func determineItemListCardState() async {
-        guard await services.configService.getFeatureFlag(.enablePasswordManagerSync) else {
+        guard await services.configService.getFeatureFlag(.enablePasswordManagerSync),
+              let application = services.application else {
             state.itemListCardState = .none
             return
         }
 
-        guard services.application?.canOpenURL(ExternalLinksConstants.passwordManagerScheme) == true else {
+        let passwordManagerInstalled = application.canOpenURL(ExternalLinksConstants.passwordManagerScheme)
+        let hasClosedDownloadCard = services.appSettingsStore.cardClosedState(card: .passwordManagerDownload)
+        let hasClosedSyncCard = services.appSettingsStore.cardClosedState(card: .passwordManagerSync)
+
+        if !passwordManagerInstalled, !hasClosedDownloadCard {
             state.itemListCardState = .passwordManagerDownload
-            return
+        } else if passwordManagerInstalled, !hasClosedSyncCard {
+            state.itemListCardState = .passwordManagerSync
+        } else {
+            state.itemListCardState = .none
         }
-        state.itemListCardState = .passwordManagerSync
     }
 }
 
