@@ -1,3 +1,4 @@
+import AuthenticatorBridgeKit
 import BitwardenSdk
 import UIKit
 
@@ -199,9 +200,31 @@ public class ServiceContainer: Services {
             authenticatorItemDataStore: dataStore
         )
 
+        let sharedKeychainRepository = DefaultSharedKeychainRepository(
+            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier,
+            keychainService: keychainService
+        )
+
+        let sharedCryptographyService = DefaultAuthenticatorCryptographyService(
+            sharedKeychainRepository: sharedKeychainRepository
+        )
+
+        let sharedDataStore = AuthenticatorBridgeDataStore(
+            errorReporter: errorReporter,
+            groupIdentifier: Bundle.main.sharedAppGroupIdentifier,
+            storeType: .persisted
+        )
+
+        let sharedItemService = DefaultAuthenticatorBridgeItemService(
+            cryptoService: sharedCryptographyService,
+            dataStore: sharedDataStore,
+            sharedKeychainRepository: sharedKeychainRepository
+        )
+
         let authenticatorItemRepository = DefaultAuthenticatorItemRepository(
             authenticatorItemService: authenticatorItemService,
-            cryptographyService: cryptographyService
+            cryptographyService: cryptographyService,
+            sharedItemService: sharedItemService
         )
 
         let exportItemsService = DefaultExportItemsService(

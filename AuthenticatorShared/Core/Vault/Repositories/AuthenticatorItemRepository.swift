@@ -1,3 +1,4 @@
+import AuthenticatorBridgeKit
 import Combine
 import Foundation
 
@@ -81,22 +82,32 @@ protocol AuthenticatorItemRepository: AnyObject {
 class DefaultAuthenticatorItemRepository {
     // MARK: Properties
 
+    /// Service to from which to fetch locally stored Authenticator items.
     private let authenticatorItemService: AuthenticatorItemService
+
+    /// Service to encrypt/decrypt locally stored Authenticator items.
     private let cryptographyService: CryptographyService
+
+    /// Service to fetch items from the shared CoreData store - shared from the main Bitwarden PM app.
+    private let sharedItemService: AuthenticatorBridgeItemService
 
     // MARK: Initialization
 
     /// Initialize a `DefaultAuthenticatorItemRepository`
     ///
     /// - Parameters:
-    ///   - authenticatorItemService
-    ///   - cryptographyService
+    ///   - authenticatorItemService: Service to from which to fetch locally stored Authenticator items.
+    ///   - cryptographyService: Service to encrypt/decrypt locally stored Authenticator items.
+    ///   - sharedItemService: Service to fetch items from the shared CoreData store - shared from
+    ///     the main Bitwarden PM app.
     init(
         authenticatorItemService: AuthenticatorItemService,
-        cryptographyService: CryptographyService
+        cryptographyService: CryptographyService,
+        sharedItemService: AuthenticatorBridgeItemService
     ) {
         self.authenticatorItemService = authenticatorItemService
         self.cryptographyService = cryptographyService
+        self.sharedItemService = sharedItemService
     }
 
     // MARK: Private Methods
