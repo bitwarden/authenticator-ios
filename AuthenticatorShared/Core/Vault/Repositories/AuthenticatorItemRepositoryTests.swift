@@ -7,6 +7,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase {
     // MARK: Properties
 
     var authenticatorItemService: MockAuthenticatorItemService!
+    var configService: MockConfigService!
     var cryptographyService: MockCryptographyService!
     var sharedItemService: MockAuthenticatorBridgeItemService!
     var subject: DefaultAuthenticatorItemRepository!
@@ -17,11 +18,13 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase {
         super.setUp()
 
         authenticatorItemService = MockAuthenticatorItemService()
+        configService = MockConfigService()
         cryptographyService = MockCryptographyService()
         sharedItemService = MockAuthenticatorBridgeItemService()
 
         subject = DefaultAuthenticatorItemRepository(
             authenticatorItemService: authenticatorItemService,
+            configService: configService,
             cryptographyService: cryptographyService,
             sharedItemService: sharedItemService
         )

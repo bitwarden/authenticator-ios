@@ -1,3 +1,4 @@
+import AuthenticatorBridgeKit
 import Foundation
 
 /// Data model for an encrypted item
@@ -55,6 +56,18 @@ public struct AuthenticatorItemView: Equatable, Sendable, Hashable, Codable {
     let name: String
     let totpKey: String?
     let username: String?
+}
+
+extension AuthenticatorItemView {
+    init(item: AuthenticatorBridgeItemDataView) {
+        self.init(
+            favorite: item.favorite,
+            id: item.id,
+            name: item.name,
+            totpKey: item.totpKey,
+            username: item.username
+        )
+    }
 }
 
 extension AuthenticatorItemView {

@@ -223,6 +223,7 @@ public class ServiceContainer: Services {
 
         let authenticatorItemRepository = DefaultAuthenticatorItemRepository(
             authenticatorItemService: authenticatorItemService,
+            configService: configService,
             cryptographyService: cryptographyService,
             sharedItemService: sharedItemService
         )
