@@ -167,7 +167,8 @@ class DefaultAuthenticatorItemRepository {
             ItemListSection(id: "LocalCodes", items: nonFavorites, name: Localizations.localCodes),
         ]
 
-        for key in groupsByUsername.keys {
+        let keys = groupsByUsername.keys.compactMap { $0 }
+        for key in keys.sorted() {
             guard let items = groupsByUsername[key]?.compactMap(ItemListItem.init),
                   let accountName = items.first?.accountName else { continue }
 
