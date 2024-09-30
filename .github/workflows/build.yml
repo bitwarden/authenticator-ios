@@ -193,7 +193,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs:
       - build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       _CROWDIN_PROJECT_ID: "673718"
     steps:
