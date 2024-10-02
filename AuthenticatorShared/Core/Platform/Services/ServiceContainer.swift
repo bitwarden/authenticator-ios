@@ -225,7 +225,10 @@ public class ServiceContainer: Services {
             authenticatorItemService: authenticatorItemService,
             configService: configService,
             cryptographyService: cryptographyService,
-            sharedItemService: sharedItemService
+            errorReporter: errorReporter,
+            sharedItemService: sharedItemService,
+            timeProvider: timeProvider,
+            totpService: totpService
         )
 
         let exportItemsService = DefaultExportItemsService(

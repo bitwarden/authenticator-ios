@@ -37,6 +37,14 @@ protocol AuthenticatorItemRepository: AnyObject {
     ///
     func fetchAllAuthenticatorItems() async throws -> [AuthenticatorItemView]
 
+    /// Regenerates the TOTP codes for a list of items.
+    ///
+    /// - Parameters:
+    ///   - items: The list of items that need updated TOTP codes.
+    /// - Returns: A list of items with updated TOTP codes.
+    ///
+    func refreshTotpCodes(on items: [ItemListItem]) async throws -> [ItemListItem]
+
     /// Updates an item in the user's storage
     ///
     /// - Parameters:
@@ -91,8 +99,17 @@ class DefaultAuthenticatorItemRepository {
     /// Service to encrypt/decrypt locally stored Authenticator items.
     private let cryptographyService: CryptographyService
 
+    /// Error Reporter for any errors encountered
+    private let errorReporter: ErrorReporter
+
     /// Service to fetch items from the shared CoreData store - shared from the main Bitwarden PM app.
     private let sharedItemService: AuthenticatorBridgeItemService
+
+    /// A protocol wrapping the present time.
+    private let timeProvider: TimeProvider
+
+    /// A service for refreshing TOTP codes.
+    private let totpService: TOTPService
 
     // MARK: Initialization
 
@@ -104,15 +121,24 @@ class DefaultAuthenticatorItemRepository {
     ///   - cryptographyService: Service to encrypt/decrypt locally stored Authenticator items.
     ///   - sharedItemService: Service to fetch items from the shared CoreData store - shared from
     ///     the main Bitwarden PM app.
+    ///   - errorReporter: Error Reporter for any errors encountered
+    ///   - timeProvider: A protocol wrapping the present time.
+    ///   - totpService: A service for refreshing TOTP codes.
     init(
         authenticatorItemService: AuthenticatorItemService,
         configService: ConfigService,
         cryptographyService: CryptographyService,
-        sharedItemService: AuthenticatorBridgeItemService
+        errorReporter: ErrorReporter,
+        sharedItemService: AuthenticatorBridgeItemService,
+        timeProvider: TimeProvider,
+        totpService: TOTPService
     ) {
         self.authenticatorItemService = authenticatorItemService
         self.configService = configService
         self.cryptographyService = cryptographyService
+        self.errorReporter = errorReporter
+        self.timeProvider = timeProvider
+        self.totpService = totpService
         self.sharedItemService = sharedItemService
     }
 
@@ -132,8 +158,12 @@ class DefaultAuthenticatorItemRepository {
         }
         .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
-        let favorites = items.filter(\.favorite).compactMap(ItemListItem.init)
-        let nonFavorites = items.filter { !$0.favorite }.compactMap(ItemListItem.init)
+        let favorites = items.filter(\.favorite).compactMap { item in
+            ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
+        }
+        let nonFavorites = items.filter { !$0.favorite }.compactMap { item in
+            ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
+        }
 
         return [
             ItemListSection(id: "Favorites", items: favorites, name: Localizations.favorites),
@@ -157,9 +187,12 @@ class DefaultAuthenticatorItemRepository {
         }
         .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
         let sharedItems = itemLists.sharedItems.map(AuthenticatorItemView.init)
-        let favorites = items.filter(\.favorite).compactMap(ItemListItem.init) +
-            sharedItems.filter(\.favorite).compactMap(ItemListItem.init)
-        let nonFavorites = items.filter { !$0.favorite }.compactMap(ItemListItem.init)
+        let favorites = items.filter(\.favorite).compactMap { item in
+            ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
+        }
+        let nonFavorites = items.filter { !$0.favorite }.compactMap { item in
+            ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
+        }
         let groupsByUsername = Dictionary(grouping: sharedItems, by: { $0.username })
 
         var sections = [
@@ -169,8 +202,10 @@ class DefaultAuthenticatorItemRepository {
 
         let keys = groupsByUsername.keys.compactMap { $0 }
         for key in keys.sorted() {
-            guard let items = groupsByUsername[key]?.compactMap(ItemListItem.init),
-                  let accountName = items.first?.accountName else { continue }
+            let items = groupsByUsername[key]?.compactMap { item in
+                ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
+            } ?? []
+            guard let accountName = items.first?.accountName else { continue }
 
             sections.append(ItemListSection(id: "BW-\(accountName)", items: items, name: accountName))
         }
@@ -229,12 +264,33 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
         return try await items.asyncMap { item in
             try await cryptographyService.decrypt(item)
         }
-        .compactMap { $0 }
     }
 
     func fetchAuthenticatorItem(withId id: String) async throws -> AuthenticatorItemView? {
         guard let item = try await authenticatorItemService.fetchAuthenticatorItem(withId: id) else { return nil }
         return try? await cryptographyService.decrypt(item)
+    }
+
+    func refreshTotpCodes(on items: [ItemListItem]) async throws -> [ItemListItem] {
+        try await items.asyncMap { item in
+            guard case let .totp(model) = item.itemType,
+                  let key = model.itemView.totpKey,
+                  let keyModel = TOTPKeyModel(authenticatorKey: key)
+            else {
+                errorReporter.log(error: TOTPServiceError
+                    .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
+                return item
+            }
+            let code = try await totpService.getTotpCode(for: keyModel)
+            var updatedModel = model
+            updatedModel.totpCode = code
+            return ItemListItem(
+                id: item.id,
+                name: item.name,
+                accountName: item.accountName,
+                itemType: .totp(model: updatedModel)
+            )
+        }
     }
 
     func updateAuthenticatorItem(_ authenticatorItem: AuthenticatorItemView) async throws {
@@ -284,7 +340,9 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
         try await searchPublisher(
             searchText: searchText
         ).asyncTryMap { items in
-            items.compactMap(ItemListItem.init)
+            items.compactMap { item in
+                ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
+            }
         }
         .eraseToAnyPublisher()
         .values
