@@ -20,7 +20,7 @@ class MockAuthenticatorBridgeItemService: AuthenticatorBridgeItemService {
         storedItems[userId] = items
     }
 
-    func isSyncOn() async throws -> Bool {
+    func isSyncOn() async -> Bool {
         syncOn
     }
 

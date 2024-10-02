@@ -258,7 +258,7 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
 
     func itemListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[ItemListSection], Error>> {
         if await configService.getFeatureFlag(.enablePasswordManagerSync),
-           try await sharedItemService.isSyncOn() {
+           await sharedItemService.isSyncOn() {
             return try await authenticatorItemService.authenticatorItemsPublisher()
                 .combineLatest(
                     sharedItemService.sharedItemsPublisher()
