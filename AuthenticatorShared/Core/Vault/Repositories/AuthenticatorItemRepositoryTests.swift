@@ -334,9 +334,9 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
                                                                  totpKey: "totpKey",
                                                                  username: "shared@example.com")
         sharedItemService.storedItems = ["userId": [sharedItem]]
-        let unorganizedItem = makeItemListItem(from: items[0])
-        let favoritedItem = makeItemListItem(from: items[1])
-        let sharedListItem = makeItemListItem(from: sharedItem)
+        let unorganizedItem = itemListItem(from: items[0])
+        let favoritedItem = itemListItem(from: items[1])
+        let sharedListItem = itemListItem(from: sharedItem)
 
         authItemService.authenticatorItemsSubject.send(items)
         sharedItemService.sharedItemsSubject.send([
@@ -378,10 +378,10 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
                                                                       totpKey: "totpKey",
                                                                       username: "different@example.com")
         sharedItemService.storedItems = ["userId": [sharedItem], "otherId": [otherSharedItem]]
-        let unorganizedItem = makeItemListItem(from: items[0])
-        let favoritedItem = makeItemListItem(from: items[1])
-        let sharedListItem = makeItemListItem(from: sharedItem)
-        let otherListItem = makeItemListItem(from: otherSharedItem)
+        let unorganizedItem = itemListItem(from: items[0])
+        let favoritedItem = itemListItem(from: items[1])
+        let sharedListItem = itemListItem(from: sharedItem)
+        let otherListItem = itemListItem(from: otherSharedItem)
 
         authItemService.authenticatorItemsSubject.send(items)
         sharedItemService.sharedItemsSubject.send([
@@ -477,7 +477,12 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
 
     // MARK: - Private functions
 
-    private func makeItemListItem(from item: AuthenticatorItem) -> ItemListItem {
+    /// Convenience method to create an `ItemListItem` from an `AuthenticatorItem` using our test fixtures.
+    ///
+    /// - Parameter item: The item to convert to `ItemListItem`
+    /// - Returns: the `ItemListItem` created with this `AuthenticatorItem`
+    ///
+    private func itemListItem(from item: AuthenticatorItem) -> ItemListItem {
         ItemListItem.fixture(
             id: item.id,
             name: item.name,
@@ -492,7 +497,13 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
         )
     }
 
-    private func makeItemListItem(from item: AuthenticatorBridgeItemDataView) -> ItemListItem {
+    /// Convenience method to create an `ItemListItem` from
+    /// an `AuthenticatorBridgeItemDataView` using our test fixtures.
+    ///
+    /// - Parameter item: The item to convert to `ItemListItem`
+    /// - Returns: the `ItemListItem` created with this `AuthenticatorBridgeItemDataView`
+    ///
+    private func itemListItem(from item: AuthenticatorBridgeItemDataView) -> ItemListItem {
         ItemListItem.fixture(
             id: item.id,
             name: item.name,
