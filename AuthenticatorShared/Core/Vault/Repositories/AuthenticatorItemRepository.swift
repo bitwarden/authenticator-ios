@@ -205,9 +205,8 @@ class DefaultAuthenticatorItemRepository {
             let items = groupsByUsername[key]?.compactMap { item in
                 ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
             } ?? []
-            guard let accountName = items.first?.accountName else { continue }
 
-            sections.append(ItemListSection(id: "BW-\(accountName)", items: items, name: accountName))
+            sections.append(ItemListSection(id: "BW-\(key)", items: items, name: key))
         }
 
         return sections.filter { !$0.items.isEmpty }
