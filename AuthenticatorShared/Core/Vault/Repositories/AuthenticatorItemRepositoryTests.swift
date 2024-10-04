@@ -1,17 +1,21 @@
+import AuthenticatorBridgeKit
 import InlineSnapshotTesting
 import XCTest
 
 @testable import AuthenticatorShared
 
-class AuthenticatorItemRepositoryTests: AuthenticatorTestCase {
+class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var authItemService: MockAuthenticatorItemService!
+    var authenticatorItemService: MockAuthenticatorItemService!
+    var configService: MockConfigService!
     var cryptographyService: MockCryptographyService!
     var errorReporter: MockErrorReporter!
+    var sharedItemService: MockAuthenticatorBridgeItemService!
+    var subject: DefaultAuthenticatorItemRepository!
     var timeProvider: MockTimeProvider!
     var totpService: MockTOTPService!
-    var subject: DefaultAuthenticatorItemRepository!
 
     // MARK: Setup & Teardown
 
@@ -19,15 +23,20 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase {
         super.setUp()
 
         authItemService = MockAuthenticatorItemService()
+        authenticatorItemService = MockAuthenticatorItemService()
+        configService = MockConfigService()
         cryptographyService = MockCryptographyService()
         errorReporter = MockErrorReporter()
+        sharedItemService = MockAuthenticatorBridgeItemService()
         timeProvider = MockTimeProvider(.mockTime(Date()))
         totpService = MockTOTPService()
 
         subject = DefaultAuthenticatorItemRepository(
             authenticatorItemService: authItemService,
+            configService: configService,
             cryptographyService: cryptographyService,
             errorReporter: errorReporter,
+            sharedItemService: sharedItemService,
             timeProvider: timeProvider,
             totpService: totpService
         )
@@ -37,7 +46,9 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase {
         super.tearDown()
 
         authItemService = nil
+        authenticatorItemService = nil
         cryptographyService = nil
+        sharedItemService = nil
         subject = nil
         timeProvider = nil
     }
@@ -166,6 +177,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase {
 
     /// `itemListPublisher()` returns a publisher for the items.
     func test_itemListPublisher() async throws {
+        configService.featureFlagsBool[.enablePasswordManagerSync] = false
         let items = [
             AuthenticatorItem.fixture(id: "1", name: "One"),
             AuthenticatorItem.fixture(id: "2", name: "Two"),
@@ -202,8 +214,11 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase {
         )
     }
 
-    /// `itemListPublisher()` returns a favorites section.
+    /// `itemListPublisher()` returns a favorites section (when the feature flag is Off)
     func test_itemListPublisher_favorites() async throws {
+        sharedItemService.storedItems = ["userId": AuthenticatorBridgeItemDataView.fixtures()]
+        sharedItemService.syncOn = true
+        configService.featureFlagsBool[.enablePasswordManagerSync] = false
         let items = [
             AuthenticatorItem.fixture(id: "1", name: "One"),
             AuthenticatorItem.fixture(favorite: true, id: "2", name: "Two"),
@@ -252,6 +267,150 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase {
         )
     }
 
+    /// `itemListPublisher()` returns a favorites section as before, when the feature flag is turned on, but
+    /// the user has not yet enabled sync.
+    func test_itemListPublisher_syncOff() async throws {
+        configService.featureFlagsBool[.enablePasswordManagerSync] = true
+        sharedItemService.storedItems = ["userId": AuthenticatorBridgeItemDataView.fixtures()]
+        sharedItemService.syncOn = false
+        let items = [
+            AuthenticatorItem.fixture(id: "1", name: "One"),
+            AuthenticatorItem.fixture(favorite: true, id: "2", name: "Two"),
+        ]
+
+        let unorganizedItem = ItemListItem.fixture(
+            id: items[0].id,
+            name: items[0].name,
+            totp: ItemListTotpItem.fixture(
+                itemView: AuthenticatorItemView(authenticatorItem: items[0]),
+                totpCode: TOTPCodeModel(
+                    code: "123456",
+                    codeGenerationDate: timeProvider.presentTime,
+                    period: 30
+                )
+            )
+        )
+        let favoritedItem = ItemListItem.fixture(
+            id: items[1].id,
+            name: items[1].name,
+            totp: ItemListTotpItem.fixture(
+                itemView: AuthenticatorItemView(authenticatorItem: items[1]),
+                totpCode: TOTPCodeModel(
+                    code: "123456",
+                    codeGenerationDate: timeProvider.presentTime,
+                    period: 30
+                )
+            )
+        )
+
+        authItemService.authenticatorItemsSubject.send(items)
+
+        var iterator = try await subject.itemListPublisher().makeAsyncIterator()
+        let sections = try await iterator.next()
+
+        XCTAssertEqual(
+            sections,
+            [
+                ItemListSection(id: "Favorites",
+                                items: [favoritedItem],
+                                name: Localizations.favorites),
+                ItemListSection(id: "Unorganized",
+                                items: [unorganizedItem],
+                                name: ""),
+            ]
+        )
+    }
+
+    /// `itemListPublisher()` returns a favorites section and sections for each sync'd account when the
+    /// feature flag is enabled and the user has turned on sync.
+    func test_itemListPublisher_syncOn() async throws {
+        configService.featureFlagsBool[.enablePasswordManagerSync] = true
+        sharedItemService.syncOn = true
+        let items = [
+            AuthenticatorItem.fixture(id: "1", name: "One"),
+            AuthenticatorItem.fixture(favorite: true, id: "2", name: "Two"),
+        ]
+        let sharedItem = AuthenticatorBridgeItemDataView.fixture(name: "Shared",
+                                                                 totpKey: "totpKey",
+                                                                 username: "shared@example.com")
+        sharedItemService.storedItems = ["userId": [sharedItem]]
+        let unorganizedItem = itemListItem(from: items[0])
+        let favoritedItem = itemListItem(from: items[1])
+        let sharedListItem = itemListItem(from: sharedItem)
+
+        authItemService.authenticatorItemsSubject.send(items)
+        sharedItemService.sharedItemsSubject.send([
+            sharedItem,
+        ])
+
+        var iterator = try await subject.itemListPublisher().makeAsyncIterator()
+        let sections = try await iterator.next()
+
+        XCTAssertEqual(
+            sections,
+            [
+                ItemListSection(id: "Favorites",
+                                items: [favoritedItem],
+                                name: Localizations.favorites),
+                ItemListSection(id: "LocalCodes",
+                                items: [unorganizedItem],
+                                name: Localizations.localCodes),
+                ItemListSection(id: "BW-shared@example.com",
+                                items: [sharedListItem],
+                                name: "shared@example.com"),
+            ]
+        )
+    }
+
+    /// `itemListPublisher()` returns a favorites section and sections for each sync'd account when the
+    /// feature flag is enabled and the user has turned on sync.
+    func test_itemListPublisher_withMultipleAccountSync() async throws {
+        configService.featureFlagsBool[.enablePasswordManagerSync] = true
+        sharedItemService.syncOn = true
+        let items = [
+            AuthenticatorItem.fixture(id: "1", name: "One"),
+            AuthenticatorItem.fixture(favorite: true, id: "2", name: "Two"),
+        ]
+        let sharedItem = AuthenticatorBridgeItemDataView.fixture(name: "Shared",
+                                                                 totpKey: "totpKey",
+                                                                 username: "shared@example.com")
+        let otherSharedItem = AuthenticatorBridgeItemDataView.fixture(name: "Shared (Different Account)",
+                                                                      totpKey: "totpKey",
+                                                                      username: "different@example.com")
+        sharedItemService.storedItems = ["userId": [sharedItem], "otherId": [otherSharedItem]]
+        let unorganizedItem = itemListItem(from: items[0])
+        let favoritedItem = itemListItem(from: items[1])
+        let sharedListItem = itemListItem(from: sharedItem)
+        let otherListItem = itemListItem(from: otherSharedItem)
+
+        authItemService.authenticatorItemsSubject.send(items)
+        sharedItemService.sharedItemsSubject.send([
+            sharedItem,
+            otherSharedItem,
+        ])
+
+        var iterator = try await subject.itemListPublisher().makeAsyncIterator()
+        let sections = try await iterator.next()
+
+        XCTAssertEqual(
+            sections,
+            [
+                ItemListSection(id: "Favorites",
+                                items: [favoritedItem],
+                                name: Localizations.favorites),
+                ItemListSection(id: "LocalCodes",
+                                items: [unorganizedItem],
+                                name: Localizations.localCodes),
+                ItemListSection(id: "BW-different@example.com",
+                                items: [otherListItem],
+                                name: "different@example.com"),
+                ItemListSection(id: "BW-shared@example.com",
+                                items: [sharedListItem],
+                                name: "shared@example.com"),
+            ]
+        )
+    }
+
     /// `searchItemListPublisher()` returns search matching name.
     func test_searchItemListPublisher() async throws {
         let items = [
@@ -284,7 +443,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase {
         XCTAssertEqual(foundItems, [expected[1], expected[0]])
     }
 
-    /// `searchItemListPublisher()` searches case-insentivie and folding diacritics.
+    /// `searchItemListPublisher()` searches case-insensitive and folding diacritics.
     func test_searchItemListPublisher_caseAndDiacritics() async throws {
         let items = [
             AuthenticatorItem.fixture(id: "1", name: "Restaurant"),
@@ -315,4 +474,48 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase {
 
         XCTAssertEqual(foundItems, [expected.last!])
     }
-}
+
+    // MARK: - Private functions
+
+    /// Convenience method to create an `ItemListItem` from an `AuthenticatorItem` using our test fixtures.
+    ///
+    /// - Parameter item: The item to convert to `ItemListItem`
+    /// - Returns: the `ItemListItem` created with this `AuthenticatorItem`
+    ///
+    private func itemListItem(from item: AuthenticatorItem) -> ItemListItem {
+        ItemListItem.fixture(
+            id: item.id,
+            name: item.name,
+            totp: ItemListTotpItem.fixture(
+                itemView: AuthenticatorItemView(authenticatorItem: item),
+                totpCode: TOTPCodeModel(
+                    code: "123456",
+                    codeGenerationDate: timeProvider.presentTime,
+                    period: 30
+                )
+            )
+        )
+    }
+
+    /// Convenience method to create an `ItemListItem` from
+    /// an `AuthenticatorBridgeItemDataView` using our test fixtures.
+    ///
+    /// - Parameter item: The item to convert to `ItemListItem`
+    /// - Returns: the `ItemListItem` created with this `AuthenticatorBridgeItemDataView`
+    ///
+    private func itemListItem(from item: AuthenticatorBridgeItemDataView) -> ItemListItem {
+        ItemListItem.fixture(
+            id: item.id,
+            name: item.name,
+            accountName: item.username ?? "",
+            totp: ItemListTotpItem.fixture(
+                itemView: AuthenticatorItemView(item: item),
+                totpCode: TOTPCodeModel(
+                    code: "123456",
+                    codeGenerationDate: timeProvider.presentTime,
+                    period: 30
+                )
+            )
+        )
+    }
+} // swiftlint:disable:this file_length

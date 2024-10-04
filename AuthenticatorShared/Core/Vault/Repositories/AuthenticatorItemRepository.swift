@@ -1,3 +1,4 @@
+import AuthenticatorBridgeKit
 import Combine
 import Foundation
 
@@ -89,10 +90,25 @@ protocol AuthenticatorItemRepository: AnyObject {
 class DefaultAuthenticatorItemRepository {
     // MARK: Properties
 
+    /// Service to from which to fetch locally stored Authenticator items.
     private let authenticatorItemService: AuthenticatorItemService
+
+    /// Service to determine if the sync feature flag is turned on.
+    private let configService: ConfigService
+
+    /// Service to encrypt/decrypt locally stored Authenticator items.
     private let cryptographyService: CryptographyService
+
+    /// Error Reporter for any errors encountered
     private let errorReporter: ErrorReporter
+
+    /// Service to fetch items from the shared CoreData store - shared from the main Bitwarden PM app.
+    private let sharedItemService: AuthenticatorBridgeItemService
+
+    /// A protocol wrapping the present time.
     private let timeProvider: TimeProvider
+
+    /// A service for refreshing TOTP codes.
     private let totpService: TOTPService
 
     // MARK: Initialization
@@ -100,20 +116,30 @@ class DefaultAuthenticatorItemRepository {
     /// Initialize a `DefaultAuthenticatorItemRepository`
     ///
     /// - Parameters:
-    ///   - authenticatorItemService
-    ///   - cryptographyService
+    ///   - authenticatorItemService: Service to from which to fetch locally stored Authenticator items.
+    ///   - configService: Service to determine if the sync feature flag is turned on.
+    ///   - cryptographyService: Service to encrypt/decrypt locally stored Authenticator items.
+    ///   - sharedItemService: Service to fetch items from the shared CoreData store - shared from
+    ///     the main Bitwarden PM app.
+    ///   - errorReporter: Error Reporter for any errors encountered
+    ///   - timeProvider: A protocol wrapping the present time.
+    ///   - totpService: A service for refreshing TOTP codes.
     init(
         authenticatorItemService: AuthenticatorItemService,
+        configService: ConfigService,
         cryptographyService: CryptographyService,
         errorReporter: ErrorReporter,
+        sharedItemService: AuthenticatorBridgeItemService,
         timeProvider: TimeProvider,
         totpService: TOTPService
     ) {
         self.authenticatorItemService = authenticatorItemService
+        self.configService = configService
         self.cryptographyService = cryptographyService
         self.errorReporter = errorReporter
         self.timeProvider = timeProvider
         self.totpService = totpService
+        self.sharedItemService = sharedItemService
     }
 
     // MARK: Private Methods
@@ -144,6 +170,46 @@ class DefaultAuthenticatorItemRepository {
             ItemListSection(id: "Unorganized", items: nonFavorites, name: ""),
         ]
         .filter { !$0.items.isEmpty }
+    }
+
+    /// Returns a list of the sections in the item list when sync with the PM app is enabled.
+    ///
+    /// - Parameters:
+    ///   - authenticatorItems: The items in the user's storage
+    /// - Returns: A list of the sections to display in the item list
+    ///
+    private func itemListSectionsWithSync(
+        itemLists: (authenticatorItems: [AuthenticatorItem],
+                    sharedItems: [AuthenticatorBridgeItemDataView])
+    ) async throws -> [ItemListSection] {
+        let items = try await itemLists.authenticatorItems.asyncMap { item in
+            try await self.cryptographyService.decrypt(item)
+        }
+        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        let sharedItems = itemLists.sharedItems.map(AuthenticatorItemView.init)
+        let favorites = items.filter(\.favorite).compactMap { item in
+            ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
+        }
+        let nonFavorites = items.filter { !$0.favorite }.compactMap { item in
+            ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
+        }
+        let groupsByUsername = Dictionary(grouping: sharedItems, by: { $0.username })
+
+        var sections = [
+            ItemListSection(id: "Favorites", items: favorites, name: Localizations.favorites),
+            ItemListSection(id: "LocalCodes", items: nonFavorites, name: Localizations.localCodes),
+        ]
+
+        let keys = groupsByUsername.keys.compactMap { $0 }
+        for key in keys.sorted() {
+            let items = groupsByUsername[key]?.compactMap { item in
+                ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
+            } ?? []
+
+            sections.append(ItemListSection(id: "BW-\(key)", items: items, name: key))
+        }
+
+        return sections.filter { !$0.items.isEmpty }
     }
 
     /// A publisher for searching a user's items based on the specified search text and filter type.
@@ -246,12 +312,25 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
     }
 
     func itemListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[ItemListSection], Error>> {
-        try await authenticatorItemService.authenticatorItemsPublisher()
-            .asyncTryMap { items in
-                try await self.itemListSections(from: items)
-            }
-            .eraseToAnyPublisher()
-            .values
+        if await configService.getFeatureFlag(.enablePasswordManagerSync),
+           await sharedItemService.isSyncOn() {
+            return try await authenticatorItemService.authenticatorItemsPublisher()
+                .combineLatest(
+                    sharedItemService.sharedItemsPublisher()
+                )
+                .asyncTryMap { items in
+                    try await self.itemListSectionsWithSync(itemLists: items)
+                }
+                .eraseToAnyPublisher()
+                .values
+        } else {
+            return try await authenticatorItemService.authenticatorItemsPublisher()
+                .asyncTryMap { items in
+                    try await self.itemListSections(from: items)
+                }
+                .eraseToAnyPublisher()
+                .values
+        }
     }
 
     func searchItemListPublisher(
