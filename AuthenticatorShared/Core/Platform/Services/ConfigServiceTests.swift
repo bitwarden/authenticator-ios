@@ -31,37 +31,37 @@ final class ConfigServiceTests: AuthenticatorTestCase {
 
     /// `getFeatureFlag(:)` returns the default value for booleans
     func test_getFeatureFlag_bool_fallback() async {
-        let value = await subject.getFeatureFlag(.testRemoteFlag, defaultValue: false, forceRefresh: false)
+        let value = await subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: false, forceRefresh: false)
         XCTAssertFalse(value)
     }
 
     /// `getFeatureFlag(:)` returns the default local value for booleans if it is configured.
     func test_getFeatureFlag_bool_locallyConfigured() async {
-        let value = await subject.getFeatureFlag(.testLocalBoolFlag, defaultValue: false, forceRefresh: false)
+        let value = await subject.getFeatureFlag(.testLocalInitialBoolFlag, defaultValue: false, forceRefresh: false)
         XCTAssertTrue(value)
     }
 
     /// `getFeatureFlag(:)` returns the default value for integers
     func test_getFeatureFlag_int_fallback() async {
-        let value = await subject.getFeatureFlag(.testRemoteFlag, defaultValue: 10, forceRefresh: false)
+        let value = await subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: 10, forceRefresh: false)
         XCTAssertEqual(value, 10)
     }
 
     /// `getFeatureFlag(:)` returns the default local value for integers if it is configured.
     func test_getFeatureFlag_int_locallyConfigured() async {
-        let value = await subject.getFeatureFlag(.testLocalIntFlag, defaultValue: 10, forceRefresh: false)
+        let value = await subject.getFeatureFlag(.testLocalInitialIntFlag, defaultValue: 10, forceRefresh: false)
         XCTAssertEqual(value, 42)
     }
 
     /// `getFeatureFlag(:)` returns the default value for strings
     func test_getFeatureFlag_string_fallback() async {
-        let value = await subject.getFeatureFlag(.testRemoteFlag, defaultValue: "Default", forceRefresh: false)
+        let value = await subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: "Default", forceRefresh: false)
         XCTAssertEqual(value, "Default")
     }
 
-    /// `getFeatureFlag(:)` returns the default local value for integers if it is configured.
+    /// `getFeatureFlag(:)` returns the default local value for strings if it is configured.
     func test_getFeatureFlag_string_locallyConfigured() async {
-        let value = await subject.getFeatureFlag(.testLocalStringFlag, defaultValue: "Default", forceRefresh: false)
+        let value = await subject.getFeatureFlag(.testLocalInitialStringFlag, defaultValue: "Default", forceRefresh: false)
         XCTAssertEqual(value, "Test String")
     }
 }

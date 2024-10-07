@@ -83,14 +83,14 @@ class DefaultConfigService: ConfigService {
     // MARK: Methods
 
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Bool = false, forceRefresh: Bool = false) async -> Bool {
-        FeatureFlag.initialLocalValues[flag]?.boolValue ?? defaultValue
+        FeatureFlag.initialValues[flag]?.boolValue ?? defaultValue
     }
 
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Int = 0, forceRefresh: Bool = false) async -> Int {
-        FeatureFlag.initialLocalValues[flag]?.intValue ?? defaultValue
+        FeatureFlag.initialValues[flag]?.intValue ?? defaultValue
     }
 
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: String? = nil, forceRefresh: Bool = false) async -> String? {
-        FeatureFlag.initialLocalValues[flag]?.stringValue ?? defaultValue
+        FeatureFlag.initialValues[flag]?.stringValue ?? defaultValue
     }
 }
