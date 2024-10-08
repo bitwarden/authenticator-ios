@@ -27,6 +27,9 @@ protocol AppSettingsStore: AnyObject {
     /// The app's last data migration version.
     var migrationVersion: Int { get set }
 
+    /// The server config used prior to user authentication.
+    var preAuthServerConfig: ServerConfig? { get set }
+
     /// The system biometric integrity state `Data`, base64 encoded.
     ///
     /// - Parameter userId: The user ID associated with the Biometric Integrity State.
@@ -51,6 +54,18 @@ protocol AppSettingsStore: AnyObject {
     ///
     func clearClipboardValue(userId: String) -> ClearClipboardValue
 
+    /// Retrieves a feature flag value from the app's settings store.
+    ///
+    /// This method fetches the value for a specified feature flag from the app's settings store.
+    /// The value is returned as a `Bool`. If the flag does not exist or cannot be decoded,
+    /// the method returns `nil`.
+    ///
+    /// - Parameter name: The name of the feature flag to retrieve, represented as a `String`.
+    /// - Returns: The value of the feature flag as a `Bool`, or `nil` if the flag does not exist
+    ///     or cannot be decoded.
+    ///
+    func debugFeatureFlag(name: String) -> Bool?
+
     /// Get the user's Biometric Authentication Preference.
     ///
     /// - Parameter userId: The user ID associated with the biometric authentication preference.
@@ -61,12 +76,31 @@ protocol AppSettingsStore: AnyObject {
     ///
     func isBiometricAuthenticationEnabled(userId: String) -> Bool
 
+    /// Sets a feature flag value in the app's settings store.
+    ///
+    /// This method updates or removes the value for a specified feature flag in the app's settings store.
+    /// If the `value` parameter is `nil`, the feature flag is removed from the store. Otherwise, the flag
+    /// is set to the provided boolean value.
+    ///
+    /// - Parameters:
+    ///   - name: The name of the feature flag to set or remove, represented as a `String`.
+    ///   - value: The boolean value to assign to the feature flag. If `nil`, the feature flag will be removed
+    ///    from the settings store.
+    ///
+    func overrideDebugFeatureFlag(name: String, value: Bool?)
+
     /// Gets the user's secret encryption key.
     ///
     /// - Parameters:
     ///   - userId: The user ID
     ///
     func secretKey(userId: String) -> String?
+
+    /// The server configuration.
+    ///
+    /// - Parameter userId: The user ID associated with the server config.
+    /// - Returns: The server config for that user ID.
+    func serverConfig(userId: String) -> ServerConfig?
 
     /// Sets the user's Biometric Authentication Preference.
     ///
@@ -109,6 +143,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID
     ///
     func setSecretKey(_ key: String, userId: String)
+
+    /// Sets the server config.
+    ///
+    /// - Parameters:
+    ///   - config: The server config for the user
+    ///   - userId: The user ID.
+    ///
+    func setServerConfig(_ config: ServerConfig?, userId: String)
 }
 
 // MARK: - DefaultAppSettingsStore
@@ -232,10 +274,13 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case biometricIntegrityState(userId: String, bundleId: String)
         case cardClosedState(card: ItemListCard)
         case clearClipboardValue(userId: String)
+        case debugFeatureFlag(name: String)
         case disableWebIcons
         case hasSeenWelcomeTutorial
         case migrationVersion
+        case preAuthServerConfig
         case secretKey(userId: String)
+        case serverConfig(userId: String)
 
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
@@ -255,14 +300,20 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "cardClosedState_\(card)"
             case let .clearClipboardValue(userId):
                 key = "clearClipboard_\(userId)"
+            case let .debugFeatureFlag(name):
+                key = "debugFeatureFlag_\(name)"
             case .disableWebIcons:
                 key = "disableFavicon"
             case .hasSeenWelcomeTutorial:
                 key = "hasSeenWelcomeTutorial"
             case .migrationVersion:
                 key = "migrationVersion"
+            case .preAuthServerConfig:
+                key = "preAuthServerConfig"
             case let .secretKey(userId):
                 key = "secretKey_\(userId)"
+            case let .serverConfig(userId):
+                key = "serverConfig_\(userId)"
             }
             return "bwaPreferencesStorage:\(key)"
         }
@@ -298,6 +349,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .migrationVersion) }
     }
 
+    var preAuthServerConfig: ServerConfig? {
+        get { fetch(for: .preAuthServerConfig) }
+        set { store(newValue, for: .preAuthServerConfig) }
+    }
+
     func biometricIntegrityState(userId: String) -> String? {
         fetch(
             for: .biometricIntegrityState(
@@ -319,12 +375,24 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         return .never
     }
 
+    func debugFeatureFlag(name: String) -> Bool? {
+        fetch(for: .debugFeatureFlag(name: name))
+    }
+
     func isBiometricAuthenticationEnabled(userId: String) -> Bool {
         fetch(for: .biometricAuthEnabled(userId: userId))
     }
 
+    func overrideDebugFeatureFlag(name: String, value: Bool?) {
+        store(value, for: .debugFeatureFlag(name: name))
+    }
+
     func secretKey(userId: String) -> String? {
         fetch(for: .secretKey(userId: userId))
+    }
+
+    func serverConfig(userId: String) -> ServerConfig? {
+        fetch(for: .serverConfig(userId: userId))
     }
 
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {
@@ -351,6 +419,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setSecretKey(_ key: String, userId: String) {
         store(key, for: .secretKey(userId: userId))
+    }
+
+    func setServerConfig(_ config: ServerConfig?, userId: String) {
+        store(config, for: .serverConfig(userId: userId))
     }
 }
 
