@@ -3,6 +3,8 @@ import OSLog
 
 // MARK: - AppSettingsStore
 
+// swiftlint:disable file_length
+
 /// A protocol for an object that persists app setting values.
 ///
 protocol AppSettingsStore: AnyObject {

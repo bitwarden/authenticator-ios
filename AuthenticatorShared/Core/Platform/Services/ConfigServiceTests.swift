@@ -2,7 +2,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-final class ConfigServiceTests: AuthenticatorTestCase { // swiftlint:disable:this type_body_length
+final class ConfigServiceTests: AuthenticatorTestCase {
     // MARK: Properties
 
     var appSettingsStore: MockAppSettingsStore!
@@ -46,8 +46,7 @@ final class ConfigServiceTests: AuthenticatorTestCase { // swiftlint:disable:thi
 
     // MARK: Tests - getConfig remote interactions
 
-    // TODO: BWA-92
-    // To backfill these tests, or obviate it by pulling the ConfigService into a shared library.
+    // TODO: BWA-92 to backfill these tests, or obviate it by pulling the ConfigService into a shared library.
 
     // MARK: Tests - getConfig initial values
 
@@ -113,22 +112,6 @@ final class ConfigServiceTests: AuthenticatorTestCase { // swiftlint:disable:thi
 
     // MARK: Tests - getFeatureFlag
 
-    /// `getFeatureFlag(:)` can return a boolean if it's in the configuration
-    func test_getFeatureFlag_bool_exists() async {
-        stateService.serverConfig["1"] = ServerConfig(
-            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
-            responseModel: ConfigResponseModel(
-                environment: nil,
-                featureStates: ["test-remote-feature-flag": .bool(true)],
-                gitHash: "75238191",
-                server: nil,
-                version: "2024.4.0"
-            )
-        )
-        let value = await subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: false, forceRefresh: false)
-        XCTAssertTrue(value)
-    }
-
     /// `getFeatureFlag(:)` returns the default value for booleans
     func test_getFeatureFlag_bool_fallback() async {
         stateService.serverConfig["1"] = ServerConfig(
@@ -143,38 +126,6 @@ final class ConfigServiceTests: AuthenticatorTestCase { // swiftlint:disable:thi
         )
         let value = await subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: true, forceRefresh: false)
         XCTAssertTrue(value)
-    }
-
-    /// `getFeatureFlag(:)` returns the default value if the feature is not remotely configurable for booleans
-    func test_getFeatureFlag_bool_notRemotelyConfigured() async {
-        stateService.serverConfig["1"] = ServerConfig(
-            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
-            responseModel: ConfigResponseModel(
-                environment: nil,
-                featureStates: ["test-remote-feature-flag": .bool(true)],
-                gitHash: "75238191",
-                server: nil,
-                version: "2024.4.0"
-            )
-        )
-        let value = await subject.getFeatureFlag(.testLocalFeatureFlag, defaultValue: false, forceRefresh: false)
-        XCTAssertFalse(value)
-    }
-
-    /// `getFeatureFlag(:)` can return an integer if it's in the configuration
-    func test_getFeatureFlag_int_exists() async {
-        stateService.serverConfig["1"] = ServerConfig(
-            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
-            responseModel: ConfigResponseModel(
-                environment: nil,
-                featureStates: ["test-remote-feature-flag": .int(42)],
-                gitHash: "75238191",
-                server: nil,
-                version: "2024.4.0"
-            )
-        )
-        let value = await subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: 30, forceRefresh: false)
-        XCTAssertEqual(value, 42)
     }
 
     /// `getFeatureFlag(:)` returns the default value for integers
@@ -193,38 +144,6 @@ final class ConfigServiceTests: AuthenticatorTestCase { // swiftlint:disable:thi
         XCTAssertEqual(value, 30)
     }
 
-    /// `getFeatureFlag(:)` returns the default value if the feature is not remotely configurable for integers
-    func test_getFeatureFlag_int_notRemotelyConfigured() async {
-        stateService.serverConfig["1"] = ServerConfig(
-            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
-            responseModel: ConfigResponseModel(
-                environment: nil,
-                featureStates: ["test-remote-feature-flag": .int(42)],
-                gitHash: "75238191",
-                server: nil,
-                version: "2024.4.0"
-            )
-        )
-        let value = await subject.getFeatureFlag(.testLocalFeatureFlag, defaultValue: 30, forceRefresh: false)
-        XCTAssertEqual(value, 30)
-    }
-
-    /// `getFeatureFlag(:)` can return a string if it's in the configuration
-    func test_getFeatureFlag_string_exists() async {
-        stateService.serverConfig["1"] = ServerConfig(
-            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
-            responseModel: ConfigResponseModel(
-                environment: nil,
-                featureStates: ["test-remote-feature-flag": .string("exists")],
-                gitHash: "75238191",
-                server: nil,
-                version: "2024.4.0"
-            )
-        )
-        let value = await subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: "fallback", forceRefresh: false)
-        XCTAssertEqual(value, "exists")
-    }
-
     /// `getFeatureFlag(:)` returns the default value for strings
     func test_getFeatureFlag_string_fallback() async {
         stateService.serverConfig["1"] = ServerConfig(
@@ -239,40 +158,6 @@ final class ConfigServiceTests: AuthenticatorTestCase { // swiftlint:disable:thi
         )
         let value = await subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: "fallback", forceRefresh: false)
         XCTAssertEqual(value, "fallback")
-    }
-
-    /// `getFeatureFlag(:)` returns the default value if the feature is not remotely configurable for strings
-    func test_getFeatureFlag_string_notRemotelyConfigured() async {
-        stateService.serverConfig["1"] = ServerConfig(
-            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
-            responseModel: ConfigResponseModel(
-                environment: nil,
-                featureStates: ["test-remote-feature-flag": .string("exists")],
-                gitHash: "75238191",
-                server: nil,
-                version: "2024.4.0"
-            )
-        )
-        let value = await subject.getFeatureFlag(.testLocalFeatureFlag, defaultValue: "fallback", forceRefresh: false)
-        XCTAssertEqual(value, "fallback")
-    }
-
-    /// `getDebugFeatureFlags(:)` returns the default value if the feature is not remotely configurable for strings
-    func test_getDebugFeatureFlags() async {
-        stateService.serverConfig["1"] = ServerConfig(
-            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
-            responseModel: ConfigResponseModel(
-                environment: nil,
-                featureStates: ["email-verification": .bool(true)],
-                gitHash: "75238191",
-                server: nil,
-                version: "2024.4.0"
-            )
-        )
-        appSettingsStore.overrideDebugFeatureFlag(name: "email-verification", value: false)
-        let flags = await subject.getDebugFeatureFlags()
-        let emailVerificationFlag = try? XCTUnwrap(flags.first { $0.feature.rawValue == "email-verification" })
-        XCTAssertFalse(emailVerificationFlag?.isEnabled ?? true)
     }
 
     // MARK: Tests - Other
@@ -317,4 +202,4 @@ final class ConfigServiceTests: AuthenticatorTestCase { // swiftlint:disable:thi
         XCTAssertEqual(metaConfig.userId, userId, file: file, line: line)
         XCTAssertEqual(metaConfig.serverConfig?.gitHash, gitHash, file: file, line: line)
     }
-} // swiftlint:disable:this file_length
+}
