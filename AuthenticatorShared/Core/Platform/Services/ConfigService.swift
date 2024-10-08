@@ -156,26 +156,7 @@ class DefaultConfigService: ConfigService {
 
     @discardableResult
     func getConfig(forceRefresh: Bool, isPreAuth: Bool) async -> ServerConfig? {
-        guard !forceRefresh else {
-            await updateConfigFromServer(isPreAuth: isPreAuth)
-            return try? await getStateServerConfig(isPreAuth: isPreAuth)
-        }
-
-        let localConfig = try? await getStateServerConfig(isPreAuth: isPreAuth)
-
-        let localConfigExpired = localConfig?.date.addingTimeInterval(Constants.minimumConfigSyncInterval)
-            ?? Date.distantPast
-            < timeProvider.presentTime
-
-        // if it's not forcing refresh we don't need to wait for the server call
-        // to finish and we can move it to the background.
-        if localConfig == nil || localConfigExpired {
-            Task {
-                await updateConfigFromServer(isPreAuth: isPreAuth)
-            }
-        }
-
-        return localConfig
+        nil
     }
 
     func getFeatureFlag(
@@ -276,40 +257,6 @@ class DefaultConfigService: ConfigService {
             return
         }
         try? await stateService.setServerConfig(config, userId: userId)
-    }
-
-    /// Performs a call to the server to get the latest config and updates the local value.
-    /// - Parameter isPreAuth: If true, the call is coming before the user is authenticated or when adding a new account
-    private func updateConfigFromServer(isPreAuth: Bool) async {
-        // The userId is needed here so we know which user trigger getting the config
-        // which helps if this is done in background and the user somehow changes the user
-        // while this is loading.
-        let userId = try? await stateService.getActiveAccountId()
-
-        do {
-            let configResponse = try await configApiService.getConfig()
-            let serverConfig = ServerConfig(
-                date: timeProvider.presentTime,
-                responseModel: configResponse
-            )
-            try? await setStateServerConfig(serverConfig, isPreAuth: isPreAuth, userId: userId)
-
-            configSubject.send(MetaServerConfig(isPreAuth: isPreAuth, userId: userId, serverConfig: serverConfig))
-        } catch {
-            errorReporter.log(error: error)
-
-            guard !isPreAuth else {
-                return
-            }
-
-            let localConfig = try? await stateService.getServerConfig(userId: userId)
-            guard localConfig == nil,
-                  let preAuthConfig = await stateService.getPreAuthServerConfig() else {
-                return
-            }
-
-            try? await setStateServerConfig(preAuthConfig, isPreAuth: false, userId: userId)
-        }
     }
 }
 
