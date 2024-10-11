@@ -263,7 +263,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
         )
     }
 
-    /// `itemListPublisher()` returns a favorites section (when the feature flag is Off)
+    /// `itemListPublisher()` returns a favorites section (when the feature flag not enabled)
     func test_itemListPublisher_favorites() async throws {
         sharedItemService.storedItems = ["userId": AuthenticatorBridgeItemDataView.fixtures()]
         sharedItemService.syncOn = true
@@ -316,7 +316,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
         )
     }
 
-    /// `itemListPublisher()` returns a favorites section as before, when the feature flag is turned on, but
+    /// `itemListPublisher()` returns a favorites section as before, when the feature flag is enabled, but
     /// the user has not yet enabled sync.
     func test_itemListPublisher_syncOff() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = true

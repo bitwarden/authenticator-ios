@@ -144,9 +144,10 @@ class DefaultAuthenticatorItemRepository {
 
     // MARK: Private Methods
 
-    /// Appends a list of the sections to the item list when sync with the PM app is enabled.
+    /// Combine sections that are locally stored with the list of the sections created with the shared items,
+    /// when sync with the PM app is enabled.
     ///
-    /// Note: If the `enablePasswordManagerSync` feature flag is turned off, or if the user has not yet
+    /// Note: If the `enablePasswordManagerSync` feature flag is not enabled, or if the user has not yet
     /// turned on sync for any accounts, this method simply returns `localSections`.
     ///
     /// - Parameters:
@@ -154,7 +155,7 @@ class DefaultAuthenticatorItemRepository {
     ///   - sharedItems: The shared items that are coming in via sync with the PM app
     /// - Returns: A list of the sections to display in the item list
     ///
-    private func appendSyncedItems(
+    private func combinedSections(
         localSections: [ItemListSection],
         sharedItems: [AuthenticatorBridgeItemDataView]
     ) async throws -> [ItemListSection] {
@@ -228,7 +229,7 @@ class DefaultAuthenticatorItemRepository {
             )
             .asyncTryMap { items in
                 let sections = try await self.itemListSections(from: items.0)
-                return try await self.appendSyncedItems(localSections: sections, sharedItems: items.1)
+                return try await self.combinedSections(localSections: sections, sharedItems: items.1)
             }
             .eraseToAnyPublisher()
     }

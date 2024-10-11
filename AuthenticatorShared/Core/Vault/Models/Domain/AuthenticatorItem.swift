@@ -1,4 +1,3 @@
-import AuthenticatorBridgeKit
 import Foundation
 
 /// Data model for an encrypted item
