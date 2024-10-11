@@ -144,40 +144,6 @@ class DefaultAuthenticatorItemRepository {
 
     // MARK: Private Methods
 
-    /// Returns a list of the sections in the item list
-    ///
-    /// - Parameters:
-    ///   - authenticatorItems: The items in the user's storage
-    /// - Returns: A list of the sections to display in the item list
-    ///
-    private func itemListSections(
-        from authenticatorItems: [AuthenticatorItem]
-    ) async throws -> [ItemListSection] {
-        let items = try await authenticatorItems.asyncMap { item in
-            try await self.cryptographyService.decrypt(item)
-        }
-        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-
-        let favorites = items.filter(\.favorite).compactMap { item in
-            ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
-        }
-        let nonFavorites = items.filter { !$0.favorite }.compactMap { item in
-            ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
-        }
-
-        let syncEnabled: Bool = await configService.getFeatureFlag(.enablePasswordManagerSync)
-        let syncOn = await sharedItemService.isSyncOn()
-        let useSyncValues = syncEnabled && syncOn
-
-        return [
-            ItemListSection(id: "Favorites", items: favorites, name: Localizations.favorites),
-            ItemListSection(id: useSyncValues ? "LocalCodes" : "Unorganized",
-                            items: nonFavorites,
-                            name: useSyncValues ? Localizations.localCodes : ""),
-        ]
-        .filter { !$0.items.isEmpty }
-    }
-
     /// Appends a list of the sections to the item list when sync with the PM app is enabled.
     ///
     /// Note: If the `enablePasswordManagerSync` feature flag is turned off, or if the user has not yet
@@ -216,37 +182,55 @@ class DefaultAuthenticatorItemRepository {
         return sections.filter { !$0.items.isEmpty }
     }
 
-    /// A publisher for searching a user's items based on the specified search text and filter type.
+    /// Returns a list of the sections in the item list
     ///
     /// - Parameters:
-    ///   - searchText: The search text to filter the item list.
-    /// - Returns: A publisher searching for the user's ciphers.
+    ///   - authenticatorItems: The items in the user's storage
+    /// - Returns: A list of the sections to display in the item list
     ///
-    private func searchPublisher(
-        searchText: String
-    ) async throws -> AnyPublisher<[AuthenticatorItemView], Error> {
-        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-            .lowercased()
-            .folding(options: .diacriticInsensitive, locale: .current)
+    private func itemListSections(
+        from authenticatorItems: [AuthenticatorItem]
+    ) async throws -> [ItemListSection] {
+        let items = try await authenticatorItems.asyncMap { item in
+            try await self.cryptographyService.decrypt(item)
+        }
+        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
-        return try await authenticatorItemService.authenticatorItemsPublisher()
-            .asyncTryMap { items -> [AuthenticatorItemView] in
-                let matchingItems = try await items.asyncMap { item in
-                    try await self.cryptographyService.decrypt(item)
-                }
+        let favorites = items.filter(\.favorite).compactMap { item in
+            ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
+        }
+        let nonFavorites = items.filter { !$0.favorite }.compactMap { item in
+            ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
+        }
 
-                var matchedItems: [AuthenticatorItemView] = []
+        let syncEnabled: Bool = await configService.getFeatureFlag(.enablePasswordManagerSync)
+        let syncOn = await sharedItemService.isSyncOn()
+        let useSyncValues = syncEnabled && syncOn
 
-                matchingItems.forEach { item in
-                    if item.name.lowercased()
-                        .folding(options: .diacriticInsensitive, locale: nil)
-                        .contains(query) {
-                        matchedItems.append(item)
-                    }
-                }
+        return [
+            ItemListSection(id: "Favorites", items: favorites, name: Localizations.favorites),
+            ItemListSection(id: useSyncValues ? "LocalCodes" : "Unorganized",
+                            items: nonFavorites,
+                            name: useSyncValues ? Localizations.localCodes : ""),
+        ]
+        .filter { !$0.items.isEmpty }
+    }
 
-                return matchedItems.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-            }.eraseToAnyPublisher()
+    /// A Publisher that combines all of the locally stored code with the codes shared from the Bitwarden PM app. This
+    /// publisher converts all of these into `[ItemListSection]` ready to be displayed in the ItemList.
+    ///
+    /// - Returns: An array of `ItemListSection` containing both locally stored and shared codes.
+    ///
+    private func itemListSectionPublisher() async throws -> AnyPublisher<[ItemListSection], Error> {
+        try await authenticatorItemService.authenticatorItemsPublisher()
+            .combineLatest(
+                sharedItemService.sharedItemsPublisher()
+            )
+            .asyncTryMap { items in
+                let sections = try await self.itemListSections(from: items.0)
+                return try await self.appendSyncedItems(localSections: sections, sharedItems: items.1)
+            }
+            .eraseToAnyPublisher()
     }
 }
 
@@ -315,27 +299,29 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
     }
 
     func itemListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[ItemListSection], Error>> {
-        try await authenticatorItemService.authenticatorItemsPublisher()
-            .combineLatest(
-                sharedItemService.sharedItemsPublisher()
-            )
-            .asyncTryMap { items in
-                let sections = try await self.itemListSections(from: items.0)
-                return try await self.appendSyncedItems(localSections: sections, sharedItems: items.1)
-            }
-            .eraseToAnyPublisher()
-            .values
+        try await itemListSectionPublisher().values
     }
 
     func searchItemListPublisher(
         searchText: String
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[ItemListItem], Error>> {
-        try await searchPublisher(
-            searchText: searchText
-        ).asyncTryMap { items in
-            items.compactMap { item in
-                ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
+        try await itemListSectionPublisher().map { sections -> [ItemListItem] in
+            let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+                .lowercased()
+                .folding(options: .diacriticInsensitive, locale: .current)
+            let allItems = sections.flatMap(\.items)
+
+            var matchedItems: [ItemListItem] = []
+
+            allItems.forEach { item in
+                if item.name.lowercased()
+                    .folding(options: .diacriticInsensitive, locale: nil)
+                    .contains(query) {
+                    matchedItems.append(item)
+                }
             }
+
+            return matchedItems.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
         }
         .eraseToAnyPublisher()
         .values
