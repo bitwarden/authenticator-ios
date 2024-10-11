@@ -122,3 +122,8 @@
 "Backup" = "Резервне копіювання";
 "BitwardenAuthenticatorDataIsBackedUpAndCanBeRestored" = "Резервне копіювання даних Bitwarden Authenticator відбувається за допомогою пристрою. Відновити дані можна будь-коли.";
 "ImportingFromTwoFasPasswordProtectedNotSupported" = "Імпортування даних із захищених паролем файлів 2FAS не підтримується. Повторіть спробу з експортованим файлом, який не захищено паролем.";
+"WithTheBitwardenAppYouCanStoreAllOfYourItemsAndSyncDirectlyWithTheAuthenticator" = "За допомогою Bitwarden ви можете зберігати всі записи і синхронізувати безпосередньо з автентифікатором.";
+"DownloadTheBitwardenApp" = "Завантажити програму Bitwarden";
+"InOrderToViewAllOfYourVerificationCodesYoullNeedToAllowForSyncingOnAllOfYourAccounts" = "Для перегляду всіх ваших кодів підтвердження вам потрібно буде дозволити синхронізацію з усіма вашими обліковими записами.";
+"TakeMeToTheAppSettings" = "Перейти до налаштувань програми";
+"SyncWithTheBitwardenApp" = "Синхронізувати з програмою Bitwarden";
