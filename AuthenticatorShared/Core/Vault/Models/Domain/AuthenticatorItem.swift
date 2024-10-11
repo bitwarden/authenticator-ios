@@ -59,18 +59,6 @@ public struct AuthenticatorItemView: Equatable, Sendable, Hashable, Codable {
 }
 
 extension AuthenticatorItemView {
-    init(item: AuthenticatorBridgeItemDataView) {
-        self.init(
-            favorite: item.favorite,
-            id: item.id,
-            name: item.name,
-            totpKey: item.totpKey,
-            username: item.username
-        )
-    }
-}
-
-extension AuthenticatorItemView {
     static func fixture(
         favorite: Bool = false,
         id: String = "ID",

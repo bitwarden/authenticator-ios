@@ -116,8 +116,42 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
         XCTAssertNil(result)
     }
 
+    /// `refreshTotpCodes(on:)` logs an error when it can't update the TOTP code on a
+    /// .sharedTotp item, and returns the item as-is.
+    func test_refreshTotpCodes_errorSharedTotp() async throws {
+        let item = ItemListItem.fixtureShared(totp: .fixture(itemView: .fixture(totpKey: nil)))
+
+        let result = try await subject.refreshTotpCodes(on: [item])
+        let actual = try XCTUnwrap(result[0])
+        let error = try XCTUnwrap(errorReporter.errors[0] as? TOTPServiceError)
+        XCTAssertEqual(
+            error,
+            .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)")
+        )
+        XCTAssertEqual(actual.id, item.id)
+        XCTAssertEqual(actual.name, item.name)
+        XCTAssertEqual(actual.accountName, item.accountName)
+    }
+
+    /// `refreshTotpCodes(on:)` logs an error when it can't update the TOTP code on a
+    /// .totp item, and returns the item as-is.
+    func test_refreshTotpCodes_errorTotp() async throws {
+        let item = ItemListItem.fixture(totp: .fixture(itemView: .fixture(totpKey: nil)))
+
+        let result = try await subject.refreshTotpCodes(on: [item])
+        let actual = try XCTUnwrap(result[0])
+        let error = try XCTUnwrap(errorReporter.errors[0] as? TOTPServiceError)
+        XCTAssertEqual(
+            error,
+            .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)")
+        )
+        XCTAssertEqual(actual.id, item.id)
+        XCTAssertEqual(actual.name, item.name)
+        XCTAssertEqual(actual.accountName, item.accountName)
+    }
+
     /// `refreshTotpCodes(on:)` updates the TOTP codes on items.
-    func test_refreshTotpCodes() async throws {
+    func test_refreshTotpCodes_success() async throws {
         let newCode = "987654"
         let newCodeModel = TOTPCodeModel(
             code: newCode,
@@ -127,16 +161,31 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
         totpService.getTotpCodeResult = .success(newCodeModel)
 
         let item = ItemListItem.fixture()
+        let sharedItem = ItemListItem.fixtureShared()
 
-        let result = try await subject.refreshTotpCodes(on: [item])
+        let result = try await subject.refreshTotpCodes(on: [item, sharedItem])
         let actual = try XCTUnwrap(result[0])
 
         XCTAssertEqual(actual.id, item.id)
         XCTAssertEqual(actual.name, item.name)
         XCTAssertEqual(actual.accountName, item.accountName)
         switch actual.itemType {
+        case .sharedTotp:
+            XCTFail("Shared TOTP itemType found when expecting TOTP")
         case let .totp(model):
             XCTAssertEqual(model.totpCode, newCodeModel)
+        }
+
+        let shared = try XCTUnwrap(result[1])
+
+        XCTAssertEqual(shared.id, sharedItem.id)
+        XCTAssertEqual(shared.name, sharedItem.name)
+        XCTAssertEqual(shared.accountName, sharedItem.accountName)
+        switch shared.itemType {
+        case let .sharedTotp(model):
+            XCTAssertEqual(model.totpCode, newCodeModel)
+        case .totp:
+            XCTFail("TOTP itemType found when expecting Shared TOTP")
         }
     }
 
@@ -330,9 +379,9 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
             AuthenticatorItem.fixture(id: "1", name: "One"),
             AuthenticatorItem.fixture(favorite: true, id: "2", name: "Two"),
         ]
-        let sharedItem = AuthenticatorBridgeItemDataView.fixture(name: "Shared",
-                                                                 totpKey: "totpKey",
-                                                                 username: "shared@example.com")
+        let sharedItem = AuthenticatorBridgeItemDataView.fixture(accountEmail: "shared@example.com",
+                                                                 name: "Shared",
+                                                                 totpKey: "totpKey")
         sharedItemService.storedItems = ["userId": [sharedItem]]
         let unorganizedItem = itemListItem(from: items[0])
         let favoritedItem = itemListItem(from: items[1])
@@ -355,9 +404,9 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
                 ItemListSection(id: "LocalCodes",
                                 items: [unorganizedItem],
                                 name: Localizations.localCodes),
-                ItemListSection(id: "BW-shared@example.com",
+                ItemListSection(id: "shared@example.com | Domain",
                                 items: [sharedListItem],
-                                name: "shared@example.com"),
+                                name: "shared@example.com | Domain"),
             ]
         )
     }
@@ -371,12 +420,12 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
             AuthenticatorItem.fixture(id: "1", name: "One"),
             AuthenticatorItem.fixture(favorite: true, id: "2", name: "Two"),
         ]
-        let sharedItem = AuthenticatorBridgeItemDataView.fixture(name: "Shared",
-                                                                 totpKey: "totpKey",
-                                                                 username: "shared@example.com")
-        let otherSharedItem = AuthenticatorBridgeItemDataView.fixture(name: "Shared (Different Account)",
-                                                                      totpKey: "totpKey",
-                                                                      username: "different@example.com")
+        let sharedItem = AuthenticatorBridgeItemDataView.fixture(accountEmail: "shared@example.com",
+                                                                 name: "Shared",
+                                                                 totpKey: "totpKey")
+        let otherSharedItem = AuthenticatorBridgeItemDataView.fixture(accountEmail: "different@example.com",
+                                                                      name: "Shared (Different Account)",
+                                                                      totpKey: "totpKey")
         sharedItemService.storedItems = ["userId": [sharedItem], "otherId": [otherSharedItem]]
         let unorganizedItem = itemListItem(from: items[0])
         let favoritedItem = itemListItem(from: items[1])
@@ -401,12 +450,12 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
                 ItemListSection(id: "LocalCodes",
                                 items: [unorganizedItem],
                                 name: Localizations.localCodes),
-                ItemListSection(id: "BW-different@example.com",
+                ItemListSection(id: "different@example.com | Domain",
                                 items: [otherListItem],
-                                name: "different@example.com"),
-                ItemListSection(id: "BW-shared@example.com",
+                                name: "different@example.com | Domain"),
+                ItemListSection(id: "shared@example.com | Domain",
                                 items: [sharedListItem],
-                                name: "shared@example.com"),
+                                name: "shared@example.com | Domain"),
             ]
         )
     }
@@ -504,12 +553,12 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
     /// - Returns: the `ItemListItem` created with this `AuthenticatorBridgeItemDataView`
     ///
     private func itemListItem(from item: AuthenticatorBridgeItemDataView) -> ItemListItem {
-        ItemListItem.fixture(
+        ItemListItem.fixtureShared(
             id: item.id,
             name: item.name,
             accountName: item.username ?? "",
-            totp: ItemListTotpItem.fixture(
-                itemView: AuthenticatorItemView(item: item),
+            totp: ItemListSharedTotpItem.fixture(
+                itemView: item,
                 totpCode: TOTPCodeModel(
                     code: "123456",
                     codeGenerationDate: timeProvider.presentTime,

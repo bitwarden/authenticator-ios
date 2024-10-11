@@ -197,18 +197,20 @@ class DefaultAuthenticatorItemRepository {
             return localSections
         }
 
-        let sharedItems = sharedItems.map(AuthenticatorItemView.init)
-        let groupsByUsername = Dictionary(grouping: sharedItems, by: { $0.username })
+        let groupedByAccount = Dictionary(
+            grouping: sharedItems,
+            by: { "\($0.accountEmail ?? "") | \($0.accountDomain ?? "")" }
+        )
 
         var sections = localSections
 
-        let keys = groupsByUsername.keys.compactMap { $0 }
+        let keys = groupedByAccount.keys.compactMap { $0 }
         for key in keys.sorted() {
-            let items = groupsByUsername[key]?.compactMap { item in
-                ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
+            let items = groupedByAccount[key]?.compactMap { item in
+                ItemListItem(itemView: item, timeProvider: self.timeProvider)
             } ?? []
 
-            sections.append(ItemListSection(id: "BW-\(key)", items: items, name: key))
+            sections.append(ItemListSection(id: key, items: items, name: key))
         }
 
         return sections.filter { !$0.items.isEmpty }
@@ -274,23 +276,42 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
 
     func refreshTotpCodes(on items: [ItemListItem]) async throws -> [ItemListItem] {
         try await items.asyncMap { item in
-            guard case let .totp(model) = item.itemType,
-                  let key = model.itemView.totpKey,
-                  let keyModel = TOTPKeyModel(authenticatorKey: key)
-            else {
-                errorReporter.log(error: TOTPServiceError
-                    .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
-                return item
+            switch item.itemType {
+            case let .sharedTotp(model):
+                guard let key = model.itemView.totpKey,
+                      let keyModel = TOTPKeyModel(authenticatorKey: key)
+                else {
+                    errorReporter.log(error: TOTPServiceError
+                        .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
+                    return item
+                }
+                let code = try await totpService.getTotpCode(for: keyModel)
+                var updatedModel = model
+                updatedModel.totpCode = code
+                return ItemListItem(
+                    id: item.id,
+                    name: item.name,
+                    accountName: item.accountName,
+                    itemType: .sharedTotp(model: updatedModel)
+                )
+            case let .totp(model):
+                guard let key = model.itemView.totpKey,
+                      let keyModel = TOTPKeyModel(authenticatorKey: key)
+                else {
+                    errorReporter.log(error: TOTPServiceError
+                        .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
+                    return item
+                }
+                let code = try await totpService.getTotpCode(for: keyModel)
+                var updatedModel = model
+                updatedModel.totpCode = code
+                return ItemListItem(
+                    id: item.id,
+                    name: item.name,
+                    accountName: item.accountName,
+                    itemType: .totp(model: updatedModel)
+                )
             }
-            let code = try await totpService.getTotpCode(for: keyModel)
-            var updatedModel = model
-            updatedModel.totpCode = code
-            return ItemListItem(
-                id: item.id,
-                name: item.name,
-                accountName: item.accountName,
-                itemType: .totp(model: updatedModel)
-            )
         }
     }
 
