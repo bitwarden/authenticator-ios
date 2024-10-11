@@ -90,7 +90,7 @@ protocol AuthenticatorItemRepository: AnyObject {
 class DefaultAuthenticatorItemRepository {
     // MARK: Properties
 
-    /// Service to from which to fetch locally stored Authenticator items.
+    /// Service from which to fetch locally stored Authenticator items.
     private let authenticatorItemService: AuthenticatorItemService
 
     /// Service to determine if the sync feature flag is turned on.
