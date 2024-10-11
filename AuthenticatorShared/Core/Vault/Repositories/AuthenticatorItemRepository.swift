@@ -276,42 +276,22 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
 
     func refreshTotpCodes(on items: [ItemListItem]) async throws -> [ItemListItem] {
         try await items.asyncMap { item in
+            let keyModel: TOTPKeyModel?
             switch item.itemType {
             case let .sharedTotp(model):
-                guard let key = model.itemView.totpKey,
-                      let keyModel = TOTPKeyModel(authenticatorKey: key)
-                else {
-                    errorReporter.log(error: TOTPServiceError
-                        .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
-                    return item
-                }
-                let code = try await totpService.getTotpCode(for: keyModel)
-                var updatedModel = model
-                updatedModel.totpCode = code
-                return ItemListItem(
-                    id: item.id,
-                    name: item.name,
-                    accountName: item.accountName,
-                    itemType: .sharedTotp(model: updatedModel)
-                )
+                let key = model.itemView.totpKey
+                keyModel = TOTPKeyModel(authenticatorKey: key)
             case let .totp(model):
-                guard let key = model.itemView.totpKey,
-                      let keyModel = TOTPKeyModel(authenticatorKey: key)
-                else {
-                    errorReporter.log(error: TOTPServiceError
-                        .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
-                    return item
-                }
-                let code = try await totpService.getTotpCode(for: keyModel)
-                var updatedModel = model
-                updatedModel.totpCode = code
-                return ItemListItem(
-                    id: item.id,
-                    name: item.name,
-                    accountName: item.accountName,
-                    itemType: .totp(model: updatedModel)
-                )
+                let key = model.itemView.totpKey
+                keyModel = TOTPKeyModel(authenticatorKey: key)
             }
+            guard let keyModel else {
+                errorReporter.log(error: TOTPServiceError
+                    .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
+                return item
+            }
+            let code = try await totpService.getTotpCode(for: keyModel)
+            return item.with(newTotpModel: code)
         }
     }
 

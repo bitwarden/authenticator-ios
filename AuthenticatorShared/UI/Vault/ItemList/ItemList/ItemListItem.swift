@@ -89,6 +89,35 @@ extension ItemListItem {
                   accountName: username,
                   itemType: .sharedTotp(model: totpModel))
     }
+
+    /// Make a new `ItemListItem` that is a copy of the existing one, but with an updated `TOTPCodeModel`.
+    ///
+    /// - Parameter newTotpModel: the new `TOTPCodeModel` to insert in this ItemListItem
+    /// - Returns: An exact copy of the data in the existing `ItemListItem`, but with the new
+    ///     `TOTPCodeModel` inserted into the itemType's model.
+    ///
+    public func with(newTotpModel: TOTPCodeModel) -> ItemListItem {
+        switch itemType {
+        case let .sharedTotp(oldModel):
+            var updatedModel = oldModel
+            updatedModel.totpCode = newTotpModel
+            return ItemListItem(
+                id: id,
+                name: name,
+                accountName: accountName,
+                itemType: .sharedTotp(model: updatedModel)
+            )
+        case let .totp(oldModel):
+            var updatedModel = oldModel
+            updatedModel.totpCode = newTotpModel
+            return ItemListItem(
+                id: id,
+                name: name,
+                accountName: accountName,
+                itemType: .totp(model: updatedModel)
+            )
+        }
+    }
 }
 
 public struct ItemListTotpItem: Equatable {
