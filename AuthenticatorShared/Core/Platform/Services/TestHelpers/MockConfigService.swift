@@ -8,7 +8,6 @@ class MockConfigService: ConfigService {
     // MARK: Properties
 
     var configMocker = InvocationMockerWithThrowingResult<(forceRefresh: Bool, isPreAuth: Bool), ServerConfig?>()
-    var configSubject = CurrentValueSubject<MetaServerConfig?, Never>(nil)
     var debugFeatureFlags = [DebugMenuFeatureFlag]()
     var featureFlagsBool = [FeatureFlag: Bool]()
     var featureFlagsInt = [FeatureFlag: Int]()
@@ -20,11 +19,6 @@ class MockConfigService: ConfigService {
     nonisolated init() {}
 
     // MARK: Methods
-
-    func configPublisher(
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<MetaServerConfig?, Never>> {
-        configSubject.eraseToAnyPublisher().values
-    }
 
     func getConfig(forceRefresh: Bool, isPreAuth: Bool) async -> ServerConfig? {
         try? configMocker.invoke(param: (forceRefresh: forceRefresh, isPreAuth: isPreAuth))

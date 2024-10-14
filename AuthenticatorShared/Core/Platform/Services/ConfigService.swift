@@ -8,9 +8,6 @@ import OSLog
 /// This is significantly pared down from the `ConfigService` in the PM app.
 ///
 protocol ConfigService {
-    /// A publisher that updates with a new value when a new server configuration is received.
-    func configPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<MetaServerConfig?, Never>>
-
     /// Retrieves the current configuration. This will return the on-disk configuration if available,
     /// or will retrieve it from the server if not. It will also retrieve the configuration from
     /// the server if it is outdated or if the `forceRefresh` argument is `true`. Configurations
@@ -114,9 +111,6 @@ class DefaultConfigService: ConfigService {
 
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
-
-    /// A subject to notify any subscribers of new server configs.
-    private let configSubject = CurrentValueSubject<MetaServerConfig?, Never>(nil)
 
     /// The service used by the application to manage account state.
     private let stateService: StateService
@@ -237,10 +231,6 @@ class DefaultConfigService: ConfigService {
         return try? await stateService.getServerConfig()
     }
 
-    func configPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<MetaServerConfig?, Never>> {
-        configSubject.eraseToAnyPublisher().values
-    }
-
     /// Sets the server config in state depending on if the call is being done before authentication.
     /// - Parameters:
     ///   - config: Config to set
@@ -253,16 +243,4 @@ class DefaultConfigService: ConfigService {
         }
         try? await stateService.setServerConfig(config, userId: userId)
     }
-}
-
-/// Helper object to send updated server config object with extra metadata
-/// like whether it comes from pre-auth and the user ID it belongs to.
-/// This is useful for getting the config on background and establishing which was the original context.
-struct MetaServerConfig {
-    /// If true, the call is coming before the user is authenticated or when adding a new account
-    let isPreAuth: Bool
-    /// The user ID the requested the server config.
-    let userId: String?
-    /// The server config.
-    let serverConfig: ServerConfig?
 }

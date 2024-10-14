@@ -176,26 +176,4 @@ final class ConfigServiceTests: AuthenticatorTestCase {
         let flag = try XCTUnwrap(flags.first { $0.feature == .enablePasswordManagerSync })
         XCTAssertFalse(flag.isEnabled)
     }
-
-    // MARK: Private
-
-    /// Asserts the config publisher is publishing the right values.
-    /// - Parameters:
-    ///   - isPreAuth: The expected value of `isPreAuth`
-    ///   - userId: The expected value of `userId`
-    ///   - gitHash: The expected value of `gitHash`
-    private func assertConfigPublisherWith(
-        isPreAuth: Bool,
-        userId: String?,
-        gitHash: String?,
-        file: StaticString = #file,
-        line: UInt = #line
-    ) async throws {
-        var publisher = try await subject.configPublisher().makeAsyncIterator()
-        let result = try await publisher.next()
-        let metaConfig = try XCTUnwrap(XCTUnwrap(result))
-        XCTAssertEqual(metaConfig.isPreAuth, isPreAuth, file: file, line: line)
-        XCTAssertEqual(metaConfig.userId, userId, file: file, line: line)
-        XCTAssertEqual(metaConfig.serverConfig?.gitHash, gitHash, file: file, line: line)
-    }
 }
