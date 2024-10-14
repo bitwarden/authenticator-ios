@@ -166,21 +166,34 @@ class DefaultAuthenticatorItemRepository {
 
         let groupedByAccount = Dictionary(
             grouping: sharedItems,
-            by: { "\($0.accountEmail ?? "") | \($0.accountDomain ?? "")" }
+            by: { item in
+                if let email = item.accountEmail, !email.isEmpty {
+                    if let domain = item.accountDomain, !domain.isEmpty {
+                        return email + " | " + domain
+                    } else {
+                        return email
+                    }
+                } else if let domain = item.accountDomain, !domain.isEmpty {
+                    return domain
+                } else {
+                    return ""
+                }
+            }
         )
 
         var sections = localSections
 
-        let keys = groupedByAccount.keys.compactMap { $0 }
-        for key in keys.sorted() {
+        for key in groupedByAccount.keys.sorted() {
             let items = groupedByAccount[key]?.compactMap { item in
                 ItemListItem(itemView: item, timeProvider: self.timeProvider)
-            } ?? []
-
+            }
+            guard let items, !items.isEmpty else {
+                continue
+            }
             sections.append(ItemListSection(id: key, items: items, name: key))
         }
 
-        return sections.filter { !$0.items.isEmpty }
+        return sections
     }
 
     /// Returns a list of the sections in the item list
@@ -227,9 +240,9 @@ class DefaultAuthenticatorItemRepository {
             .combineLatest(
                 sharedItemService.sharedItemsPublisher()
             )
-            .asyncTryMap { items in
-                let sections = try await self.itemListSections(from: items.0)
-                return try await self.combinedSections(localSections: sections, sharedItems: items.1)
+            .asyncTryMap { localItems, sharedItems in
+                let sections = try await self.itemListSections(from: localItems)
+                return try await self.combinedSections(localSections: sections, sharedItems: sharedItems)
             }
             .eraseToAnyPublisher()
     }
@@ -310,19 +323,14 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
             let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
                 .lowercased()
                 .folding(options: .diacriticInsensitive, locale: .current)
-            let allItems = sections.flatMap(\.items)
 
-            var matchedItems: [ItemListItem] = []
-
-            allItems.forEach { item in
-                if item.name.lowercased()
-                    .folding(options: .diacriticInsensitive, locale: nil)
-                    .contains(query) {
-                    matchedItems.append(item)
+            return sections.flatMap(\.items)
+                .filter { item in
+                    item.name.lowercased()
+                        .folding(options: .diacriticInsensitive, locale: nil)
+                        .contains(query)
                 }
-            }
-
-            return matchedItems.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+                .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
         }
         .eraseToAnyPublisher()
         .values

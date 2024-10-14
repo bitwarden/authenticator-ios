@@ -334,8 +334,12 @@ private class TOTPExpirationManager {
     func configureTOTPRefreshScheduling(for items: [ItemListItem]) {
         var newItemsByInterval = [UInt32: [ItemListItem]]()
         items.forEach { item in
-            guard case let .totp(model) = item.itemType else { return }
-            newItemsByInterval[model.totpCode.period, default: []].append(item)
+            switch item.itemType {
+            case let .sharedTotp(model):
+                newItemsByInterval[model.totpCode.period, default: []].append(item)
+            case let .totp(model):
+                newItemsByInterval[model.totpCode.period, default: []].append(item)
+            }
         }
         itemsByInterval = newItemsByInterval
     }

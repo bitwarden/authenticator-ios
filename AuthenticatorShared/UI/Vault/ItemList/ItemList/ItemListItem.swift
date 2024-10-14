@@ -43,7 +43,7 @@ extension ItemListItem {
     ///
     init?(authenticatorItemView: AuthenticatorItemView, timeProvider: TimeProvider) {
         guard let totpKey = TOTPKeyModel(authenticatorKey: authenticatorItemView.totpKey) else { return nil }
-        let totpCode = TOTPCodeModel(code: "123456", codeGenerationDate: timeProvider.presentTime, period: 30)
+        let totpCode = TOTPCodeModel(code: "", codeGenerationDate: timeProvider.presentTime, period: 30)
         let totpModel = ItemListTotpItem(itemView: authenticatorItemView, totpCode: totpCode)
         let name: String
         let username: String?
@@ -70,7 +70,7 @@ extension ItemListItem {
     ///
     init?(itemView: AuthenticatorBridgeItemDataView, timeProvider: TimeProvider) {
         guard let totpKey = TOTPKeyModel(authenticatorKey: itemView.totpKey) else { return nil }
-        let totpCode = TOTPCodeModel(code: "123456", codeGenerationDate: timeProvider.presentTime, period: 30)
+        let totpCode = TOTPCodeModel(code: "", codeGenerationDate: timeProvider.presentTime, period: 30)
         let totpModel = ItemListSharedTotpItem(itemView: itemView, totpCode: totpCode)
         let name: String
         let username: String?

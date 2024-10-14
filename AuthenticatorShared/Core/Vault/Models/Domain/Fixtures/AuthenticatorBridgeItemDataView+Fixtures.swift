@@ -4,13 +4,13 @@ import Foundation
 
 extension AuthenticatorBridgeItemDataView {
     static func fixture(
-        accountDomain: String? = "Domain",
-        accountEmail: String? = "test@example.com",
+        accountDomain: String? = nil,
+        accountEmail: String? = nil,
         favorite: Bool = false,
         id: String = UUID().uuidString,
         name: String = "Name",
-        totpKey: String? = "TOTP",
-        username: String? = "username"
+        totpKey: String? = nil,
+        username: String? = nil
     ) -> AuthenticatorBridgeItemDataView {
         AuthenticatorBridgeItemDataView(
             accountDomain: accountDomain,

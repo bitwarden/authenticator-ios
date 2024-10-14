@@ -32,7 +32,7 @@ extension ItemListItem {
     static func fixtureShared(
         id: String = "123",
         name: String = "Name",
-        accountName: String = "person@example.com",
+        accountName: String? = "person@example.com",
         totp: ItemListSharedTotpItem = .fixture()
     ) -> ItemListItem {
         ItemListItem(

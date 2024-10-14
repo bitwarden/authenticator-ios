@@ -233,7 +233,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
             AuthenticatorItem.fixture(id: "3", name: "Three"),
         ]
         let codeModel = TOTPCodeModel(
-            code: "123456",
+            code: "",
             codeGenerationDate: timeProvider.presentTime,
             period: 30
         )
@@ -279,7 +279,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
             totp: ItemListTotpItem.fixture(
                 itemView: AuthenticatorItemView(authenticatorItem: items[0]),
                 totpCode: TOTPCodeModel(
-                    code: "123456",
+                    code: "",
                     codeGenerationDate: timeProvider.presentTime,
                     period: 30
                 )
@@ -291,7 +291,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
             totp: ItemListTotpItem.fixture(
                 itemView: AuthenticatorItemView(authenticatorItem: items[1]),
                 totpCode: TOTPCodeModel(
-                    code: "123456",
+                    code: "",
                     codeGenerationDate: timeProvider.presentTime,
                     period: 30
                 )
@@ -333,7 +333,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
             totp: ItemListTotpItem.fixture(
                 itemView: AuthenticatorItemView(authenticatorItem: items[0]),
                 totpCode: TOTPCodeModel(
-                    code: "123456",
+                    code: "",
                     codeGenerationDate: timeProvider.presentTime,
                     period: 30
                 )
@@ -345,7 +345,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
             totp: ItemListTotpItem.fixture(
                 itemView: AuthenticatorItemView(authenticatorItem: items[1]),
                 totpCode: TOTPCodeModel(
-                    code: "123456",
+                    code: "",
                     codeGenerationDate: timeProvider.presentTime,
                     period: 30
                 )
@@ -379,8 +379,8 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
             AuthenticatorItem.fixture(id: "1", name: "One"),
             AuthenticatorItem.fixture(favorite: true, id: "2", name: "Two"),
         ]
-        let sharedItem = AuthenticatorBridgeItemDataView.fixture(accountEmail: "shared@example.com",
-                                                                 name: "Shared",
+        let sharedItem = AuthenticatorBridgeItemDataView.fixture(accountDomain: "Domain",
+                                                                 accountEmail: "shared@example.com",
                                                                  totpKey: "totpKey")
         sharedItemService.storedItems = ["userId": [sharedItem]]
         let unorganizedItem = itemListItem(from: items[0])
@@ -411,32 +411,35 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
         )
     }
 
-    /// `itemListPublisher()` returns a favorites section and sections for each sync'd account when the
-    /// feature flag is enabled and the user has turned on sync.
+    /// `itemListPublisher()` correctly handles the empty/nil cases for different sections of the item list when
+    /// the feature flag is enabled and the user has turned on Sync for multiple accounts..
     func test_itemListPublisher_withMultipleAccountSync() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = true
         sharedItemService.syncOn = true
-        let items = [
-            AuthenticatorItem.fixture(id: "1", name: "One"),
-            AuthenticatorItem.fixture(favorite: true, id: "2", name: "Two"),
+        let fullItem = AuthenticatorBridgeItemDataView.fixture(accountDomain: "Domain",
+                                                               accountEmail: "shared@example.com",
+                                                               name: "Shared",
+                                                               totpKey: "totpKey")
+        let noDomain = AuthenticatorBridgeItemDataView.fixture(accountEmail: "shared@example.com",
+                                                               name: "Shared",
+                                                               totpKey: "totpKey")
+        let noEmail = AuthenticatorBridgeItemDataView.fixture(accountDomain: "Domain",
+                                                              name: "Shared",
+                                                              totpKey: "totpKey")
+        let neither = AuthenticatorBridgeItemDataView.fixture(name: "Shared",
+                                                              totpKey: "totpKey")
+        sharedItemService.storedItems = [
+            "userId": [fullItem],
+            "userId2": [noDomain],
+            "userId3": [noEmail],
+            "userId4": [neither],
         ]
-        let sharedItem = AuthenticatorBridgeItemDataView.fixture(accountEmail: "shared@example.com",
-                                                                 name: "Shared",
-                                                                 totpKey: "totpKey")
-        let otherSharedItem = AuthenticatorBridgeItemDataView.fixture(accountEmail: "different@example.com",
-                                                                      name: "Shared (Different Account)",
-                                                                      totpKey: "totpKey")
-        sharedItemService.storedItems = ["userId": [sharedItem], "otherId": [otherSharedItem]]
-        let unorganizedItem = itemListItem(from: items[0])
-        let favoritedItem = itemListItem(from: items[1])
-        let sharedListItem = itemListItem(from: sharedItem)
-        let otherListItem = itemListItem(from: otherSharedItem)
+        let fullListItem = itemListItem(from: fullItem)
+        let noDomainItem = itemListItem(from: noDomain)
+        let noEmailItem = itemListItem(from: noEmail)
+        let neitherItem = itemListItem(from: neither)
 
-        authItemService.authenticatorItemsSubject.send(items)
-        sharedItemService.sharedItemsSubject.send([
-            sharedItem,
-            otherSharedItem,
-        ])
+        sharedItemService.sharedItemsSubject.send([fullItem, noDomain, noEmail, neither])
 
         var iterator = try await subject.itemListPublisher().makeAsyncIterator()
         let sections = try await iterator.next()
@@ -444,17 +447,17 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
         XCTAssertEqual(
             sections,
             [
-                ItemListSection(id: "Favorites",
-                                items: [favoritedItem],
-                                name: Localizations.favorites),
-                ItemListSection(id: "LocalCodes",
-                                items: [unorganizedItem],
-                                name: Localizations.localCodes),
-                ItemListSection(id: "different@example.com | Domain",
-                                items: [otherListItem],
-                                name: "different@example.com | Domain"),
+                ItemListSection(id: "",
+                                items: [neitherItem],
+                                name: ""),
+                ItemListSection(id: "Domain",
+                                items: [noEmailItem],
+                                name: "Domain"),
+                ItemListSection(id: "shared@example.com",
+                                items: [noDomainItem],
+                                name: "shared@example.com"),
                 ItemListSection(id: "shared@example.com | Domain",
-                                items: [sharedListItem],
+                                items: [fullListItem],
                                 name: "shared@example.com | Domain"),
             ]
         )
@@ -468,7 +471,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
             AuthenticatorItem.fixture(id: "3", name: "Café"),
         ]
         let codeModel = TOTPCodeModel(
-            code: "123456",
+            code: "",
             codeGenerationDate: timeProvider.presentTime,
             period: 30
         )
@@ -500,7 +503,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
             AuthenticatorItem.fixture(id: "3", name: "Café"),
         ]
         let codeModel = TOTPCodeModel(
-            code: "123456",
+            code: "",
             codeGenerationDate: timeProvider.presentTime,
             period: 30
         )
@@ -538,7 +541,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
             totp: ItemListTotpItem.fixture(
                 itemView: AuthenticatorItemView(authenticatorItem: item),
                 totpCode: TOTPCodeModel(
-                    code: "123456",
+                    code: "",
                     codeGenerationDate: timeProvider.presentTime,
                     period: 30
                 )
@@ -556,11 +559,11 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
         ItemListItem.fixtureShared(
             id: item.id,
             name: item.name,
-            accountName: item.username ?? "",
+            accountName: item.username,
             totp: ItemListSharedTotpItem.fixture(
                 itemView: item,
                 totpCode: TOTPCodeModel(
-                    code: "123456",
+                    code: "",
                     codeGenerationDate: timeProvider.presentTime,
                     period: 30
                 )
