@@ -23,9 +23,20 @@ extension AuthenticatorBridgeItemDataView {
         )
     }
 
+    static func fixtureFilled() -> AuthenticatorBridgeItemDataView {
+        .fixture(
+            accountDomain: "Domain",
+            accountEmail: "test@example.com",
+            name: "Name",
+            totpKey: "TOTP",
+            username: "username"
+        )
+    }
+
     static func fixtures() -> [AuthenticatorBridgeItemDataView] {
         [
             AuthenticatorBridgeItemDataView.fixture(),
+            AuthenticatorBridgeItemDataView.fixtureFilled(),
             AuthenticatorBridgeItemDataView.fixture(favorite: true),
             AuthenticatorBridgeItemDataView.fixture(accountDomain: "https://vault.example.com"),
             AuthenticatorBridgeItemDataView.fixture(accountEmail: "bw@example.com"),

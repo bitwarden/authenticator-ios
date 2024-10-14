@@ -62,7 +62,7 @@ extension ItemListTotpItem {
 
 extension ItemListSharedTotpItem {
     static func fixture(
-        itemView: AuthenticatorBridgeItemDataView = .fixture(),
+        itemView: AuthenticatorBridgeItemDataView = .fixtureFilled(),
         totpCode: TOTPCodeModel = TOTPCodeModel(
             code: "123456",
             codeGenerationDate: Date(),
