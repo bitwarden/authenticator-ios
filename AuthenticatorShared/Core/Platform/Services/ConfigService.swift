@@ -112,9 +112,6 @@ class DefaultConfigService: ConfigService {
     /// The App Settings Store used for storing and retrieving values from User Defaults.
     private let appSettingsStore: AppSettingsStore
 
-    /// The API service to make config requests.
-    private let configApiService: ConfigAPIService
-
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -140,13 +137,11 @@ class DefaultConfigService: ConfigService {
     ///
     init(
         appSettingsStore: AppSettingsStore,
-        configApiService: ConfigAPIService,
         errorReporter: ErrorReporter,
         stateService: StateService,
         timeProvider: TimeProvider
     ) {
         self.appSettingsStore = appSettingsStore
-        self.configApiService = configApiService
         self.errorReporter = errorReporter
         self.stateService = stateService
         self.timeProvider = timeProvider

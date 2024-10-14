@@ -6,7 +6,6 @@ final class ConfigServiceTests: AuthenticatorTestCase {
     // MARK: Properties
 
     var appSettingsStore: MockAppSettingsStore!
-    var configApiService: ConfigAPIService!
     var errorReporter: MockErrorReporter!
     var now: Date!
     var stateService: MockStateService!
@@ -19,14 +18,12 @@ final class ConfigServiceTests: AuthenticatorTestCase {
         super.setUp()
 
         appSettingsStore = MockAppSettingsStore()
-        configApiService = MockConfigAPIService()
         errorReporter = MockErrorReporter()
         now = Date(year: 2024, month: 2, day: 14, hour: 8, minute: 0, second: 0)
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.mockTime(now))
         subject = DefaultConfigService(
             appSettingsStore: appSettingsStore,
-            configApiService: configApiService,
             errorReporter: errorReporter,
             stateService: stateService,
             timeProvider: timeProvider
@@ -37,7 +34,6 @@ final class ConfigServiceTests: AuthenticatorTestCase {
         super.tearDown()
 
         appSettingsStore = nil
-        configApiService = nil
         errorReporter = nil
         stateService = nil
         subject = nil
