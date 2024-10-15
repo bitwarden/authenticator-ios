@@ -167,17 +167,9 @@ class DefaultAuthenticatorItemRepository {
         let groupedByAccount = Dictionary(
             grouping: sharedItems,
             by: { item in
-                if let email = item.accountEmail, !email.isEmpty {
-                    if let domain = item.accountDomain, !domain.isEmpty {
-                        return email + " | " + domain
-                    } else {
-                        return email
-                    }
-                } else if let domain = item.accountDomain, !domain.isEmpty {
-                    return domain
-                } else {
-                    return ""
-                }
+                [item.accountEmail, item.accountDomain]
+                    .compactMap { $0?.nilIfEmpty }
+                    .joined(separator: " | ")
             }
         )
 
