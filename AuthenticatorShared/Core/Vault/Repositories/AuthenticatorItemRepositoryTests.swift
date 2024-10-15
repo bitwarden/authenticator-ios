@@ -233,7 +233,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
             AuthenticatorItem.fixture(id: "3", name: "Three"),
         ]
         let codeModel = TOTPCodeModel(
-            code: "",
+            code: "123456",
             codeGenerationDate: timeProvider.presentTime,
             period: 30
         )
@@ -279,7 +279,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
             totp: ItemListTotpItem.fixture(
                 itemView: AuthenticatorItemView(authenticatorItem: items[0]),
                 totpCode: TOTPCodeModel(
-                    code: "",
+                    code: "123456",
                     codeGenerationDate: timeProvider.presentTime,
                     period: 30
                 )
@@ -291,7 +291,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
             totp: ItemListTotpItem.fixture(
                 itemView: AuthenticatorItemView(authenticatorItem: items[1]),
                 totpCode: TOTPCodeModel(
-                    code: "",
+                    code: "123456",
                     codeGenerationDate: timeProvider.presentTime,
                     period: 30
                 )
@@ -333,7 +333,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
             totp: ItemListTotpItem.fixture(
                 itemView: AuthenticatorItemView(authenticatorItem: items[0]),
                 totpCode: TOTPCodeModel(
-                    code: "",
+                    code: "123456",
                     codeGenerationDate: timeProvider.presentTime,
                     period: 30
                 )
@@ -345,7 +345,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
             totp: ItemListTotpItem.fixture(
                 itemView: AuthenticatorItemView(authenticatorItem: items[1]),
                 totpCode: TOTPCodeModel(
-                    code: "",
+                    code: "123456",
                     codeGenerationDate: timeProvider.presentTime,
                     period: 30
                 )
@@ -471,7 +471,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
             AuthenticatorItem.fixture(id: "3", name: "Café"),
         ]
         let codeModel = TOTPCodeModel(
-            code: "",
+            code: "123456",
             codeGenerationDate: timeProvider.presentTime,
             period: 30
         )
@@ -503,7 +503,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
             AuthenticatorItem.fixture(id: "3", name: "Café"),
         ]
         let codeModel = TOTPCodeModel(
-            code: "",
+            code: "123456",
             codeGenerationDate: timeProvider.presentTime,
             period: 30
         )
@@ -541,7 +541,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
             totp: ItemListTotpItem.fixture(
                 itemView: AuthenticatorItemView(authenticatorItem: item),
                 totpCode: TOTPCodeModel(
-                    code: "",
+                    code: "123456",
                     codeGenerationDate: timeProvider.presentTime,
                     period: 30
                 )
@@ -563,7 +563,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
             totp: ItemListSharedTotpItem.fixture(
                 itemView: item,
                 totpCode: TOTPCodeModel(
-                    code: "",
+                    code: "123456",
                     codeGenerationDate: timeProvider.presentTime,
                     period: 30
                 )

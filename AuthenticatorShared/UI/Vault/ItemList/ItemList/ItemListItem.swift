@@ -36,6 +36,11 @@ public struct ItemListItem: Equatable, Identifiable {
 }
 
 extension ItemListItem {
+    /// A default code to add to the `TOTPCodeModel` when creating a new `ItemListItem`. This code
+    /// should be replaced by a legitimate TOTP code by the Processor before it is shown to a user. It is here
+    /// so that `code` is non-optional and always has a value.
+    private static let defaultTotpCode = "123456"
+
     /// Initialize an `ItemListItem` from an `AuthenticatorItemView`
     ///
     /// - Parameters:
@@ -43,7 +48,9 @@ extension ItemListItem {
     ///
     init?(authenticatorItemView: AuthenticatorItemView, timeProvider: TimeProvider) {
         guard let totpKey = TOTPKeyModel(authenticatorKey: authenticatorItemView.totpKey) else { return nil }
-        let totpCode = TOTPCodeModel(code: "", codeGenerationDate: timeProvider.presentTime, period: 30)
+        let totpCode = TOTPCodeModel(code: ItemListItem.defaultTotpCode,
+                                     codeGenerationDate: timeProvider.presentTime,
+                                     period: 30)
         let totpModel = ItemListTotpItem(itemView: authenticatorItemView, totpCode: totpCode)
         let name: String
         let username: String?
@@ -70,7 +77,9 @@ extension ItemListItem {
     ///
     init?(itemView: AuthenticatorBridgeItemDataView, timeProvider: TimeProvider) {
         guard let totpKey = TOTPKeyModel(authenticatorKey: itemView.totpKey) else { return nil }
-        let totpCode = TOTPCodeModel(code: "", codeGenerationDate: timeProvider.presentTime, period: 30)
+        let totpCode = TOTPCodeModel(code: ItemListItem.defaultTotpCode,
+                                     codeGenerationDate: timeProvider.presentTime,
+                                     period: 30)
         let totpModel = ItemListSharedTotpItem(itemView: itemView, totpCode: totpCode)
         let name: String
         let username: String?
