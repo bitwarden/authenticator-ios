@@ -431,8 +431,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     }
 
     /// `perform(_:)` with `.streamItemList` starts streaming vault items. When there are shared items
-    /// from an account the user has not synced with previously, it should show a toast stating that the account
-    /// was synced.
+    /// from an account the user *has* synced with previously, it should *not* show a toast.
     ///
     func test_perform_streamItemList_withPreviouslySyncedAccount() {
         let accountName = "test@example.com | vault.example.com"
