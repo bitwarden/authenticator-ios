@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 import OSLog
 
@@ -341,7 +342,9 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     }
 
     func hasSyncedAccount(name: String) -> Bool {
-        fetch(for: .hasSyncedAccount(name: name))
+        let hashedData = SHA256.hash(data: Data(name.utf8))
+        let hashedName = hashedData.map { String(format: "%02hhx", $0) }.joined()
+        return fetch(for: .hasSyncedAccount(name: hashedName))
     }
 
     func isBiometricAuthenticationEnabled(userId: String) -> Bool {
@@ -375,7 +378,9 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     }
 
     func setHasSyncedAccount(name: String) {
-        store(true, for: .hasSyncedAccount(name: name))
+        let hashedData = SHA256.hash(data: Data(name.utf8))
+        let hashedName = hashedData.map { String(format: "%02hhx", $0) }.joined()
+        store(true, for: .hasSyncedAccount(name: hashedName))
     }
 
     func setSecretKey(_ key: String, userId: String) {
