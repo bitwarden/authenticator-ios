@@ -122,3 +122,8 @@
 "Backup" = "Αντίγραφο ασφαλείας";
 "BitwardenAuthenticatorDataIsBackedUpAndCanBeRestored" = "Τα δεδομένα του Bitwarden Authenticator αποθηκεύονται σε ένα αντίγραφο ασφαλείας και μπορούν να ανακτηθούν με την προγραμματισμένη δημιουργία εφεδρικών αντιγράφων της συσκευής σας.";
 "ImportingFromTwoFasPasswordProtectedNotSupported" = "Η εισαγωγή από αρχεία του 2FAS με κωδικό πρόσβασης δεν υποστηρίζεται. Δοκιμάστε ξανά με ένα αρχείο που δεν προστατεύεται με κωδικό πρόσβασης.";
+"WithTheBitwardenAppYouCanStoreAllOfYourItemsAndSyncDirectlyWithTheAuthenticator" = "With the Bitwarden app, you can store all of your items and sync directly with the authenticator.";
+"DownloadTheBitwardenApp" = "Λήψη της εφαρμογής Bitwarden";
+"InOrderToViewAllOfYourVerificationCodesYoullNeedToAllowForSyncingOnAllOfYourAccounts" = "In order to view all of your verification codes, you’ll need to allow for syncing on all of your accounts.";
+"TakeMeToTheAppSettings" = "Take me to the app settings";
+"SyncWithTheBitwardenApp" = "Συγχρονισμός με την εφαρμογή Bitwarden";

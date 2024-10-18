@@ -40,7 +40,7 @@
 "Search" = "Ara";
 "PointYourCameraAtTheQRCode" = "Kameranızı QR Koduna yöneltin.\nTarama otomatik olarak gerçekleşecektir.";
 "ScanQrTitle" = "QR Kodu Tara";
-"LearnMore" = "Daha fazla bilgi edinin";
+"LearnMore" = "Daha fazla bilgi edin";
 "FaceID" = "Face ID";
 "UseFaceIDToUnlock" = "Kilidi açmak için Face ID kullanın";
 "Default" = "Varsayılan";
@@ -122,3 +122,8 @@
 "Backup" = "Yedekle";
 "BitwardenAuthenticatorDataIsBackedUpAndCanBeRestored" = "Bitwarden Kimlik Doğrulayıcı verileri yedeklenir ve düzenli olarak planlanan cihaz yedeklemelerinizle geri yüklenebilir.";
 "ImportingFromTwoFasPasswordProtectedNotSupported" = "Şifre korumalı 2FAS dosyalarından içe aktarma desteklenmiyor. Şifre korumasız bir dışa aktarılan dosya ile tekrar deneyin.";
+"WithTheBitwardenAppYouCanStoreAllOfYourItemsAndSyncDirectlyWithTheAuthenticator" = "Bitwarden uygulaması ile tüm öğelerinizi saklayabilir ve doğrudan kimlik doğrulayıcı ile senkronize edebilirsiniz.";
+"DownloadTheBitwardenApp" = "Bitwarden uygulamasını indir";
+"InOrderToViewAllOfYourVerificationCodesYoullNeedToAllowForSyncingOnAllOfYourAccounts" = "Tüm doğrulama kodlarınızı görüntülemek için tüm hesaplarınızda senkronizasyona izin vermeniz gerekir.";
+"TakeMeToTheAppSettings" = "Beni uygulama ayarlarına götür";
+"SyncWithTheBitwardenApp" = "Bitwarden uygulaması ile senkronize et";

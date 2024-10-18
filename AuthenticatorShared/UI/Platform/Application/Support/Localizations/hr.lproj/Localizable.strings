@@ -122,3 +122,8 @@
 "Backup" = "Sigurnosna kopija";
 "BitwardenAuthenticatorDataIsBackedUpAndCanBeRestored" = "Podaci Bitwarden Authenticatora sigurnosno su kopirani i mogu se obnoviti s tvojim redovito zakazanim sigurnosnim kopijama uređaja.";
 "ImportingFromTwoFasPasswordProtectedNotSupported" = "Uvoz iz datoteka zaštićenih 2FAS lozinkom nije podržan. Pokušaj ponovno s izvezenom datotekom koja nije zaštićena lozinkom.";
+"WithTheBitwardenAppYouCanStoreAllOfYourItemsAndSyncDirectlyWithTheAuthenticator" = "S Bitwarden aplikacijom možeš spremiti sve svoje stavke i sinkronizirati direktno s autentifikatorom.";
+"DownloadTheBitwardenApp" = "Preuzmi Bitwarden aplikaciju";
+"InOrderToViewAllOfYourVerificationCodesYoullNeedToAllowForSyncingOnAllOfYourAccounts" = "Za pregled svih svojih kodova za provjeru, treba odobriti sinkronizaciju na svim tvojim računima.";
+"TakeMeToTheAppSettings" = "U postavke aplikacije";
+"SyncWithTheBitwardenApp" = "Sinkroniziraj s Bitwardenom";
