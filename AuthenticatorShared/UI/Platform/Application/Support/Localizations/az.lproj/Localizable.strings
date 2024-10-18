@@ -122,3 +122,8 @@
 "Backup" = "Nüsxələmə";
 "BitwardenAuthenticatorDataIsBackedUpAndCanBeRestored" = "Bitwarden Authenticator datası nüsxələndi və müntəzəm planlanmış cihaz nüsxələrinizlə bərpa edilə bilər.";
 "ImportingFromTwoFasPasswordProtectedNotSupported" = "2FAS parol qorumalı fayllardan daxilə köçürmə dəstəklənmir. Parol qorumalı olmayan xaricə köçürülən bir faylla yenidən sınayın.";
+"WithTheBitwardenAppYouCanStoreAllOfYourItemsAndSyncDirectlyWithTheAuthenticator" = "Bitwarden tətbiqi ilə bütün elementlərinizi saxlaya və kimlik doğrulayıcı ilə birbaşa sinxronlaşdıra bilərsiniz.";
+"DownloadTheBitwardenApp" = "Bitwarden tətbiqini endir";
+"InOrderToViewAllOfYourVerificationCodesYoullNeedToAllowForSyncingOnAllOfYourAccounts" = "Bütün doğrulama kodlarınıza baxmaq üçün bütün hesablarınızda sinxronlaşdırmağa icazə verməlisiniz.";
+"TakeMeToTheAppSettings" = "Məni tətbiq ayarlarına apar";
+"SyncWithTheBitwardenApp" = "Bitwarden tətbiqi ilə sinxronlaşdır";
