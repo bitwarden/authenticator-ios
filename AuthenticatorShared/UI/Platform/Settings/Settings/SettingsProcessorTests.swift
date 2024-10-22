@@ -34,7 +34,7 @@ class SettingsProcessorTests: AuthenticatorTestCase {
 
     // MARK: Tests
 
-    /// Performing `.loadData` with the password manager sync disabled should set
+    /// Performing `.loadData` with the password manager sync disabled sets
     /// `state.shouldShowSyncButton` to `false`.
     func test_perform_loadData_syncDisabled() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = false
@@ -43,7 +43,7 @@ class SettingsProcessorTests: AuthenticatorTestCase {
         XCTAssertFalse(subject.state.shouldShowSyncButton)
     }
 
-    /// Performing `.loadData` with the password manager sync enabled should set
+    /// Performing `.loadData` with the password manager sync enabled sets
     /// `state.shouldShowSyncButton` to `true`.
     func test_perform_loadData_syncEnabled() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = true
@@ -69,7 +69,7 @@ class SettingsProcessorTests: AuthenticatorTestCase {
     }
 
     /// Receiving `.syncWithBitwardenAppTapped` adds the Password Manager settings URL to the state to
-    /// navigate the user to the PM app's settings..
+    /// navigate the user to the PM app's settings.
     func test_receive_syncWithBitwardenAppTapped() {
         subject.receive(.syncWithBitwardenAppTapped)
 
