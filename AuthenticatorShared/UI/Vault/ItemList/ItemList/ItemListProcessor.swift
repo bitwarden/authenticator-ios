@@ -250,7 +250,8 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     private func shouldShowAccountSyncToast(name: String) -> Bool {
         guard !name.isEmpty,
               name != Localizations.localCodes,
-              name != Localizations.favorites else { return false }
+              name != Localizations.favorites
+        else { return false }
 
         if !services.appSettingsStore.hasSyncedAccount(name: name) {
             services.appSettingsStore.setHasSyncedAccount(name: name)
