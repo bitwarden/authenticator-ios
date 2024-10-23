@@ -29,6 +29,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
     var featureFlags = [String: Bool]()
+    var hasSyncedAccountValues = [String: Bool]()
     var lastActiveTime = [String: Date]()
     var lastSyncTimeByUserId = [String: Date]()
     var masterPasswordHashes = [String: String]()
@@ -62,6 +63,14 @@ class MockAppSettingsStore: AppSettingsStore {
     func overrideDebugFeatureFlag(name: String, value: Bool?) {
         overrideDebugFeatureFlagCalled = true
         featureFlags[name] = value
+    }
+
+    func hasSyncedAccount(name: String) -> Bool {
+        hasSyncedAccountValues[name] ?? false
+    }
+
+    func setHasSyncedAccount(name: String) {
+        hasSyncedAccountValues[name] = true
     }
 
     func secretKey(userId: String) -> String? {

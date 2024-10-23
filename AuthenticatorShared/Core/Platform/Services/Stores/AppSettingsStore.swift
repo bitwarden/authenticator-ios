@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 import OSLog
 
@@ -67,6 +68,17 @@ protocol AppSettingsStore: AnyObject {
     ///     or cannot be decoded.
     ///
     func debugFeatureFlag(name: String) -> Bool?
+
+    /// Flag to identify if the user has previously synced with the named account. `true` if they have previously
+    /// synced with the named account, `false` if they have not synced previously.
+    ///
+    /// - Parameter name: The name of the account that the user has/hasn't synced with previously.
+    ///
+    /// - Returns: A `Bool` indicating if the user has synced with the named account previously.
+    ///     If `true`, the user has already synced with the named account.
+    ///     If `false`, the user has not synced with the named account.
+    ///
+    func hasSyncedAccount(name: String) -> Bool
 
     /// Get the user's Biometric Authentication Preference.
     ///
@@ -138,6 +150,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String)
 
+    /// Sets the flag to `true` to identify the user has previously synced with the named account.
+    ///
+    /// - Parameters:
+    ///   - name: The name of the account that the user has synced with previously.
+    ///
+    func setHasSyncedAccount(name: String)
+
     /// Sets the user's secret encryption key.
     ///
     /// - Parameters:
@@ -164,7 +183,7 @@ class DefaultAppSettingsStore {
 
     let localUserId = "local"
 
-    /// The `UserDefauls` instance to persist settings.
+    /// The `UserDefaults` instance to persist settings.
     let userDefaults: UserDefaults
 
     /// The bundleId used to set values that are bundleId dependent.
@@ -279,6 +298,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case debugFeatureFlag(name: String)
         case disableWebIcons
         case hasSeenWelcomeTutorial
+        case hasSyncedAccount(name: String)
         case migrationVersion
         case preAuthServerConfig
         case secretKey(userId: String)
@@ -308,6 +328,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "disableFavicon"
             case .hasSeenWelcomeTutorial:
                 key = "hasSeenWelcomeTutorial"
+            case let .hasSyncedAccount(name: name):
+                key = "hasSyncedAccount_\(name)"
             case .migrationVersion:
                 key = "migrationVersion"
             case .preAuthServerConfig:
@@ -381,6 +403,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .debugFeatureFlag(name: name))
     }
 
+    func hasSyncedAccount(name: String) -> Bool {
+        let hashedData = SHA256.hash(data: Data(name.utf8))
+        let hashedName = hashedData.map { String(format: "%02hhx", $0) }.joined()
+        return fetch(for: .hasSyncedAccount(name: hashedName))
+    }
+
     func isBiometricAuthenticationEnabled(userId: String) -> Bool {
         fetch(for: .biometricAuthEnabled(userId: userId))
     }
@@ -417,6 +445,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
         store(clearClipboardValue?.rawValue, for: .clearClipboardValue(userId: userId))
+    }
+
+    func setHasSyncedAccount(name: String) {
+        let hashedData = SHA256.hash(data: Data(name.utf8))
+        let hashedName = hashedData.map { String(format: "%02hhx", $0) }.joined()
+        store(true, for: .hasSyncedAccount(name: hashedName))
     }
 
     func setSecretKey(_ key: String, userId: String) {
