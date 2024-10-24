@@ -89,8 +89,8 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 await generateAndCopyTotpCode(totpKey: totpKey)
             }
         case let .moveToBWPressed(item):
-            guard case .totp = item.itemType else { return }
-            await moveItemToBW(item: item)
+            guard case let .totp(model) = item.itemType else { return }
+            await moveItemToBW(item: model.itemView)
         case .refresh:
             await streamItemList()
         case let .search(text):
@@ -171,7 +171,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     ///
     /// - Parameter item: the item to be moved.
     ///
-    private func moveItemToBW(item: ItemListItem) async {
+    private func moveItemToBW(item: AuthenticatorItemView) async {
         guard await services.configService.getFeatureFlag(.enablePasswordManagerSync),
               let application = services.application,
               application.canOpenURL(ExternalLinksConstants.passwordManagerScheme)
@@ -465,17 +465,18 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
     func didCompleteManualCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         key: String,
-        name: String
+        name: String,
+        sendToBitwarden: Bool
     ) {
         let dismissAction = DismissAction(action: { [weak self] in
             Task {
-                await self?.parseAndValidateManualKey(key: key, name: name)
+                await self?.parseAndValidateManualKey(key: key, name: name, sendToBitwarden: sendToBitwarden)
             }
         })
         captureCoordinator.navigate(to: .dismiss(dismissAction))
     }
 
-    func parseAndValidateManualKey(key: String, name: String) async {
+    func parseAndValidateManualKey(key: String, name: String, sendToBitwarden: Bool) async {
         do {
             let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
             let loginTotpState: LoginTOTPState
@@ -499,9 +500,13 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
                 totpKey: key,
                 username: nil
             )
-            try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
-            state.toast = Toast(text: Localizations.verificationCodeAdded)
-            await perform(.refresh)
+            if sendToBitwarden {
+                await moveItemToBW(item: newItem)
+            } else {
+                try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
+                state.toast = Toast(text: Localizations.verificationCodeAdded)
+                await perform(.refresh)
+            }
         } catch {
             coordinator.showAlert(.totpScanFailureAlert())
         }
