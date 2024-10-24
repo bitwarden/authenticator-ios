@@ -1,3 +1,4 @@
+import CryptoKit
 import XCTest
 
 @testable import AuthenticatorShared
@@ -6,6 +7,15 @@ import XCTest
 
 class StringTests: AuthenticatorTestCase {
     // MARK: Tests
+
+    /// `cryptographicHash` returns a hexadecimal string with a SHA-256 hash of the string.
+    func test_cryptographicHash() {
+        let subject = "String to be hashed"
+        let hashedData = SHA256.hash(data: Data(subject.utf8))
+        let expected = hashedData.map { String(format: "%02hhx", $0) }.joined()
+
+        XCTAssertEqual(subject.cryptographicHash, expected)
+    }
 
     /// `hashColor` returns a color generated from a hash of the string's characters.
     func test_hashColor() {
