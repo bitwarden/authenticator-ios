@@ -122,3 +122,8 @@
 "Backup" = "Záloha";
 "BitwardenAuthenticatorDataIsBackedUpAndCanBeRestored" = "Data Autentikátoru Bitwarden jsou zálohována a mohou být obnovena z pravidelných záloh Vašeho zařízení.";
 "ImportingFromTwoFasPasswordProtectedNotSupported" = "Importování ze souborů chráněných hesly 2FAS není podporován. Zkuste to znovu s exportovaným souborem, který není chráněn heslem.";
+"WithTheBitwardenAppYouCanStoreAllOfYourItemsAndSyncDirectlyWithTheAuthenticator" = "S aplikací Bitwarden můžete ukládat všechny Vaše položky a synchronizovat je přímo s ověřovací aplikací.";
+"DownloadTheBitwardenApp" = "Stáhnout aplikaci Bitwarden";
+"InOrderToViewAllOfYourVerificationCodesYoullNeedToAllowForSyncingOnAllOfYourAccounts" = "Pokud chcete zobrazit všechny ověřovací kódy, budete muset povolit synchronizaci na všech Vašich účtech.";
+"TakeMeToTheAppSettings" = "Přejít do nastavení aplikace";
+"SyncWithTheBitwardenApp" = "Synchronizovat s aplikací Bitwarden";
