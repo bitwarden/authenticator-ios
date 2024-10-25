@@ -501,7 +501,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
                 username: nil
             )
             if sendToBitwarden {
-                await moveItemToBW(item: newItem)
+                await moveItemToBitwarden(item: newItem)
             } else {
                 try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
                 state.toast = Toast(text: Localizations.verificationCodeAdded)
