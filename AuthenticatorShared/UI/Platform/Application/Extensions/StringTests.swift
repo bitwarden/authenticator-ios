@@ -8,20 +8,20 @@ import XCTest
 class StringTests: AuthenticatorTestCase {
     // MARK: Tests
 
-    /// `cryptographicHash` returns a hexadecimal string with a SHA-256 hash of the string.
-    func test_cryptographicHash() {
-        let subject = "String to be hashed"
-        let hashedData = SHA256.hash(data: Data(subject.utf8))
-        let expected = hashedData.map { String(format: "%02hhx", $0) }.joined()
-
-        XCTAssertEqual(subject.cryptographicHash, expected)
-    }
-
     /// `hashColor` returns a color generated from a hash of the string's characters.
     func test_hashColor() {
         XCTAssertEqual("test".hashColor.description, "#924436FF")
         XCTAssertEqual("0620ee30-91c3-40cb-8fad-b102005c35b0".hashColor.description, "#32F23FFF")
         XCTAssertEqual("9c303aee-e636-4760-94b6-e4951d7b0abb".hashColor.description, "#C96CD2FF")
+    }
+
+    /// `hexSHA256Hash` returns a hexadecimal string with a SHA-256 hash of the string.
+    func test_hexSHA256Hash() {
+        let subject = "String to be hashed"
+        let hashedData = SHA256.hash(data: Data(subject.utf8))
+        let expected = hashedData.map { String(format: "%02hhx", $0) }.joined()
+
+        XCTAssertEqual(subject.hexSHA256Hash, expected)
     }
 
     /// `isValidEmail` with an invalid string returns `false`.

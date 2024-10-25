@@ -19,7 +19,7 @@ enum ItemListEffect: Equatable {
     ///
     /// - Parameter item: The item that should be moved.
     ///
-    case moveToBWPressed(_ item: ItemListItem)
+    case moveToBitwardenPressed(_ item: ItemListItem)
 
     /// The refresh control was triggered.
     case refresh

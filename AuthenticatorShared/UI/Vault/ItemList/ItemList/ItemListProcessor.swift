@@ -88,9 +88,9 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 else { return }
                 await generateAndCopyTotpCode(totpKey: totpKey)
             }
-        case let .moveToBWPressed(item):
+        case let .moveToBitwardenPressed(item):
             guard case let .totp(model) = item.itemType else { return }
-            await moveItemToBW(item: model.itemView)
+            await moveItemToBitwarden(item: model.itemView)
         case .refresh:
             await streamItemList()
         case let .search(text):
@@ -166,12 +166,12 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         }
     }
 
-    /// Store the item in the shared sync data store as a temporary item and deeplink to the BW app to
+    /// Store the item in the shared sync data store as a temporary item and deeplink to the Bitwarden app to
     /// let the user choose where to store it.
     ///
     /// - Parameter item: the item to be moved.
     ///
-    private func moveItemToBW(item: AuthenticatorItemView) async {
+    private func moveItemToBitwarden(item: AuthenticatorItemView) async {
         guard await services.configService.getFeatureFlag(.enablePasswordManagerSync),
               let application = services.application,
               application.canOpenURL(ExternalLinksConstants.passwordManagerScheme)

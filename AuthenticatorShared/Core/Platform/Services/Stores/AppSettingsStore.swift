@@ -342,7 +342,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     }
 
     func hasSyncedAccount(name: String) -> Bool {
-        fetch(for: .hasSyncedAccount(name: name.cryptographicHash))
+        fetch(for: .hasSyncedAccount(name: name.hexSHA256Hash))
     }
 
     func isBiometricAuthenticationEnabled(userId: String) -> Bool {
@@ -376,7 +376,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     }
 
     func setHasSyncedAccount(name: String) {
-        store(true, for: .hasSyncedAccount(name: name.cryptographicHash))
+        store(true, for: .hasSyncedAccount(name: name.hexSHA256Hash))
     }
 
     func setSecretKey(_ key: String, userId: String) {

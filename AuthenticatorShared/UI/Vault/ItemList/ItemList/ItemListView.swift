@@ -236,7 +236,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
 
                         if store.state.showMoveToBitwarden {
                             AsyncButton {
-                                await store.perform(.moveToBWPressed(item))
+                                await store.perform(.moveToBitwardenPressed(item))
                             } label: {
                                 HStack(spacing: 4) {
                                     Text(Localizations.moveToBitwarden)

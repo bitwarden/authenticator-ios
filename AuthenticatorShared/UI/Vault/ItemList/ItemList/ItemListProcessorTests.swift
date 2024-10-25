@@ -274,30 +274,30 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         )
     }
 
-    /// `perform(:_)` with `.moveToBWPressed()` with a local item stores the item in the shared
-    /// store and launches the BW app via the new item  deep link.
-    func test_perform_moveToBWPressed_localItem() async throws {
+    /// `perform(:_)` with `.moveToBitwardenPressed()` with a local item stores the item in the shared
+    /// store and launches the Bitwarden app via the new item  deep link.
+    func test_perform_moveToBitwardenPressed_localItem() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = true
         application.canOpenUrlResponse = true
         let expected = AuthenticatorItemView.fixture()
         let localItem = ItemListItem.fixture(totp: .fixture(itemView: expected))
 
-        await subject.perform(.moveToBWPressed(localItem))
+        await subject.perform(.moveToBitwardenPressed(localItem))
 
         waitFor(authItemRepository.tempItem != nil)
         XCTAssertEqual(authItemRepository.tempItem, expected)
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.passwordManagerNewItem)
     }
 
-    /// `perform(:_)` with `.moveToBWPressed()` captures any errors thrown, logs them, and shows an
+    /// `perform(:_)` with `.moveToBitwardenPressed()` captures any errors thrown, logs them, and shows an
     /// error alert.
-    func test_perform_moveToBWPressed_error() async throws {
+    func test_perform_moveToBitwardenPressed_error() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = true
         application.canOpenUrlResponse = true
         let localItem = ItemListItem.fixture()
         authItemRepository.tempItemErrorToThrow = AuthenticatorTestError.example
 
-        await subject.perform(.moveToBWPressed(localItem))
+        await subject.perform(.moveToBitwardenPressed(localItem))
 
         waitFor(!errorReporter.errors.isEmpty)
 
@@ -305,41 +305,41 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
                        [Alert.defaultAlert(title: Localizations.anErrorHasOccurred)])
     }
 
-    /// `perform(:_)` with `.moveToBWPressed()` does nothing when the `enablePasswordManagerSync`
+    /// `perform(:_)` with `.moveToBitwardenPressed()` does nothing when the `enablePasswordManagerSync`
     /// feature flag is disabled.
-    func test_perform_moveToBWPressed_featureFlagDisabled() async throws {
+    func test_perform_moveToBitwardenPressed_featureFlagDisabled() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = false
         application.canOpenUrlResponse = true
         let localItem = ItemListItem.fixture()
 
-        await subject.perform(.moveToBWPressed(localItem))
+        await subject.perform(.moveToBitwardenPressed(localItem))
 
         XCTAssertNil(authItemRepository.tempItem)
         XCTAssertTrue(errorReporter.errors.isEmpty)
         XCTAssertNil(subject.state.url)
     }
 
-    /// `perform(:_)` with `.moveToBWPressed()` does nothing when the Password Manager app is not
+    /// `perform(:_)` with `.moveToBitwardenPressed()` does nothing when the Password Manager app is not
     /// installed - i.e. the `bitwarden://` urls cannot be opened.
-    func test_perform_moveToBWPressed_passwordManagerAppNotInstalled() async throws {
+    func test_perform_moveToBitwardenPressed_passwordManagerAppNotInstalled() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = true
         application.canOpenUrlResponse = false
         let localItem = ItemListItem.fixture()
 
-        await subject.perform(.moveToBWPressed(localItem))
+        await subject.perform(.moveToBitwardenPressed(localItem))
 
         XCTAssertNil(authItemRepository.tempItem)
         XCTAssertTrue(errorReporter.errors.isEmpty)
         XCTAssertNil(subject.state.url)
     }
 
-    /// `perform(:_)` with `.moveToBWPressed()` does nothing when called with a shared item.
-    func test_perform_moveToBWPressed_sharedItem() async throws {
+    /// `perform(:_)` with `.moveToBitwardenPressed()` does nothing when called with a shared item.
+    func test_perform_moveToBitwardenPressed_sharedItem() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = true
         application.canOpenUrlResponse = true
         let localItem = ItemListItem.fixtureShared()
 
-        await subject.perform(.moveToBWPressed(localItem))
+        await subject.perform(.moveToBitwardenPressed(localItem))
 
         XCTAssertNil(authItemRepository.tempItem)
         XCTAssertTrue(errorReporter.errors.isEmpty)

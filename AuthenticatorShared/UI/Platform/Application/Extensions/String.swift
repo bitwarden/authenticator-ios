@@ -31,12 +31,6 @@ extension String {
 
     // MARK: Properties
 
-    /// Returns a SHA256-hashed version of this string as a hexadecimal string.
-    var cryptographicHash: String {
-        let hashedData = SHA256.hash(data: Data(utf8))
-        return hashedData.map { String(format: "%02hhx", $0) }.joined()
-    }
-
     /// Returns a color that's generated from the hash of the characters in the string. This can be
     /// used to create a consistent color based on the provided string.
     var hashColor: Color {
@@ -50,6 +44,12 @@ extension String {
         }
 
         return Color(hex: color)
+    }
+
+    /// Returns a SHA256-hashed version of this string as a hexadecimal string.
+    var hexSHA256Hash: String {
+        let hashedData = SHA256.hash(data: Data(utf8))
+        return hashedData.map { String(format: "%02hhx", $0) }.joined()
     }
 
     /// A flag indicating if this string is considered a valid email address or not.
