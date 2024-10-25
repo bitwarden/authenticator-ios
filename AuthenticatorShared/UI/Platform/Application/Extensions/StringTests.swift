@@ -18,8 +18,7 @@ class StringTests: AuthenticatorTestCase {
     /// `hexSHA256Hash` returns a hexadecimal string with a SHA-256 hash of the string.
     func test_hexSHA256Hash() {
         let subject = "String to be hashed"
-        let hashedData = SHA256.hash(data: Data(subject.utf8))
-        let expected = hashedData.map { String(format: "%02hhx", $0) }.joined()
+        let expected = "6bd36935ea986ded286b264a72f5e008cc4434082877e4b12c91511d3803b22f"
 
         XCTAssertEqual(subject.hexSHA256Hash, expected)
     }
