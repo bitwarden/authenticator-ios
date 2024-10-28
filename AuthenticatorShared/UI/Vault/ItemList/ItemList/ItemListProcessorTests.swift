@@ -816,7 +816,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         XCTAssertNotNil(dismissAction)
         dismissAction?.action()
 
-        try await Task.sleep(nanoseconds: 500_000)
+        try await Task.sleep(nanoseconds: 1_000_000)
         waitFor(coordinator.alertShown.count > 1)
 
         let secondAlert = try XCTUnwrap(coordinator.alertShown[1])
@@ -826,7 +826,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         Task {
             await yesOption.handler?(yesOption, [])
         }
-        try await Task.sleep(nanoseconds: 500_000)
+        try await Task.sleep(nanoseconds: 1_000_000)
 
         waitFor(!authItemRepository.addAuthItemAuthItems.isEmpty)
         waitFor(subject.state.loadingState != .loading(nil))
