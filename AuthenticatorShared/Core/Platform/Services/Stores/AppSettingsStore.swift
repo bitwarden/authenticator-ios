@@ -19,6 +19,12 @@ protocol AppSettingsStore: AnyObject {
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
+    /// The default save location for new keys.
+    var defaultSaveOption: DefaultSaveOption { get set }
+
+    /// Whether the user has seen the default save options prompt.
+    var hasSeenDefaultSaveOptionPrompt: Bool { get }
+
     /// Whether the user has seen the welcome tutorial.
     var hasSeenWelcomeTutorial: Bool { get set }
 
@@ -251,6 +257,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case biometricIntegrityState(userId: String, bundleId: String)
         case cardClosedState(card: ItemListCard)
         case clearClipboardValue(userId: String)
+        case defaultSaveOption
         case disableWebIcons
         case hasSeenWelcomeTutorial
         case hasSyncedAccount(name: String)
@@ -275,6 +282,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "cardClosedState_\(card)"
             case let .clearClipboardValue(userId):
                 key = "clearClipboard_\(userId)"
+            case .defaultSaveOption:
+                key = "defaultSaveOption"
             case .disableWebIcons:
                 key = "disableFavicon"
             case .hasSeenWelcomeTutorial:
@@ -308,6 +317,21 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var disableWebIcons: Bool {
         get { fetch(for: .disableWebIcons) }
         set { store(newValue, for: .disableWebIcons) }
+    }
+
+    var defaultSaveOption: DefaultSaveOption {
+        get {
+            guard let rawValue: String = fetch(for: .defaultSaveOption),
+                  let value = DefaultSaveOption(rawValue: rawValue)
+            else { return .none }
+
+            return value
+        }
+        set { store(newValue.rawValue, for: .defaultSaveOption) }
+    }
+
+    var hasSeenDefaultSaveOptionPrompt: Bool {
+        fetch(for: .defaultSaveOption) != nil
     }
 
     var hasSeenWelcomeTutorial: Bool {
@@ -375,6 +399,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(clearClipboardValue?.rawValue, for: .clearClipboardValue(userId: userId))
     }
 
+    func setDefaultSaveOption(_ option: DefaultSaveOption) {
+        store(option.rawValue, for: .defaultSaveOption)
+    }
+
     func setHasSyncedAccount(name: String) {
         store(true, for: .hasSyncedAccount(name: name.hexSHA256Hash))
     }
@@ -392,4 +420,4 @@ enum ItemListCard: String {
 
     /// The password manager sync card.
     case passwordManagerSync
-}
+} // swiftlint:disable:this file_length

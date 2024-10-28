@@ -7,7 +7,9 @@ import OSLog
 final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, SettingsEffect> {
     // MARK: Types
 
-    typealias Services = HasBiometricsRepository
+    typealias Services = HasAppSettingsStore
+        & HasAuthenticatorItemRepository
+        & HasBiometricsRepository
         & HasConfigService
         & HasErrorReporter
         & HasExportItemsService
@@ -65,6 +67,9 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             })
         case .clearURL:
             state.url = nil
+        case let .defaultSaveChanged(option):
+            state.defaultSaveOption = option
+            services.appSettingsStore.defaultSaveOption = option
         case .exportItemsTapped:
             coordinator.navigate(to: .exportItems)
         case .helpCenterTapped:
@@ -117,7 +122,11 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         state.currentLanguage = services.stateService.appLanguage
         state.appTheme = await services.stateService.getAppTheme()
         state.biometricUnlockStatus = await loadBiometricUnlockPreference()
+        state.defaultSaveOption = services.appSettingsStore.defaultSaveOption
         state.shouldShowSyncButton = await services.configService.getFeatureFlag(.enablePasswordManagerSync)
+        if state.shouldShowSyncButton {
+            state.shouldShowDefaultSaveOption = await services.authenticatorItemRepository.isPasswordManagerSyncActive()
+        }
     }
 
     /// Sets the user's biometric auth
