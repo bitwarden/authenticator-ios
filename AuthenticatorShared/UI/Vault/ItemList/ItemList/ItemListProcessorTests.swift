@@ -648,10 +648,8 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         XCTAssertNotNil(dismissAction)
         dismissAction?.action()
 
-        try await Task.sleep(nanoseconds: 500_000)
-        waitFor(!authItemRepository.addAuthItemAuthItems.isEmpty)
-        try await Task.sleep(nanoseconds: 500_000)
-        waitFor(subject.state.loadingState != .loading(nil))
+        try await waitForAsync { !self.authItemRepository.addAuthItemAuthItems.isEmpty }
+        try await waitForAsync { self.subject.state.loadingState != .loading(nil) }
         let item = try XCTUnwrap(authItemRepository.addAuthItemAuthItems.first)
         XCTAssertEqual(item.name, "")
         XCTAssertEqual(item.totpKey, String.base32Key)
@@ -685,15 +683,12 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         XCTAssertNotNil(dismissAction)
         dismissAction?.action()
 
-        try await Task.sleep(nanoseconds: 500_000)
-        waitFor(authItemRepository.tempItem != nil)
-
+        try await waitForAsync { self.authItemRepository.tempItem != nil }
         let item = try XCTUnwrap(authItemRepository.tempItem)
         XCTAssertEqual(item.name, "")
         XCTAssertEqual(item.totpKey, String.base32Key)
 
-        try await Task.sleep(nanoseconds: 500_000)
-        waitFor(subject.state.url != nil)
+        try await waitForAsync { self.subject.state.url != nil }
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.passwordManagerNewItem)
     }
 
@@ -771,8 +766,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         XCTAssertNotNil(dismissAction)
         dismissAction?.action()
 
-        try await Task.sleep(nanoseconds: 500_000)
-        waitFor(coordinator.alertShown.count > 1)
+        try await waitForAsync { self.coordinator.alertShown.count > 1 }
 
         let secondAlert = try XCTUnwrap(coordinator.alertShown[1])
         XCTAssertEqual(secondAlert.alertActions.count, 2)
@@ -781,10 +775,9 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         Task {
             await noOption.handler?(noOption, [])
         }
-        try await Task.sleep(nanoseconds: 500_000)
 
-        waitFor(!authItemRepository.addAuthItemAuthItems.isEmpty)
-        waitFor(subject.state.loadingState != .loading(nil))
+        try await waitForAsync { !self.authItemRepository.addAuthItemAuthItems.isEmpty }
+        try await waitForAsync { self.subject.state.loadingState != .loading(nil) }
         let item = try XCTUnwrap(authItemRepository.addAuthItemAuthItems.first)
         XCTAssertEqual(item.name, "")
         XCTAssertEqual(item.totpKey, String.base32Key)
@@ -816,8 +809,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         XCTAssertNotNil(dismissAction)
         dismissAction?.action()
 
-        try await Task.sleep(nanoseconds: 1_000_000)
-        waitFor(coordinator.alertShown.count > 1)
+        try await waitForAsync { self.coordinator.alertShown.count > 1 }
 
         let secondAlert = try XCTUnwrap(coordinator.alertShown[1])
         XCTAssertEqual(secondAlert.alertActions.count, 2)
@@ -826,10 +818,9 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         Task {
             await yesOption.handler?(yesOption, [])
         }
-        try await Task.sleep(nanoseconds: 1_000_000)
 
-        waitFor(!authItemRepository.addAuthItemAuthItems.isEmpty)
-        waitFor(subject.state.loadingState != .loading(nil))
+        try await waitForAsync { !self.authItemRepository.addAuthItemAuthItems.isEmpty }
+        try await waitForAsync { self.subject.state.loadingState != .loading(nil) }
         let item = try XCTUnwrap(authItemRepository.addAuthItemAuthItems.first)
         XCTAssertEqual(item.name, "")
         XCTAssertEqual(item.totpKey, String.base32Key)
@@ -863,8 +854,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         XCTAssertNotNil(dismissAction)
         dismissAction?.action()
 
-        try await Task.sleep(nanoseconds: 500_000)
-        waitFor(coordinator.alertShown.count > 1)
+        try await waitForAsync { self.coordinator.alertShown.count > 1 }
 
         let secondAlert = try XCTUnwrap(coordinator.alertShown[1])
         XCTAssertEqual(secondAlert.alertActions.count, 2)
@@ -872,8 +862,8 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         XCTAssertEqual(noOption.title, Localizations.noAskMe)
         await noOption.handler?(noOption, [])
 
-        waitFor(authItemRepository.tempItem != nil)
-        waitFor(subject.state.url != nil)
+        try await waitForAsync { self.authItemRepository.tempItem != nil }
+        try await waitForAsync { self.subject.state.url != nil }
         let item = try XCTUnwrap(authItemRepository.tempItem)
         XCTAssertEqual(item.name, "")
         XCTAssertEqual(item.totpKey, String.base32Key)
@@ -908,8 +898,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         XCTAssertNotNil(dismissAction)
         dismissAction?.action()
 
-        try await Task.sleep(nanoseconds: 500_000)
-        waitFor(coordinator.alertShown.count > 1)
+        try await waitForAsync { self.coordinator.alertShown.count > 1 }
 
         let secondAlert = try XCTUnwrap(coordinator.alertShown[1])
         XCTAssertEqual(secondAlert.alertActions.count, 2)
@@ -917,8 +906,8 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         XCTAssertEqual(yesOption.title, Localizations.yesSetDefault)
         await yesOption.handler?(yesOption, [])
 
-        waitFor(authItemRepository.tempItem != nil)
-        waitFor(subject.state.url != nil)
+        try await waitForAsync { self.authItemRepository.tempItem != nil }
+        try await waitForAsync { self.subject.state.url != nil }
         let item = try XCTUnwrap(authItemRepository.tempItem)
         XCTAssertEqual(item.name, "")
         XCTAssertEqual(item.totpKey, String.base32Key)

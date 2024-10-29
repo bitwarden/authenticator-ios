@@ -1,14 +1,14 @@
 import UIKit
 
-// MARK: Alert+Vault
+// MARK: Alert+Scan
 
 extension Alert {
     /// An alert asking if the user would like to save a scanned key locally or send it to Bitwarden.
     ///
     /// - Parameters:
-    ///   - saveLocallyAction: The action to perform if the user chooses to save the key locally
+    ///   - saveLocallyAction: The action to perform if the user chooses to save the key locally.
     ///   - sendToBitwardenAction: The action to perform if the user chooses to send the key to Bitwarden.
-    /// - Returns: An alert asking the user where they want to store the key
+    /// - Returns: An alert asking the user where they want to store the key.
     ///
     static func determineScanSaveLocation(saveLocallyAction: @escaping () async -> Void,
                                           sendToBitwardenAction: @escaping () async -> Void) -> Alert {
@@ -23,7 +23,7 @@ extension Alert {
         )
     }
 
-    /// An alert asking if the user would like to set their default save option..
+    /// An alert asking if the user would like to set their default save option.
     ///
     /// - Parameters:
     ///   - yesAction: The action to perform if the user chooses to set the default.

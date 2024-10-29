@@ -45,6 +45,7 @@ class SettingsProcessorTests: AuthenticatorTestCase {
 
     /// Performing `.loadData` sets the 'defaultSaveOption' to the current value in 'AppSettingsStore'.
     func test_perform_loadData_defaultSaveOption() async throws {
+        configService.featureFlagsBool[.enablePasswordManagerSync] = true
         appSettingsStore.defaultSaveOption = .saveToBitwarden
         await subject.perform(.loadData)
 

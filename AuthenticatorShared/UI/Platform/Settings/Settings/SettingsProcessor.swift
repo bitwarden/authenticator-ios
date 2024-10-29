@@ -122,10 +122,10 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         state.currentLanguage = services.stateService.appLanguage
         state.appTheme = await services.stateService.getAppTheme()
         state.biometricUnlockStatus = await loadBiometricUnlockPreference()
-        state.defaultSaveOption = services.appSettingsStore.defaultSaveOption
         state.shouldShowSyncButton = await services.configService.getFeatureFlag(.enablePasswordManagerSync)
         if state.shouldShowSyncButton {
             state.shouldShowDefaultSaveOption = await services.authenticatorItemRepository.isPasswordManagerSyncActive()
+            state.defaultSaveOption = services.appSettingsStore.defaultSaveOption
         }
     }
 
