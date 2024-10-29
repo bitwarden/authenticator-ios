@@ -35,7 +35,7 @@ extension Alert {
                                          noAction: @escaping () async -> Void) -> Alert {
         Alert(
             title: title,
-            message: Localizations.youCanUpgradeYourDefaultAnytimeInSettings,
+            message: Localizations.youCanUpdateYourDefaultAnytimeInSettings,
             alertActions: [
                 AlertAction(title: Localizations.yesSetDefault, style: .default) { _, _ in await yesAction() },
                 AlertAction(title: Localizations.noAskMe,

@@ -47,7 +47,7 @@ class SettingsViewTests: AuthenticatorTestCase {
         processor.state.shouldShowDefaultSaveOption = true
         processor.state.shouldShowSyncButton = true
         processor.state.defaultSaveOption = .none
-        let menuField = try subject.inspect().find(settingsMenuField: Localizations.defaultSaveOptions)
+        let menuField = try subject.inspect().find(settingsMenuField: Localizations.defaultSaveOption)
         try menuField.select(newValue: DefaultSaveOption.saveToBitwarden)
         XCTAssertEqual(processor.dispatchedActions.last, .defaultSaveChanged(.saveToBitwarden))
     }

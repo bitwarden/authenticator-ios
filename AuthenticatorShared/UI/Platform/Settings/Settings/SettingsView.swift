@@ -160,7 +160,7 @@ struct SettingsView: View {
     @ViewBuilder private var defaultSaveOption: some View {
         if store.state.shouldShowDefaultSaveOption {
             SettingsMenuField(
-                title: Localizations.defaultSaveOptions,
+                title: Localizations.defaultSaveOption,
                 options: DefaultSaveOption.allCases,
                 hasDivider: false,
                 selection: store.binding(
