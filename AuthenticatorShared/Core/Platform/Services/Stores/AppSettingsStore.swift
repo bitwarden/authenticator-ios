@@ -399,10 +399,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(clearClipboardValue?.rawValue, for: .clearClipboardValue(userId: userId))
     }
 
-    func setDefaultSaveOption(_ option: DefaultSaveOption) {
-        store(option.rawValue, for: .defaultSaveOption)
-    }
-
     func setHasSyncedAccount(name: String) {
         store(true, for: .hasSyncedAccount(name: name.hexSHA256Hash))
     }
