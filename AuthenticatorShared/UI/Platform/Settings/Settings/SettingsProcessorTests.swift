@@ -5,6 +5,7 @@ import XCTest
 class SettingsProcessorTests: AuthenticatorTestCase {
     // MARK: Properties
 
+    var application: MockApplication!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var subject: SettingsProcessor!
@@ -14,11 +15,13 @@ class SettingsProcessorTests: AuthenticatorTestCase {
     override func setUp() {
         super.setUp()
 
+        application = MockApplication()
         configService = MockConfigService()
         coordinator = MockCoordinator()
         subject = SettingsProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                application: application,
                 configService: configService
             ),
             state: SettingsState()
@@ -28,6 +31,8 @@ class SettingsProcessorTests: AuthenticatorTestCase {
     override func tearDown() {
         super.tearDown()
 
+        application = nil
+        configService = nil
         coordinator = nil
         subject = nil
     }
@@ -70,9 +75,19 @@ class SettingsProcessorTests: AuthenticatorTestCase {
 
     /// Receiving `.syncWithBitwardenAppTapped` adds the Password Manager settings URL to the state to
     /// navigate the user to the PM app's settings.
-    func test_receive_syncWithBitwardenAppTapped() {
+    func test_receive_syncWithBitwardenAppTapped_installed() {
+        application.canOpenUrlResponse = true
         subject.receive(.syncWithBitwardenAppTapped)
 
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.passwordManagerSettings)
+    }
+
+    /// Receiving `.syncWithBitwardenAppTapped` adds the Password Manager settings App Store URL to
+    /// the state to navigate the user to the App Store when the PM app is not installed..
+    func test_receive_syncWithBitwardenAppTapped_notInstalled() {
+        application.canOpenUrlResponse = false
+        subject.receive(.syncWithBitwardenAppTapped)
+
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.passwordManagerLink)
     }
 }

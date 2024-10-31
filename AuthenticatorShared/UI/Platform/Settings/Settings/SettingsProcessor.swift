@@ -7,7 +7,8 @@ import OSLog
 final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, SettingsEffect> {
     // MARK: Types
 
-    typealias Services = HasBiometricsRepository
+    typealias Services = HasApplication
+        & HasBiometricsRepository
         & HasConfigService
         & HasErrorReporter
         & HasExportItemsService
@@ -78,7 +79,11 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
                 self.state.url = ExternalLinksConstants.privacyPolicy
             })
         case .syncWithBitwardenAppTapped:
-            state.url = ExternalLinksConstants.passwordManagerSettings
+            if services.application?.canOpenURL(ExternalLinksConstants.passwordManagerScheme) ?? false {
+                state.url = ExternalLinksConstants.passwordManagerSettings
+            } else {
+                state.url = ExternalLinksConstants.passwordManagerLink
+            }
         case let .toastShown(newValue):
             state.toast = newValue
         case .tutorialTapped:
