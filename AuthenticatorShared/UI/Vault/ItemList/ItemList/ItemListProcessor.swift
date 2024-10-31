@@ -180,7 +180,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     /// - Parameter item: the item to be moved.
     ///
     private func moveItemToBitwarden(item: AuthenticatorItemView) async {
-        guard await services.configService.getFeatureFlag(.enablePasswordManagerSync),
+        guard await services.authenticatorItemRepository.isPasswordManagerSyncActive(),
               let application = services.application,
               application.canOpenURL(ExternalLinksConstants.passwordManagerScheme)
         else { return }
@@ -450,39 +450,48 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         key: String
     ) {
-        if services.appSettingsStore.hasSeenDefaultSaveOptionPrompt {
-            switch services.appSettingsStore.defaultSaveOption {
-            case .saveLocally:
-                captureCoordinator.navigate(to: .dismiss(parseKeyAndDismiss(key, sendToBitwarden: false)))
-            case .saveToBitwarden:
-                captureCoordinator.navigate(to: .dismiss(parseKeyAndDismiss(key, sendToBitwarden: true)))
-            case .none:
+        Task {
+            guard await services.authenticatorItemRepository.isPasswordManagerSyncActive() else {
+                captureCoordinator.navigate(
+                    to: .dismiss(parseKeyAndDismiss(key, sendToBitwarden: false))
+                )
+                return
+            }
+
+            if services.appSettingsStore.hasSeenDefaultSaveOptionPrompt {
+                switch services.appSettingsStore.defaultSaveOption {
+                case .saveLocally:
+                    captureCoordinator.navigate(to: .dismiss(parseKeyAndDismiss(key, sendToBitwarden: false)))
+                case .saveToBitwarden:
+                    captureCoordinator.navigate(to: .dismiss(parseKeyAndDismiss(key, sendToBitwarden: true)))
+                case .none:
+                    coordinator.showAlert(.determineScanSaveLocation(
+                        saveLocallyAction: { [weak self] in
+                            captureCoordinator.navigate(
+                                to: .dismiss(self?.parseKeyAndDismiss(key, sendToBitwarden: false))
+                            )
+                        }, sendToBitwardenAction: { [weak self] in
+                            captureCoordinator.navigate(
+                                to: .dismiss(self?.parseKeyAndDismiss(key, sendToBitwarden: true))
+                            )
+                        }
+                    ))
+                }
+            } else {
                 coordinator.showAlert(.determineScanSaveLocation(
                     saveLocallyAction: { [weak self] in
-                        captureCoordinator.navigate(
-                            to: .dismiss(self?.parseKeyAndDismiss(key, sendToBitwarden: false))
-                        )
+                        let dismissAction = DismissAction(action: { [weak self] in
+                            self?.confirmDefaultSaveAlert(key: key, sendToBitwarden: false)
+                        })
+                        captureCoordinator.navigate(to: .dismiss(dismissAction))
                     }, sendToBitwardenAction: { [weak self] in
-                        captureCoordinator.navigate(
-                            to: .dismiss(self?.parseKeyAndDismiss(key, sendToBitwarden: true))
-                        )
+                        let dismissAction = DismissAction(action: { [weak self] in
+                            self?.confirmDefaultSaveAlert(key: key, sendToBitwarden: true)
+                        })
+                        captureCoordinator.navigate(to: .dismiss(dismissAction))
                     }
                 ))
             }
-        } else {
-            coordinator.showAlert(.determineScanSaveLocation(
-                saveLocallyAction: { [weak self] in
-                    let dismissAction = DismissAction(action: { [weak self] in
-                        self?.confirmDefaultSaveAlert(key: key, sendToBitwarden: false)
-                    })
-                    captureCoordinator.navigate(to: .dismiss(dismissAction))
-                }, sendToBitwardenAction: { [weak self] in
-                    let dismissAction = DismissAction(action: { [weak self] in
-                        self?.confirmDefaultSaveAlert(key: key, sendToBitwarden: true)
-                    })
-                    captureCoordinator.navigate(to: .dismiss(dismissAction))
-                }
-            ))
         }
     }
 

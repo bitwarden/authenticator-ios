@@ -175,7 +175,10 @@ public class ServiceContainer: Services {
         )
 
         let configService = DefaultConfigService(
-            errorReporter: errorReporter
+            appSettingsStore: appSettingsStore,
+            errorReporter: errorReporter,
+            stateService: stateService,
+            timeProvider: timeProvider
         )
 
         let cryptographyKeyService = CryptographyKeyService(
