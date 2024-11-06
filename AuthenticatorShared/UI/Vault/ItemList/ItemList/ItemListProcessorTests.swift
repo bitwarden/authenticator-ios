@@ -1019,11 +1019,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         dismissAction?.action()
         waitFor(!authItemRepository.addAuthItemAuthItems.isEmpty)
         waitFor(subject.state.loadingState != .loading(nil))
-        guard let item = authItemRepository.addAuthItemAuthItems.first
-        else {
-            XCTFail("Unable to get authenticator item")
-            return
-        }
+        let item = try XCTUnwrap(authItemRepository.addAuthItemAuthItems.first)
         XCTAssertEqual(item.name, "name")
         XCTAssertEqual(item.totpKey, String.base32Key)
     }

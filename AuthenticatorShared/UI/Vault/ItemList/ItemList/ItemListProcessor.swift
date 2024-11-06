@@ -273,8 +273,9 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         services.notificationCenterService
             .willEnterForegroundPublisher()
             .sink { [weak self] in
+                guard let self else { return }
                 Task {
-                    await self?.perform(.refresh)
+                    await self.perform(.refresh)
                 }
             }
             .store(in: &cancellables)
