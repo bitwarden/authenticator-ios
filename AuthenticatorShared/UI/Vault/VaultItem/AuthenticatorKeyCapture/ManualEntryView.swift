@@ -90,23 +90,13 @@ struct ManualEntryView: View {
             .accessibilityIdentifier("ManualEntryKeyField")
             addToBitwardenButton
             addButton
-            footer
+            footerButtonContainer
         }
         .background(
             Asset.Colors.backgroundSecondary.swiftUIColor
                 .ignoresSafeArea()
         )
         .scrollView()
-    }
-
-    /// Explanation text for the view and a button to launch the scan code view.
-    ///
-    private var footer: some View {
-        Group {
-            Text(Localizations.onceTheKeyIsSuccessfullyEnteredAddCode)
-                .styleGuide(.callout)
-            footerButtonContainer
-        }
     }
 
     /// A view to wrap the button for triggering `.scanCodePressed`.
@@ -192,7 +182,7 @@ struct ManualEntryView_Previews: PreviewProvider {
                 )
             )
         }
-        .previewDisplayName("Text Added")
+        .previewDisplayName("Sync Active")
     }
 }
 #endif

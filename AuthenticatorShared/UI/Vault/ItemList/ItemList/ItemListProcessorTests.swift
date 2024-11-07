@@ -1046,6 +1046,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         dismissAction?.action()
 
         waitFor(authItemRepository.tempItem != nil)
+        waitFor(subject.state.url != nil)
         XCTAssertEqual(authItemRepository.tempItem?.totpKey, expected.totpKey)
         XCTAssertEqual(authItemRepository.tempItem?.name, expected.name)
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.passwordManagerNewItem)
