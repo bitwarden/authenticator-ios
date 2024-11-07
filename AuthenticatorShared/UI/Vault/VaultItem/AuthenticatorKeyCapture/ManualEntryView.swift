@@ -30,7 +30,7 @@ struct ManualEntryView: View {
     ///
     private var addButton: some View {
         let title = store.state.isPasswordManagerSyncActive ?
-            Localizations.addCodeLocally :
+            Localizations.saveHere :
             Localizations.addCode
 
         return Button(title) {
@@ -51,7 +51,7 @@ struct ManualEntryView: View {
     ///
     @ViewBuilder private var addToBitwardenButton: some View {
         if store.state.isPasswordManagerSyncActive {
-            Button(Localizations.addCodeToBitwarden) {
+            Button(Localizations.saveToBitwarden) {
                 store.send(
                     ManualEntryAction.addPressed(
                         code: store.state.authenticatorKey,
