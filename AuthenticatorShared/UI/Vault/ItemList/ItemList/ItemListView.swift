@@ -356,7 +356,9 @@ struct ItemListView: View {
                 await store.perform(.search(store.state.searchText))
             }
             .refreshable {
-                await store.perform(.refresh)
+                Task {
+                    await store.perform(.refresh)
+                }
             }
         }
         .navigationTitle(Localizations.verificationCodes)
