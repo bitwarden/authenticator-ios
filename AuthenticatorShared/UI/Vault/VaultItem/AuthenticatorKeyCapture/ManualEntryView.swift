@@ -105,9 +105,13 @@ struct ManualEntryView: View {
         }
     }
 
-    /// A primary style button to trigger an `.addPressed(:)` action.
+    /// Create a button to trigger an `.addPressed(:)` action.
     ///
-    private func addPrimaryButton(sendToBitwarden: Bool) -> some View {
+    /// - Parameter sendToBitwarden: whether this button sends the code to Bitwarden (`true`) or stores
+    ///     it locally (`false`). This is also used to determine the title and accessibility identifier.
+    /// - Returns: the configured `Button`.
+    ///
+    private func addButton(sendToBitwarden: Bool) -> some View {
         let accessibilityIdentifier = sendToBitwarden ?
             "ManualEntryAddCodeToBitwardenButton" :
             "ManualEntryAddCodeButton"
@@ -124,31 +128,29 @@ struct ManualEntryView: View {
                 )
             )
         }
-        .buttonStyle(.primary())
         .accessibilityIdentifier(accessibilityIdentifier)
+    }
+
+    /// A primary style button to trigger an `.addPressed(:)` action.
+    ///
+    /// - Parameter sendToBitwarden: whether this button sends the code to Bitwarden (`true`) or stores
+    ///     it locally (`false`). This is also used to determine the title and accessibility identifier.
+    /// - Returns: the `Button`, styled and configured.
+    ///
+    private func addPrimaryButton(sendToBitwarden: Bool) -> some View {
+        addButton(sendToBitwarden: sendToBitwarden)
+            .buttonStyle(.primary())
     }
 
     /// A tertiary style button to trigger an `.addPressed(:)` action.
     ///
+    /// - Parameter sendToBitwarden: whether this button sends the code to Bitwarden (`true`) or stores
+    ///     it locally (`false`). This is also used to determine the title and accessibility identifier.
+    /// - Returns: the `Button`, styled and configured.
+    ///
     private func addTertiaryButton(sendToBitwarden: Bool) -> some View {
-        let accessibilityIdentifier = sendToBitwarden ?
-            "ManualEntryAddCodeToBitwardenButton" :
-            "ManualEntryAddCodeButton"
-        let title = sendToBitwarden ?
-            Localizations.saveToBitwarden :
-            Localizations.saveHere
-
-        return Button(title) {
-            store.send(
-                ManualEntryAction.addPressed(
-                    code: store.state.authenticatorKey,
-                    name: store.state.name,
-                    sendToBitwarden: sendToBitwarden
-                )
-            )
-        }
-        .buttonStyle(.tertiary())
-        .accessibilityIdentifier(accessibilityIdentifier)
+        addButton(sendToBitwarden: sendToBitwarden)
+            .buttonStyle(.tertiary())
     }
 }
 
