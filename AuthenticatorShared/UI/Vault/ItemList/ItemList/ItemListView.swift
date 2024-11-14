@@ -130,7 +130,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
     /// The Password Manager download card definition.
     private var itemListCardPasswordManagerInstall: some View {
         ItemListCardView(
-            bodyText: Localizations.withTheBitwardenAppYouCanStoreAllOfYourItemsAndSyncDirectlyWithTheAuthenticator,
+            bodyText: Localizations.storeAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp,
             buttonText: Localizations.downloadTheBitwardenApp,
             leftImage: {
                 Image(decorative: Asset.Images.bwLogo)
