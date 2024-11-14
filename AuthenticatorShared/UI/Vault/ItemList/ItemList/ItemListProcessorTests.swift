@@ -484,6 +484,31 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         XCTAssertNil(subject.state.toast)
     }
 
+    /// `perform(_:)` with `.streamItemList` starts streaming vault items. Item List is sorted by name
+    func test_perform_streamItemList_sorted() {
+        let results = [
+            ItemListItem.fixture(name: "Gamma"),
+            ItemListItem.fixture(name: "Beta"),
+            ItemListItem.fixture(name: "Delta"),
+            ItemListItem.fixture(name: "Alpha"),
+        ]
+        let resultSection = ItemListSection(id: "", items: results, name: "")
+        let resultSorted = ItemListSection(id: "", items: results.sorted(by: { $0.name < $1.name }), name: "")
+
+        authItemRepository.itemListSubject.send([resultSection])
+        authItemRepository.refreshTotpCodesResult = .success(results)
+
+        let task = Task {
+            await subject.perform(.streamItemList)
+        }
+        defer { task.cancel() }
+
+        waitFor(subject.state.loadingState != .loading(nil))
+
+        XCTAssertEqual(authItemRepository.refreshedTotpCodes, results)
+        XCTAssertEqual(subject.state.loadingState, .data([resultSorted]))
+    }
+
     /// `perform(_:)` with `.streamItemList` starts streaming vault items. When there are shared items
     /// from an account the user has not synced with previously, it should show a toast stating that the account
     /// was synced.
@@ -1103,5 +1128,35 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
         waitFor(subject.state.itemListCardState == .passwordManagerSync)
         task.cancel()
+    }
+
+    /// Tests that the `itemListCardState` is set to `none` if the user has already enabled sync in the PM app
+    /// (when the PM app is not installed).
+    func test_determineItemListCardState_syncAlreadyOn_download() {
+        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
+        authItemRepository.pmSyncEnabled = true
+        application.canOpenUrlResponse = false
+        let task = Task {
+            await self.subject.perform(.appeared)
+        }
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        XCTAssertEqual(subject.state.itemListCardState, .none)
+    }
+
+    /// Tests that the `itemListCardState` is set to `none` if the user has already enabled sync in the PM app
+    /// (when the PM app is installed).
+    func test_determineItemListCardState_syncAlreadyOn_sync() {
+        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
+        authItemRepository.pmSyncEnabled = true
+        application.canOpenUrlResponse = true
+        let task = Task {
+            await self.subject.perform(.appeared)
+        }
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        XCTAssertEqual(subject.state.itemListCardState, .none)
     }
 }
