@@ -154,10 +154,10 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
     private var itemListCardSync: some View {
         ItemListCardView(
             bodyText: Localizations
-                .inOrderToViewAllOfYourVerificationCodesYoullNeedToAllowForSyncingOnAllOfYourAccounts,
+                .allowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere,
             buttonText: Localizations.takeMeToTheAppSettings,
             leftImage: {
-                Image(decorative: Asset.Images.bwLogo)
+                Image(decorative: Asset.Images.syncArrow)
                     .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
                     .frame(width: 24, height: 24)
             },
