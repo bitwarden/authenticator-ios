@@ -38,6 +38,8 @@ struct ItemListItemRowView: View {
                             accountName: store.state.item.accountName,
                             model: model.totpCode
                         )
+                    case .syncError:
+                        EmptyView()
                     case let .totp(model):
                         totpCodeRow(
                             name: store.state.item.name,

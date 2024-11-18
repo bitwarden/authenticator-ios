@@ -90,6 +90,8 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                       let totpKey = TOTPKeyModel(authenticatorKey: key)
                 else { return }
                 await generateAndCopyTotpCode(totpKey: totpKey)
+            case .syncError:
+                break // no action for this type
             case let .totp(model):
                 guard let key = model.itemView.totpKey,
                       let totpKey = TOTPKeyModel(authenticatorKey: key)
@@ -123,6 +125,8 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             case let .sharedTotp(model):
                 services.pasteboardService.copy(model.totpCode.code)
                 state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
+            case .syncError:
+                break // no action for this type
             case let .totp(model):
                 services.pasteboardService.copy(model.totpCode.code)
                 state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
@@ -417,6 +421,8 @@ private class TOTPExpirationManager {
             switch item.itemType {
             case let .sharedTotp(model):
                 newItemsByInterval[model.totpCode.period, default: []].append(item)
+            case .syncError:
+                break // no action for this type
             case let .totp(model):
                 newItemsByInterval[model.totpCode.period, default: []].append(item)
             }

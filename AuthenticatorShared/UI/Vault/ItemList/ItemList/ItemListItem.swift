@@ -15,6 +15,9 @@ public struct ItemListItem: Equatable, Identifiable {
         ///   - model: The TOTP model
         case sharedTotp(model: ItemListSharedTotpItem)
 
+        /// An item for displaying an error that occurred in syncing from the Password Manager app..
+        case syncError
+
         /// A TOTP code item
         ///
         /// - Parameters:
@@ -99,6 +102,20 @@ extension ItemListItem {
                   itemType: .sharedTotp(model: totpModel))
     }
 
+    /// Initialize a `.syncError` `ItemListItem`.
+    ///
+    /// - Returns: An`ItemListItem` of the `.syncError` `ItemType`.
+    ///
+    public static func syncError() -> ItemListItem {
+        self.init(
+            id: "syncError",
+            // swiftlint:disable:next line_length
+            name: Localizations.unableToSyncCodesFromTheBitwardenAppMakeSureBothAppsAreUpToDateYouCanStillAccessYourExistingCodesInTheBitwardenApp,
+            accountName: nil,
+            itemType: .syncError
+        )
+    }
+
     /// Make a new `ItemListItem` that is a copy of the existing one, but with an updated `TOTPCodeModel`.
     ///
     /// - Parameter newTotpModel: the new `TOTPCodeModel` to insert in this ItemListItem
@@ -116,6 +133,8 @@ extension ItemListItem {
                 accountName: accountName,
                 itemType: .sharedTotp(model: updatedModel)
             )
+        case .syncError:
+            return self
         case let .totp(oldModel):
             var updatedModel = oldModel
             updatedModel.totpCode = newTotpModel

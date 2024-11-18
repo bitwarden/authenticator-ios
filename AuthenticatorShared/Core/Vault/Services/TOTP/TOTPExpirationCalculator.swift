@@ -50,6 +50,8 @@ enum TOTPExpirationCalculator {
             switch item.itemType {
             case let .sharedTotp(model):
                 return hasCodeExpired(model.totpCode, timeProvider: timeProvider)
+            case .syncError:
+                return false // sync error never expires
             case let .totp(model):
                 return hasCodeExpired(model.totpCode, timeProvider: timeProvider)
             }
