@@ -181,16 +181,8 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
             ScrollView {
                 LazyVStack(spacing: 0) {
                     ForEach(store.state.searchResults) { item in
-                        Button {
-                            store.send(.itemPressed(item))
-                        } label: {
-                            itemListItemRow(
-                                for: item,
-                                isLastInSection: store.state.searchResults.last == item
-                            )
-                            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-                        }
-                        .accessibilityIdentifier("ItemCell")
+                        buildRow(item: item, isLastInSection: store.state.searchResults.last == item)
+                            .accessibilityIdentifier("ItemCell")
                     }
                 }
             }
