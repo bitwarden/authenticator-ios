@@ -207,30 +207,25 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
         let item = ItemListItem.fixture()
         let sharedItem = ItemListItem.fixtureShared()
 
-        let result = try await subject.refreshTotpCodes(on: [item, sharedItem])
+        let result = try await subject.refreshTotpCodes(on: [item, sharedItem, .syncError()])
         let actual = try XCTUnwrap(result[0])
 
         XCTAssertEqual(actual.id, item.id)
         XCTAssertEqual(actual.name, item.name)
         XCTAssertEqual(actual.accountName, item.accountName)
-        switch actual.itemType {
-        case .sharedTotp, .syncError:
-            XCTFail("Shared TOTP or Sync Error itemType found when expecting TOTP")
-        case let .totp(model):
-            XCTAssertEqual(model.totpCode, newCodeModel)
-        }
+        XCTAssertEqual(actual.totpCodeModel, newCodeModel)
 
         let shared = try XCTUnwrap(result[1])
 
         XCTAssertEqual(shared.id, sharedItem.id)
         XCTAssertEqual(shared.name, sharedItem.name)
         XCTAssertEqual(shared.accountName, sharedItem.accountName)
-        switch shared.itemType {
-        case let .sharedTotp(model):
-            XCTAssertEqual(model.totpCode, newCodeModel)
-        case .syncError, .totp:
-            XCTFail("TOTP itemType or Sync Error found when expecting Shared TOTP")
-        }
+        XCTAssertEqual(shared.totpCodeModel, newCodeModel)
+
+        let syncError = try XCTUnwrap(result[2])
+        XCTAssertEqual(syncError, ItemListItem.syncError())
+
+        XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
     /// `saveTemporarySharedItem(_)` saves a temporary item into the Authenticator Bridge shared store.
@@ -402,7 +397,6 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
         sharedItemService.storedItems = ["userId": [sharedItem]]
         let unorganizedItem = itemListItem(from: items[0])
         let favoritedItem = itemListItem(from: items[1])
-        let sharedListItem = itemListItem(from: sharedItem)
 
         authItemService.authenticatorItemsSubject.send(items)
         sharedItemService.sharedItemsSubject.send(completion: .failure(AuthenticatorTestError.example))
