@@ -21,7 +21,7 @@ private struct PreserveLargeTitleView: View {
 // MARK: - SearchableItemListView
 
 /// A view that displays the items in a single vault group.
-private struct SearchableItemListView: View { // swiftlint:disable:this type_body_length
+private struct SearchableItemListView: View {
     // MARK: Properties
 
     /// A flag indicating if the search bar is focused.
@@ -301,20 +301,12 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
             cardSection
                 .padding(.horizontal, 16)
 
-            if sections.count > 1 {
-                VStack(spacing: 20) {
-                    ForEach(sections) { section in
-                        groupView(title: section.name, items: section.items)
-                    }
+            VStack(spacing: 20) {
+                ForEach(sections) { section in
+                    groupView(title: section.name, items: section.items)
                 }
-                .padding(16)
-            } else {
-                groupView(
-                    title: nil,
-                    items: sections.first?.items ?? []
-                )
-                .padding(16)
             }
+            .padding(16)
         }
     }
 
