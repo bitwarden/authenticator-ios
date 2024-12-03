@@ -31,7 +31,7 @@ protocol BiometricsRepository: AnyObject {
     func configureBiometricIntegrity() async throws
 
     /// Sets the biometric unlock preference for the active user.
-    ///   If permissions have not been requested, this request should trigger the system permisisons dialog.
+    ///   If permissions have not been requested, this request should trigger the system permissions dialog.
     ///
     /// - Parameter authKey: An optional `String` representing the user auth key. If nil, Biometric Unlock is disabled.
     ///
