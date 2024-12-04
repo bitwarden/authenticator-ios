@@ -150,7 +150,7 @@ class AppProcessorTests: AuthenticatorTestCase {
         XCTAssertEqual(coordinator.events.last, .vaultTimeout)
     }
 
-    /// When the timeout is not yet passed, the `AppProcessor` does **not** send the `.vaultTimeout` event.
+    /// When the timeout has not yet passed, the `AppProcessor` does **not** send the `.vaultTimeout` event.
     @MainActor
     func test_vaultTimeout_oneMinute_notYetTimedOut() async throws {
         let userId = await subject.services.stateService.getActiveAccountId()

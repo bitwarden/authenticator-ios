@@ -46,6 +46,7 @@ struct SettingsView: View {
                     SettingsMenuField(
                         title: Localizations.sessionTimeout,
                         options: SessionTimeoutValue.allCases,
+                        hasDivider: false,
                         accessibilityIdentifier: "VaultTimeoutChooser",
                         selectionAccessibilityID: "SessionTimeoutStatusLabel",
                         selection: store.bindingAsync(
