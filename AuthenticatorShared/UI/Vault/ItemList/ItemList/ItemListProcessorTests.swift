@@ -501,9 +501,14 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
             ItemListItem.fixture(name: "Beta"),
             ItemListItem.fixture(name: "Delta"),
             ItemListItem.fixture(name: "Alpha"),
+            ItemListItem.fixture(name: "beta"),
         ]
         let resultSection = ItemListSection(id: "", items: results, name: "")
-        let resultSorted = ItemListSection(id: "", items: results.sorted(by: { $0.name < $1.name }), name: "")
+        let resultSorted = ItemListSection(
+            id: "",
+            items: results.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending },
+            name: ""
+        )
 
         authItemRepository.itemListSubject.send([resultSection])
         authItemRepository.refreshTotpCodesResult = .success(results)
