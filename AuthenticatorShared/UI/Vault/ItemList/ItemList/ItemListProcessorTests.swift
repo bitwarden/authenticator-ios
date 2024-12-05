@@ -503,12 +503,15 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
             ItemListItem.fixture(name: "Alpha"),
             ItemListItem.fixture(name: "beta"),
         ]
+        let resultsSorted = [
+            results[3], // Alpha
+            results[4], // beta
+            results[1], // Beta
+            results[2], // Delta
+            results[0], // Gamma
+        ]
         let resultSection = ItemListSection(id: "", items: results, name: "")
-        let resultSorted = ItemListSection(
-            id: "",
-            items: results.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending },
-            name: ""
-        )
+        let sortedSection = ItemListSection(id: "", items: resultsSorted, name: "")
 
         authItemRepository.itemListSubject.send([resultSection])
         authItemRepository.refreshTotpCodesResult = .success(results)
@@ -521,7 +524,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         waitFor(subject.state.loadingState != .loading(nil))
 
         XCTAssertEqual(authItemRepository.refreshedTotpCodes, results)
-        XCTAssertEqual(subject.state.loadingState, .data([resultSorted]))
+        XCTAssertEqual(subject.state.loadingState, .data([sortedSection]))
     }
 
     /// `perform(_:)` with `.streamItemList` starts streaming vault items. When there are shared items
