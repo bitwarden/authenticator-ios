@@ -86,6 +86,31 @@ class ImportItemsProcessorTests: AuthenticatorTestCase {
         XCTAssertNil(subject.state.toast)
     }
 
+    /// When the import process throws a `keyNotFound` error, the processor shows an error alert.
+    func test_fileSelectionCompleted_missingValue() async throws {
+        importItemsService.errorToThrow = DecodingError.valueNotFound(
+            String.self,
+            DecodingError.Context(
+                codingPath: [
+                    AnyCodingKey(stringValue: "services"),
+                    AnyCodingKey(stringValue: "item 0"),
+                ],
+                debugDescription: "Missing value"
+            )
+        )
+        let data = "Test Data".data(using: .utf8)!
+        subject.fileSelectionCompleted(fileName: "Filename", data: data)
+
+        try await waitForAsync { !self.coordinator.alertShown.isEmpty }
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .requiredInfoMissing(keyPath: "services.item 0", action: {
+                self.subject.state.url = ExternalLinksConstants.helpAndFeedback
+            })
+        )
+        XCTAssertNil(subject.state.toast)
+    }
+
     /// The processor hands the data returned from the file selector to the `ImportItemsService`. Upon
     /// successful import, it shows a Toast.
     func test_fileSelectionCompleted_success() async throws {

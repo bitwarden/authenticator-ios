@@ -111,6 +111,12 @@ extension ImportItemsProcessor: FileSelectionDelegate {
         }
     }
 
+    /// Helper function to do the work around preparing and showing the `requiredInfoMissing` alert.
+    ///
+    /// - Parameters:
+    ///   - key: The CodingKey that was missing (or `nil` if it's not a specific key)
+    ///   - context: The `Context` from the `DecodingError` to use in creating the path that caused the problem.
+    ///
     private func showRequiredInfoMissingAlert(key: CodingKey?, context: DecodingError.Context) {
         var codingPath = context.codingPath
         if let key {
