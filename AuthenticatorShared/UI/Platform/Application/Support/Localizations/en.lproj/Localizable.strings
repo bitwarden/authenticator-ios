@@ -153,7 +153,7 @@
 "SessionTimeout" = "Session timeout";
 "FileCouldNotBeProcessed" = "File could not be processed";
 "EnsureItsValidJsonAndTryAgain" = "Ensure it’s valid JSON and try again.";
-"RequiredInformationMissing" = "Required information Missing";
+"RequiredInformationMissing" = "Required Information Missing";
 "RequiredInformationIsMissing" = "Required information is missing at %1$@. Please review the field and try again.";
 "NeedHelpVisitOurHelpCenterForGuidance" = "Need help? Visit our Help Center for guidance.";
 "UnexpectedDataFormat" = "Unexpected Data Format";
