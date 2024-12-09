@@ -2,22 +2,6 @@
 
 import SwiftUI
 
-// MARK: - PreserveLargeTitleView
-
-/// A view that prevents the `.large` title from scrolling into `.inline` mode.
-///
-/// By adding this view to the hierarchy, it moves the activity indicator underneath the nav bar,
-/// keeping the title and search bar in place while the refreshable happens below.
-///
-private struct PreserveLargeTitleView: View {
-    var body: some View {
-        Rectangle()
-            .fill(Color(UIColor(white: 0.0, alpha: 0.0005)))
-            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: 1)
-            .hidden()
-    }
-}
-
 // MARK: - SearchableItemListView
 
 /// A view that displays the items in a single vault group.
@@ -39,8 +23,6 @@ private struct SearchableItemListView: View {
     // MARK: View
 
     var body: some View {
-        PreserveLargeTitleView()
-
         // A ZStack with hidden children is used here so that opening and closing the
         // search interface does not reset the scroll position for the main vault
         // view, as would happen if we used an `if else` block here.
@@ -250,7 +232,7 @@ private struct SearchableItemListView: View {
                         await store.perform(.moveToBitwardenPressed(item))
                     } label: {
                         HStack(spacing: 4) {
-                            Text(Localizations.moveToBitwarden)
+                            Text(Localizations.copyToBitwarden)
                             Spacer()
                             Image(decorative: Asset.Images.rightArrow)
                                 .imageStyle(.accessoryIcon(scaleWithFont: true))
@@ -374,11 +356,6 @@ struct ItemListView: View {
             )
             .task(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
-            }
-            .refreshable {
-                Task {
-                    await store.perform(.refresh)
-                }
             }
         }
         .navigationTitle(Localizations.verificationCodes)
