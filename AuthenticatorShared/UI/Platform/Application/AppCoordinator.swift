@@ -63,9 +63,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     func handleEvent(_ event: AppEvent, context: AnyObject?) async {
         switch event {
         case .didStart:
-            let accountId = await services.stateService.getActiveAccountId()
-            let hasTimeout = services.appSettingsStore.vaultTimeout(userId: accountId) !=
-                SessionTimeoutValue.never.rawValue
+            let hasTimeout = await services.stateService.getVaultTimeout() != .never
             let isEnabled = await (try? services.biometricsRepository.getBiometricUnlockStatus().isEnabled) ?? false
 
             if isEnabled, hasTimeout {
