@@ -10,10 +10,10 @@ open class AuthenticatorTestCase: XCTestCase {
 
     @MainActor
     override open class func setUp() {
-        if UIDevice.current.name != "iPhone 15 Pro" {
+        if UIDevice.current.name != "iPhone 16 Pro" {
             assertionFailure(
                 """
-                Tests must be run using the iPhone 15 Pro simulator. Snapshot tests depend on using the correct device.
+                Tests must be run using the iPhone 16 Pro simulator. Snapshot tests depend on using the correct device.
                 """
             )
         }
