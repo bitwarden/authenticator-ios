@@ -142,7 +142,7 @@ jobs:
 
       - name: Select variant
         run: |
-          ./Scripts/select_variant.sh ${{ env.build-variant }}
+          ./Scripts-bwa/select_variant.sh ${{ env.build-variant }}
 
       - name: Update build version
         if: ${{ inputs.build-version }}
@@ -157,7 +157,7 @@ jobs:
       - name: Build iOS app
         run: |
           BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
-          ./Scripts/build.sh
+          ./Scripts-bwa/build.sh
 
       - name: Upload IPA
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3

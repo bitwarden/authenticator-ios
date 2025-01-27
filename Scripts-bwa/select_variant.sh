@@ -13,7 +13,7 @@ normal=$(tput -T ansi sgr0)
 
 if [ $# -ne 1 ]; then
   echo >&2 "Called without necessary arguments: ${bold}Variant${normal}."
-  echo >&2 "For example: \`Scripts/select_variant.sh Beta."
+  echo >&2 "For example: \`Scripts-bwa/select_variant.sh Beta."
   exit 1
 fi
 
