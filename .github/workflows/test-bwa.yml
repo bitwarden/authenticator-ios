@@ -115,7 +115,7 @@ jobs:
 
       - name: Update local config
         run: |
-          ./Scripts/update_test_local_config.sh "${{ env._COMPILER_FLAGS }}"
+          ./Scripts-bwa/update_test_local_config.sh "${{ env._COMPILER_FLAGS }}"
 
       - name: Install Mint and xcresultparser
         run: |
