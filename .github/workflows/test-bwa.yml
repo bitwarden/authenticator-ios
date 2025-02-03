@@ -45,6 +45,9 @@ env:
   RESULT_BUNDLE_PATH: build/AuthenticatorTests.xcresult
   COVERAGE_PATH: build/coverage.xml
   XCODE_VERSION: 15.4
+  _SIMULATOR_NAME: ${{ inputs.simulator-name }}
+  _SIMULATOR_VERSION: ${{ inputs.simulator-version }}
+  _XCODE_VERSION: ${{ inputs.xcode-version }}
 
 jobs:
   test:
@@ -68,6 +71,18 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Read Xcode version and simulator configuration from file if not provided
+        run: |
+          if [ -z "$_XCODE_VERSION" ]; then
+            echo "_XCODE_VERSION=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_ENV"
+          fi
+          if [ -z "$_SIMULATOR_NAME" ]; then
+            echo "_SIMULATOR_NAME=$(cat .test-simulator-device-name | tr -d '\n')" >> "$GITHUB_ENV"
+          fi
+          if [ -z "$_SIMULATOR_VERSION" ]; then
+            echo "_SIMULATOR_VERSION=$(cat .test-simulator-ios-version | tr -d '\n')" >> "$GITHUB_ENV"
+          fi
 
       - name: Set Xcode version
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
