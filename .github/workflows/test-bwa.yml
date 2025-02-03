@@ -120,16 +120,16 @@ jobs:
 
       - name: Build and test
         run: |
-          set -o pipefail && \
-            xcodebuild test \
+          xcrun xcodebuild test \
             -project Authenticator.xcodeproj \
             -scheme Authenticator \
             -configuration Debug \
             -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=$_SIMULATOR_VERSION" \
             -resultBundlePath $_RESULT_BUNDLE_PATH \
             -derivedDataPath build/DerivedData \
-            -enableCodeCoverage YES \
-            | xcbeautify --renderer github-actions
+            -test-timeouts-enabled yes \
+            -maximum-test-execution-time-allowance 1 \
+            -quiet
 
       - name: Convert coverage to Cobertura
         run: |
