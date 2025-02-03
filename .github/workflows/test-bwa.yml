@@ -38,17 +38,15 @@ on:
         type: string
 
 env:
-  DEVELOPER_DIR: /Applications/Xcode_15.4.app/Contents/Developer
-  MINT_LINK_PATH: .mint/bin
-  MINT_PATH: .mint/lib
-  SIMULATOR_DESTINATION: platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0.1
-  RESULT_BUNDLE_PATH: build/AuthenticatorTests.xcresult
-  COVERAGE_PATH: build/coverage.xml
-  XCODE_VERSION: 15.4
+  MINT_LINK_PATH: .mint/bin # used by mint in bootstrap.sh
+  MINT_PATH: .mint/lib # used by mint in bootstrap.sh
+  _COVERAGE_PATH: build/coverage.xml
+  _RESULT_BUNDLE_PATH: build/BitwardenTests.xcresult
   _SIMULATOR_NAME: ${{ inputs.simulator-name }}
   _SIMULATOR_VERSION: ${{ inputs.simulator-version }}
   _XCODE_VERSION: ${{ inputs.xcode-version }}
   _COMPILER_FLAGS: ${{ inputs.compiler-flags }}
+  _GITHUB_ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}
 
 jobs:
   test:
@@ -127,8 +125,8 @@ jobs:
             -project Authenticator.xcodeproj \
             -scheme Authenticator \
             -configuration Debug \
-            -destination "${{ env.SIMULATOR_DESTINATION }}" \
-            -resultBundlePath ${{ env.RESULT_BUNDLE_PATH }} \
+            -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=$_SIMULATOR_VERSION" \
+            -resultBundlePath $_RESULT_BUNDLE_PATH \
             -derivedDataPath build/DerivedData \
             -enableCodeCoverage YES \
             | xcbeautify --renderer github-actions
