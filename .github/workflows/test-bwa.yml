@@ -49,6 +49,10 @@ env:
   _GITHUB_ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}
 
 jobs:
+  check-run:
+    name: Check PR run
+    uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
+
   test:
     name: Test
     runs-on: macos-14-xlarge
