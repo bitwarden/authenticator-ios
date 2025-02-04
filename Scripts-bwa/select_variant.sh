@@ -13,7 +13,7 @@ normal=$(tput -T ansi sgr0)
 
 if [ $# -ne 1 ]; then
   echo >&2 "Called without necessary arguments: ${bold}Variant${normal}."
-  echo >&2 "For example: \`Scripts/select_variant.sh Beta."
+  echo >&2 "For example: \`Scripts-bwa/select_variant.sh Beta."
   exit 1
 fi
 
@@ -21,8 +21,8 @@ variant=$1
 
 echo "🧱 Setting build variant to ${bold}${variant}${normal}."
 
-local_xcconfig_file="Configs/Local.xcconfig"
-export_options_file="Configs/export_options.plist"
+local_xcconfig_file="Configs-bwa/Local.xcconfig"
+export_options_file="Configs-bwa/export_options.plist"
 
 case $variant in
     Production)
