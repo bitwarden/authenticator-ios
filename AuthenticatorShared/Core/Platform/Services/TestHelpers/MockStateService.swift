@@ -15,17 +15,20 @@ class MockStateService: StateService {
     var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var getBiometricIntegrityStateError: Error?
     var getSecretKeyResult: Result<String, Error> = .success("qwerty")
+    var preAuthServerConfig: ServerConfig?
     var secretKeyValues = [String: String]()
+    var serverConfig = [String: ServerConfig]()
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var setBiometricIntegrityStateError: Error?
     var setSecretKeyResult: Result<Void, Error> = .success(())
     var timeProvider = MockTimeProvider(.currentTime)
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
+    var vaultTimeout = SessionTimeoutValue.never
 
     lazy var appThemeSubject = CurrentValueSubject<AppTheme, Never>(self.appTheme ?? .default)
 
-    func getActiveAccountId() async throws -> String {
+    func getActiveAccountId() async -> String {
         "localtest"
     }
 
@@ -39,8 +42,21 @@ class MockStateService: StateService {
         return clearClipboardValues[userId] ?? .never
     }
 
+    func getPreAuthServerConfig() async -> ServerConfig? {
+        preAuthServerConfig
+    }
+
+    func getServerConfig(userId: String?) async throws -> ServerConfig? {
+        let userId = try unwrapUserId(userId)
+        return serverConfig[userId]
+    }
+
     func getShowWebIcons() async -> Bool {
         showWebIcons
+    }
+
+    func getVaultTimeout() async -> SessionTimeoutValue {
+        vaultTimeout
     }
 
     func setAppTheme(_ appTheme: AppTheme) async {
@@ -65,9 +81,18 @@ class MockStateService: StateService {
         try getSecretKeyResult.get()
     }
 
+    func setPreAuthServerConfig(config: ServerConfig) async {
+        preAuthServerConfig = config
+    }
+
     func setSecretKey(_ key: String, userId: String?) async throws {
         try setSecretKeyResult.get()
         secretKeyValues[userId ?? "localtest"] = key
+    }
+
+    func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        serverConfig[userId] = config
     }
 
     func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {

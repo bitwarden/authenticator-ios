@@ -1,3 +1,4 @@
+import Combine
 import Foundation
 
 // swiftlint:disable file_length
@@ -6,6 +7,8 @@ import Foundation
 
 /// A `Processor` that can process `ItemListAction` and `ItemListEffect` objects.
 final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, ItemListEffect> {
+    // swiftlint:disable:previous type_body_length
+
     // MARK: Types
 
     typealias Services = HasAppSettingsStore
@@ -14,11 +17,15 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         & HasCameraService
         & HasConfigService
         & HasErrorReporter
+        & HasNotificationCenterService
         & HasPasteboardService
         & HasTOTPService
         & HasTimeProvider
 
     // MARK: Private Properties
+
+    /// The set to hold Combine cancellables.
+    private var cancellables = Set<AnyCancellable>()
 
     /// The `Coordinator` for this processor.
     private var coordinator: AnyCoordinator<ItemListRoute, ItemListEvent>
@@ -47,7 +54,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         self.services = services
 
         super.init(state: state)
-        groupTotpExpirationManager = .init(
+        groupTotpExpirationManager = TOTPExpirationManager(
             timeProvider: services.timeProvider,
             onExpiration: { [weak self] expiredItems in
                 guard let self else { return }
@@ -56,6 +63,12 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 }
             }
         )
+        setupForegroundNotification()
+    }
+
+    deinit {
+        groupTotpExpirationManager?.cleanup()
+        groupTotpExpirationManager = nil
     }
 
     // MARK: Methods
@@ -72,12 +85,22 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             await determineItemListCardState()
         case let .copyPressed(item):
             switch item.itemType {
+            case let .sharedTotp(model):
+                guard let key = model.itemView.totpKey,
+                      let totpKey = TOTPKeyModel(authenticatorKey: key)
+                else { return }
+                await generateAndCopyTotpCode(totpKey: totpKey)
+            case .syncError:
+                break // no action for this type
             case let .totp(model):
                 guard let key = model.itemView.totpKey,
                       let totpKey = TOTPKeyModel(authenticatorKey: key)
                 else { return }
                 await generateAndCopyTotpCode(totpKey: totpKey)
             }
+        case let .moveToBitwardenPressed(item):
+            guard case let .totp(model) = item.itemType else { return }
+            await moveItemToBitwarden(item: model.itemView)
         case .refresh:
             await streamItemList()
         case let .search(text):
@@ -90,18 +113,18 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     override func receive(_ action: ItemListAction) {
         switch action {
         case .clearURL:
-            break
+            state.url = nil
         case let .deletePressed(item):
+            guard case .totp = item.itemType else { return }
             confirmDeleteItem(item.id)
         case let .editPressed(item):
             guard case let .totp(model) = item.itemType else { return }
             coordinator.navigate(to: .editItem(item: model.itemView), context: self)
         case let .itemPressed(item):
-            switch item.itemType {
-            case let .totp(model):
-                services.pasteboardService.copy(model.totpCode.code)
-                state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
-            }
+            guard let totpCode = item.totpCodeModel else { return }
+
+            services.pasteboardService.copy(totpCode.code)
+            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
         case let .searchStateChanged(isSearching: isSearching):
             guard isSearching else {
                 state.searchText = ""
@@ -128,6 +151,9 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     private func deleteItem(_ id: String) async {
         do {
             try await services.authenticatorItemRepository.deleteAuthenticatorItem(id)
+            if !state.searchText.isEmpty {
+                state.searchResults = await searchItems(for: state.searchText)
+            }
             state.toast = Toast(text: Localizations.itemDeleted)
         } catch {
             services.errorReporter.log(error: error)
@@ -149,33 +175,42 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         }
     }
 
+    /// Store the item in the shared sync data store as a temporary item and deeplink to the Bitwarden app to
+    /// let the user choose where to store it.
+    ///
+    /// - Parameter item: the item to be moved.
+    ///
+    private func moveItemToBitwarden(item: AuthenticatorItemView) async {
+        guard await services.authenticatorItemRepository.isPasswordManagerSyncActive(),
+              let application = services.application,
+              application.canOpenURL(ExternalLinksConstants.passwordManagerScheme)
+        else { return }
+
+        do {
+            try await services.authenticatorItemRepository.saveTemporarySharedItem(item)
+            state.url = ExternalLinksConstants.passwordManagerNewItem
+        } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Refreshes the vault group's TOTP Codes.
     ///
     private func refreshTOTPCodes(for items: [ItemListItem]) async {
         guard case let .data(currentSections) = state.loadingState else { return }
-        let refreshedItems = await items.asyncMap { item in
-            guard case let .totp(model) = item.itemType,
-                  let key = model.itemView.totpKey,
-                  let keyModel = TOTPKeyModel(authenticatorKey: key),
-                  let code = try? await services.totpService.getTotpCode(for: keyModel)
-            else {
-                services.errorReporter.log(error: TOTPServiceError
-                    .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
-                return item
+        do {
+            let refreshedItems = try await services.authenticatorItemRepository.refreshTotpCodes(on: items)
+            let updatedSections = currentSections.updated(with: refreshedItems)
+            let allItems = updatedSections.flatMap(\.items)
+            groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: allItems)
+            state.loadingState = .data(updatedSections)
+            if !state.searchResults.isEmpty {
+                state.searchResults = await searchItems(for: state.searchText)
             }
-            var updatedModel = model
-            updatedModel.totpCode = code
-            return ItemListItem(
-                id: item.id,
-                name: item.name,
-                accountName: item.accountName,
-                itemType: .totp(model: updatedModel)
-            )
+        } catch {
+            services.errorReporter.log(error: error)
         }
-        let updatedSections = currentSections.updated(with: refreshedItems)
-        let allItems = updatedSections.flatMap(\.items)
-        groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: allItems)
-        state.loadingState = .data(updatedSections)
     }
 
     /// Kicks off the TOTP setup flow.
@@ -223,7 +258,9 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 searchText: searchText
             )
             for try await items in result {
-                return items
+                let itemList = try await services.authenticatorItemRepository.refreshTotpCodes(on: items)
+                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: itemList)
+                return itemList
             }
         } catch {
             services.errorReporter.log(error: error)
@@ -231,30 +268,67 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         return []
     }
 
+    /// Subscribe to receive foreground notifications so that we can refresh the item list when the app is relaunched.
+    ///
+    private func setupForegroundNotification() {
+        services.notificationCenterService
+            .willEnterForegroundPublisher()
+            .sink { [weak self] in
+                guard let self else { return }
+                Task {
+                    await self.perform(.refresh)
+                }
+            }
+            .store(in: &cancellables)
+    }
+
+    /// Determine if the user has synced with this account previously. If they have not synced previously,
+    /// this method return `true` indicating that we should show the toast for a newly synced account. It
+    /// also stores the fact that we've synced with this account in the `AppSettingsStore` for
+    /// future reference so that we only show the toast on *first* sync.
+    ///
+    /// For any local code sections or for accounts the user has previously synced with, this method will return
+    /// `false` so that we do not show the toast.
+    ///
+    /// - Parameter name: The name of the account to evaluate. This is the section header shown to the user.
+    /// - Returns: `true` if the accounts synced toast should be shown to the user, `false` otherwise.
+    ///
+    private func shouldShowAccountSyncToast(name: String) -> Bool {
+        guard !name.isEmpty,
+              name != Localizations.localCodes,
+              name != Localizations.favorites
+        else { return false }
+
+        if !services.appSettingsStore.hasSyncedAccount(name: name) {
+            services.appSettingsStore.setHasSyncedAccount(name: name)
+            return true
+        } else {
+            return false
+        }
+    }
+
     /// Stream the items list.
     private func streamItemList() async {
         do {
+            var showToast = false
             for try await value in try await services.authenticatorItemRepository.itemListPublisher() {
                 let sectionList = try await value.asyncMap { section in
-                    let itemList = try await section.items.asyncMap { item in
-                        guard case let .totp(model) = item.itemType,
-                              let key = model.itemView.totpKey,
-                              let keyModel = TOTPKeyModel(authenticatorKey: key)
-                        else { return item }
-                        let code = try await services.totpService.getTotpCode(for: keyModel)
-                        var updatedModel = model
-                        updatedModel.totpCode = code
-                        return ItemListItem(
-                            id: item.id,
-                            name: item.name,
-                            accountName: item.accountName,
-                            itemType: .totp(model: updatedModel)
-                        )
+                    if shouldShowAccountSyncToast(name: section.name) {
+                        showToast = true
                     }
-                    return ItemListSection(id: section.id, items: itemList, name: section.name)
+                    let itemList = try await services.authenticatorItemRepository.refreshTotpCodes(on: section.items)
+                    let sortedList = itemList.sorted(by: ItemListItem.localizedNameComparator)
+                    return ItemListSection(id: section.id, items: sortedList, name: section.name)
                 }
                 groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: sectionList.flatMap(\.items))
+                state.showMoveToBitwarden = await services.authenticatorItemRepository.isPasswordManagerSyncActive()
                 state.loadingState = .data(sectionList)
+                if showToast {
+                    state.toast = Toast(text: Localizations.accountsSyncedFromBitwardenApp)
+                }
+                if !state.searchText.isEmpty {
+                    state.searchResults = await searchItems(for: state.searchText)
+                }
             }
         } catch {
             services.errorReporter.log(error: error)
@@ -265,6 +339,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     ///
     private func determineItemListCardState() async {
         guard await services.configService.getFeatureFlag(.enablePasswordManagerSync),
+              await !services.authenticatorItemRepository.isPasswordManagerSyncActive(),
               let application = services.application else {
             state.itemListCardState = .none
             return
@@ -343,8 +418,9 @@ private class TOTPExpirationManager {
     func configureTOTPRefreshScheduling(for items: [ItemListItem]) {
         var newItemsByInterval = [UInt32: [ItemListItem]]()
         items.forEach { item in
-            guard case let .totp(model) = item.itemType else { return }
-            newItemsByInterval[model.totpCode.period, default: []].append(item)
+            if let totpCodeModel = item.totpCodeModel {
+                newItemsByInterval[totpCodeModel.period, default: []].append(item)
+            }
         }
         itemsByInterval = newItemsByInterval
     }
@@ -378,15 +454,52 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         key: String
     ) {
-        let dismissAction = DismissAction(action: { [weak self] in
-            Task {
-                await self?.parseAndValidateAutomaticCaptureKey(key)
+        Task {
+            guard await services.authenticatorItemRepository.isPasswordManagerSyncActive() else {
+                captureCoordinator.navigate(
+                    to: .dismiss(parseKeyAndDismiss(key, sendToBitwarden: false))
+                )
+                return
             }
-        })
-        captureCoordinator.navigate(to: .dismiss(dismissAction))
+
+            if services.appSettingsStore.hasSeenDefaultSaveOptionPrompt {
+                switch services.appSettingsStore.defaultSaveOption {
+                case .saveHere:
+                    captureCoordinator.navigate(to: .dismiss(parseKeyAndDismiss(key, sendToBitwarden: false)))
+                case .saveToBitwarden:
+                    captureCoordinator.navigate(to: .dismiss(parseKeyAndDismiss(key, sendToBitwarden: true)))
+                case .none:
+                    coordinator.showAlert(.determineScanSaveLocation(
+                        saveLocallyAction: { [weak self] in
+                            captureCoordinator.navigate(
+                                to: .dismiss(self?.parseKeyAndDismiss(key, sendToBitwarden: false))
+                            )
+                        }, sendToBitwardenAction: { [weak self] in
+                            captureCoordinator.navigate(
+                                to: .dismiss(self?.parseKeyAndDismiss(key, sendToBitwarden: true))
+                            )
+                        }
+                    ))
+                }
+            } else {
+                coordinator.showAlert(.determineScanSaveLocation(
+                    saveLocallyAction: { [weak self] in
+                        let dismissAction = DismissAction(action: { [weak self] in
+                            self?.confirmDefaultSaveAlert(key: key, sendToBitwarden: false)
+                        })
+                        captureCoordinator.navigate(to: .dismiss(dismissAction))
+                    }, sendToBitwardenAction: { [weak self] in
+                        let dismissAction = DismissAction(action: { [weak self] in
+                            self?.confirmDefaultSaveAlert(key: key, sendToBitwarden: true)
+                        })
+                        captureCoordinator.navigate(to: .dismiss(dismissAction))
+                    }
+                ))
+            }
+        }
     }
 
-    func parseAndValidateAutomaticCaptureKey(_ key: String) async {
+    func parseAndValidateAutomaticCaptureKey(_ key: String, sendToBitwarden: Bool) async {
         do {
             let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
             let loginTotpState = LoginTOTPState(authKeyModel: authKeyModel)
@@ -403,9 +516,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
                 totpKey: key,
                 username: accountName
             )
-            try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
-            state.toast = Toast(text: Localizations.verificationCodeAdded)
-            await perform(.refresh)
+            try await storeNewItem(newItem, sendToBitwarden: sendToBitwarden)
         } catch {
             coordinator.showAlert(.totpScanFailureAlert())
         }
@@ -414,17 +525,18 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
     func didCompleteManualCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         key: String,
-        name: String
+        name: String,
+        sendToBitwarden: Bool
     ) {
         let dismissAction = DismissAction(action: { [weak self] in
             Task {
-                await self?.parseAndValidateManualKey(key: key, name: name)
+                await self?.parseAndValidateManualKey(key: key, name: name, sendToBitwarden: sendToBitwarden)
             }
         })
         captureCoordinator.navigate(to: .dismiss(dismissAction))
     }
 
-    func parseAndValidateManualKey(key: String, name: String) async {
+    func parseAndValidateManualKey(key: String, name: String, sendToBitwarden: Bool) async {
         do {
             let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
             let loginTotpState: LoginTOTPState
@@ -448,9 +560,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
                 totpKey: key,
                 username: nil
             )
-            try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
-            state.toast = Toast(text: Localizations.verificationCodeAdded)
-            await perform(.refresh)
+            try await storeNewItem(newItem, sendToBitwarden: sendToBitwarden)
         } catch {
             coordinator.showAlert(.totpScanFailureAlert())
         }
@@ -476,6 +586,69 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
             self?.coordinator.navigate(to: .setupTotpManual, context: self)
         })
         captureCoordinator.navigate(to: .dismiss(dismissAction))
+    }
+
+    /// Display an alert asking the user if they would like to save their choice as their default save option.
+    ///
+    /// After handling their answer to this and saving the option to the `AppSettingsStore`, the key will be
+    /// processed and handled based on what is passed in `sendToBitwarden`.
+    ///
+    /// - Parameters:
+    ///   - key: The key that was captured
+    ///   - sendToBitwarden: `true` if the user previously chose to save the key to the Bitwarden app,
+    ///     `false` if they have chosen to store it locally.
+    ///
+    private func confirmDefaultSaveAlert(key: String, sendToBitwarden: Bool) {
+        let title = sendToBitwarden ?
+            Localizations.setSaveToBitwardenAsYourDefaultSaveOption :
+            Localizations.setSaveLocallyAsYourDefaultSaveOption
+        let option: DefaultSaveOption = sendToBitwarden ? .saveToBitwarden : .saveHere
+
+        coordinator.showAlert(.confirmDefaultSaveOption(
+            title: title,
+            yesAction: { [weak self] in
+                self?.services.appSettingsStore.defaultSaveOption = option
+                await self?.parseAndValidateAutomaticCaptureKey(key, sendToBitwarden: sendToBitwarden)
+            }, noAction: { [weak self] in
+                self?.services.appSettingsStore.defaultSaveOption = .none
+                await self?.parseAndValidateAutomaticCaptureKey(key, sendToBitwarden: sendToBitwarden)
+            }
+        ))
+    }
+
+    /// Wrap the `parseAndValidateAutomaticCaptureKey` call in a dismiss action so that the coordinator first dismisses
+    /// the QR code scan screen and then parses and handles the `key`.
+    ///
+    /// - Parameters:
+    ///   - key: The key that was captured by the QR code scan.
+    ///   - sendToBitwarden: `true` if the code should be sent to the Bitwarden app,
+    ///     `false` if it should be stored locally.
+    /// - Returns: The `DismissAction` to pass to the `.`dismiss` route of the capture coordinator.
+    ///
+    private func parseKeyAndDismiss(_ key: String, sendToBitwarden: Bool) -> DismissAction {
+        DismissAction(action: { [weak self] in
+            Task {
+                await self?.parseAndValidateAutomaticCaptureKey(key, sendToBitwarden: sendToBitwarden)
+            }
+        })
+    }
+
+    /// Store the new item - either send it to the Bitwarden app (if `sendToBitwarden` is `true`) or
+    /// store it locally (if `sendToBitwarden` is `false`)
+    ///
+    /// - Parameters:
+    ///   - newItem: The new `AuthenticatorItemView` that was parsed from a manual or automatic capture.
+    ///   - sendToBitwarden: `true` if the item should be sent to the Bitwarden app,
+    ///     `false` if it should be stored locally.
+    ///
+    private func storeNewItem(_ newItem: AuthenticatorItemView, sendToBitwarden: Bool) async throws {
+        if sendToBitwarden {
+            await moveItemToBitwarden(item: newItem)
+        } else {
+            try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
+            state.toast = Toast(text: Localizations.verificationCodeAdded)
+            await perform(.refresh)
+        }
     }
 }
 

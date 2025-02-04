@@ -17,7 +17,7 @@ protocol StateService: AnyObject {
     ///
     /// - Returns: The active user account id.
     ///
-    func getActiveAccountId() async throws -> String
+    func getActiveAccountId() async -> String
 
     /// Get the app theme.
     ///
@@ -47,17 +47,34 @@ protocol StateService: AnyObject {
     ///
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue
 
+    /// Gets the server config used by the app prior to the user authenticating.
+    /// - Returns: The server config used prior to user authentication.
+    func getPreAuthServerConfig() async -> ServerConfig?
+
     /// Gets the user's encryption secret key.
     ///
     /// - Returns: The user's encryption secret key.
     ///
     func getSecretKey(userId: String?) async throws -> String?
 
+    /// Gets the server config for a user ID, as set by the server.
+    ///
+    /// - Parameter userId: The user ID associated with the server config. Defaults to the active account if `nil`.
+    /// - Returns: The user's server config.
+    ///
+    func getServerConfig(userId: String?) async throws -> ServerConfig?
+
     /// Get whether to show website icons.
     ///
     /// - Returns: Whether to show the website icons.
     ///
     func getShowWebIcons() async -> Bool
+
+    /// Gets the session timeout value for the logged in user.
+    ///
+    /// - Returns: The session timeout value.
+    ///
+    func getVaultTimeout() async -> SessionTimeoutValue
 
     /// Sets the app theme.
     ///
@@ -87,12 +104,24 @@ protocol StateService: AnyObject {
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
 
+    /// Sets the server config used prior to user authentication
+    /// - Parameter config: The server config to use prior to user authentication.
+    func setPreAuthServerConfig(config: ServerConfig) async
+
     /// Sets the user's encryption secreet key.
     ///
     /// - Parameters:
     ///   - key: The key to set
     ///
     func setSecretKey(_ key: String, userId: String?) async throws
+
+    /// Sets the server configuration as provided by a server for a user ID.
+    ///
+    /// - Parameters:
+    ///   - configModel: The config values to set as provided by the server.
+    ///   - userId: The user ID associated with the server config.
+    ///
+    func setServerConfig(_ config: ServerConfig?, userId: String?) async throws
 
     /// Set whether to show the website icons.
     ///
@@ -186,7 +215,7 @@ actor DefaultStateService: StateService {
 
     // MARK: Methods
 
-    func getActiveAccountId() async throws -> String {
+    func getActiveAccountId() async -> String {
         appSettingsStore.localUserId
     }
 
@@ -199,13 +228,29 @@ actor DefaultStateService: StateService {
         return appSettingsStore.clearClipboardValue(userId: userId)
     }
 
+    func getPreAuthServerConfig() async -> ServerConfig? {
+        appSettingsStore.preAuthServerConfig
+    }
+
     func getSecretKey(userId: String?) async throws -> String? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.secretKey(userId: userId)
     }
 
+    func getServerConfig(userId: String?) async throws -> ServerConfig? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.serverConfig(userId: userId)
+    }
+
     func getShowWebIcons() async -> Bool {
         !appSettingsStore.disableWebIcons
+    }
+
+    func getVaultTimeout() async -> SessionTimeoutValue {
+        let accountId = await getActiveAccountId()
+        guard let rawValue = appSettingsStore.vaultTimeout(userId: accountId) else { return .never }
+
+        return SessionTimeoutValue(rawValue: rawValue)
     }
 
     func setAppTheme(_ appTheme: AppTheme) async {
@@ -218,9 +263,18 @@ actor DefaultStateService: StateService {
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
     }
 
+    func setPreAuthServerConfig(config: ServerConfig) async {
+        appSettingsStore.preAuthServerConfig = config
+    }
+
     func setSecretKey(_ key: String, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setSecretKey(key, userId: userId)
+    }
+
+    func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setServerConfig(config, userId: userId)
     }
 
     func setShowWebIcons(_ showWebIcons: Bool) async {
@@ -246,6 +300,16 @@ actor DefaultStateService: StateService {
     ///
     private func getActiveAccountUserId() throws -> String {
         appSettingsStore.localUserId
+    }
+}
+
+extension StateService {
+    /// Gets the server config for the active account.
+    ///
+    /// - Returns: The server config sent by the server for the active account.
+    ///
+    func getServerConfig() async throws -> ServerConfig? {
+        try await getServerConfig(userId: nil)
     }
 }
 

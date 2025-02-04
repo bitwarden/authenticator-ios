@@ -11,8 +11,12 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     typealias Module = FileSelectionModule
         & TutorialModule
 
-    typealias Services = HasBiometricsRepository
+    typealias Services = HasAppSettingsStore
+        & HasApplication
+        & HasAuthenticatorItemRepository
+        & HasBiometricsRepository
         & HasCameraService
+        & HasConfigService
         & HasErrorReporter
         & HasExportItemsService
         & HasImportItemsService
@@ -104,6 +108,11 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
                 self.showToast(Localizations.itemsExported)
             }
         }
+        if let popoverController = activityVC.popoverPresentationController {
+            popoverController.sourceView = stackNavigator?.rootViewController?.view
+            popoverController.permittedArrowDirections = []
+        }
+
         stackNavigator?.present(activityVC)
     }
 

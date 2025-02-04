@@ -10,6 +10,9 @@ enum SettingsAction: Equatable {
     /// The url has been opened so clear the value in the state.
     case clearURL
 
+    /// The default save option was changed.
+    case defaultSaveChanged(DefaultSaveOption)
+
     /// The export items button was tapped.
     case exportItemsTapped
 
@@ -24,6 +27,9 @@ enum SettingsAction: Equatable {
 
     /// The privacy policy button was tapped.
     case privacyPolicyTapped
+
+    /// The sync with bitwarden app button was tapped.
+    case syncWithBitwardenAppTapped
 
     /// The toast was shown or hidden.
     case toastShown(Toast?)

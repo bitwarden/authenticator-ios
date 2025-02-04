@@ -1,3 +1,4 @@
+import AuthenticatorBridgeKit
 import BitwardenSdk
 import UIKit
 
@@ -54,6 +55,9 @@ public class ServiceContainer: Services {
     /// The service used to perform app data migrations.
     let migrationService: MigrationService
 
+    /// The service used to receive foreground and background notifications.
+    let notificationCenterService: NotificationCenterService
+
     /// The service used by the application for sharing data with other apps.
     let pasteboardService: PasteboardService
 
@@ -85,6 +89,7 @@ public class ServiceContainer: Services {
     ///   - exportItemsService: The service to export items.
     ///   - importItemsService: The service to import items.
     ///   - migrationService: The service to do data migrations
+    ///   - notificationCenterService:  The service used to receive foreground and background notifications.
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
     ///   - stateService: The service for managing account state.
     ///   - timeProvider: Provides the present time for TOTP Code Calculation.
@@ -104,6 +109,7 @@ public class ServiceContainer: Services {
         exportItemsService: ExportItemsService,
         importItemsService: ImportItemsService,
         migrationService: MigrationService,
+        notificationCenterService: NotificationCenterService,
         pasteboardService: PasteboardService,
         stateService: StateService,
         timeProvider: TimeProvider,
@@ -122,6 +128,7 @@ public class ServiceContainer: Services {
         self.exportItemsService = exportItemsService
         self.importItemsService = importItemsService
         self.migrationService = migrationService
+        self.notificationCenterService = notificationCenterService
         self.pasteboardService = pasteboardService
         self.timeProvider = timeProvider
         self.stateService = stateService
@@ -168,7 +175,10 @@ public class ServiceContainer: Services {
         )
 
         let configService = DefaultConfigService(
-            errorReporter: errorReporter
+            appSettingsStore: appSettingsStore,
+            errorReporter: errorReporter,
+            stateService: stateService,
+            timeProvider: timeProvider
         )
 
         let cryptographyKeyService = CryptographyKeyService(
@@ -185,6 +195,8 @@ public class ServiceContainer: Services {
             keychainRepository: keychainRepository
         )
 
+        let notificationCenterService = DefaultNotificationCenterService()
+
         let totpService = DefaultTOTPService(
             clientVault: clientService.clientVault(),
             errorReporter: errorReporter,
@@ -199,9 +211,35 @@ public class ServiceContainer: Services {
             authenticatorItemDataStore: dataStore
         )
 
+        let sharedKeychainRepository = DefaultSharedKeychainRepository(
+            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier,
+            keychainService: keychainService
+        )
+
+        let sharedCryptographyService = DefaultAuthenticatorCryptographyService(
+            sharedKeychainRepository: sharedKeychainRepository
+        )
+
+        let sharedDataStore = AuthenticatorBridgeDataStore(
+            errorReporter: errorReporter,
+            groupIdentifier: Bundle.main.sharedAppGroupIdentifier,
+            storeType: .persisted
+        )
+
+        let sharedItemService = DefaultAuthenticatorBridgeItemService(
+            cryptoService: sharedCryptographyService,
+            dataStore: sharedDataStore,
+            sharedKeychainRepository: sharedKeychainRepository
+        )
+
         let authenticatorItemRepository = DefaultAuthenticatorItemRepository(
             authenticatorItemService: authenticatorItemService,
-            cryptographyService: cryptographyService
+            configService: configService,
+            cryptographyService: cryptographyService,
+            errorReporter: errorReporter,
+            sharedItemService: sharedItemService,
+            timeProvider: timeProvider,
+            totpService: totpService
         )
 
         let exportItemsService = DefaultExportItemsService(
@@ -229,6 +267,7 @@ public class ServiceContainer: Services {
             exportItemsService: exportItemsService,
             importItemsService: importItemsService,
             migrationService: migrationService,
+            notificationCenterService: notificationCenterService,
             pasteboardService: pasteboardService,
             stateService: stateService,
             timeProvider: timeProvider,

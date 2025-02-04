@@ -31,13 +31,14 @@ struct ItemListItemRowView: View {
                 .accessibilityHidden(true)
 
                 HStack {
-                    switch store.state.item.itemType {
-                    case let .totp(model):
+                    if let totpCodeModel = store.state.item.totpCodeModel {
                         totpCodeRow(
                             name: store.state.item.name,
                             accountName: store.state.item.accountName,
-                            model: model.totpCode
+                            model: totpCodeModel
                         )
+                    } else {
+                        EmptyView()
                     }
                 }
                 .padding(.vertical, 9)

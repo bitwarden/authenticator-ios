@@ -141,6 +141,39 @@ class AppSettingsStoreTests: AuthenticatorTestCase {
         XCTAssertEqual(userDefaults.integer(forKey: "bwaPreferencesStorage:clearClipboard_2"), -1)
     }
 
+    /// `defaultSaveOption` returns `.none` if there isn't a previously stored value or if a previously
+    /// stored value is not a valid option
+    func test_defaultSaveOption_isInitiallyNone() {
+        XCTAssertEqual(subject.defaultSaveOption, .none)
+
+        userDefaults.set("An invalid value", forKey: "bwaPreferencesStorage:defaultSaveOption")
+        XCTAssertEqual(subject.defaultSaveOption, .none)
+    }
+
+    /// `defaultSaveOption` can be used to get and set the default save option.
+    func test_defaultSaveOption_withValue() {
+        subject.defaultSaveOption = .saveToBitwarden
+        XCTAssertEqual(subject.defaultSaveOption, .saveToBitwarden)
+        XCTAssertEqual(userDefaults.string(forKey: "bwaPreferencesStorage:defaultSaveOption"), "saveToBitwarden")
+
+        subject.defaultSaveOption = .saveHere
+        XCTAssertEqual(subject.defaultSaveOption, .saveHere)
+        XCTAssertEqual(userDefaults.string(forKey: "bwaPreferencesStorage:defaultSaveOption"), "saveHere")
+
+        subject.defaultSaveOption = .none
+        XCTAssertEqual(subject.defaultSaveOption, .none)
+        XCTAssertEqual(userDefaults.string(forKey: "bwaPreferencesStorage:defaultSaveOption"), "none")
+    }
+
+    /// `hasSeenDefaultSaveOptionPrompt` returns `false` if there isn't a 'defaultSaveOption` value stored, and `true`
+    /// when there is a value stored.
+    func test_hasSeenDefaultSaveOptionPrompt() {
+        XCTAssertFalse(subject.hasSeenDefaultSaveOptionPrompt)
+
+        subject.defaultSaveOption = .none
+        XCTAssertTrue(subject.hasSeenDefaultSaveOptionPrompt)
+    }
+
     /// `disableWebIcons` returns `false` if there isn't a previously stored value.
     func test_disableWebIcons_isInitiallyFalse() {
         XCTAssertFalse(subject.disableWebIcons)
@@ -155,6 +188,25 @@ class AppSettingsStoreTests: AuthenticatorTestCase {
         subject.disableWebIcons = false
         XCTAssertFalse(subject.disableWebIcons)
         XCTAssertFalse(userDefaults.bool(forKey: "bwaPreferencesStorage:disableFavicon"))
+    }
+
+    /// `hasSyncedAccount(name:)` can be used to get and set if the user has synced previously with a given account.
+    /// Account names should be hashed so as to not appear in plaintext.
+    func test_hasSyncedAccount_withValue() {
+        let accountName = "test@example.com | vault.bitwarden.com"
+        subject.setHasSyncedAccount(name: accountName)
+        XCTAssertTrue(subject.hasSyncedAccount(name: accountName))
+
+        // Doesn't store the account as plain text:
+        XCTAssertFalse(userDefaults.bool(forKey: "bwaPreferencesStorage:hasSyncedAccount_\(accountName)"))
+
+        // Stores with the hashed value:
+        XCTAssertTrue(userDefaults.bool(
+            forKey: "bwaPreferencesStorage:hasSyncedAccount_\(accountName.hexSHA256Hash)")
+        )
+
+        // A new account that we've not synced before defaults to `false`
+        XCTAssertFalse(subject.hasSyncedAccount(name: "New Account"))
     }
 
     /// `isBiometricAuthenticationEnabled` returns false if there is no previous value.
@@ -177,6 +229,23 @@ class AppSettingsStoreTests: AuthenticatorTestCase {
         XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "1"))
     }
 
+    /// `lastActiveTime(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_lastActiveTime_isInitiallyNil() {
+        XCTAssertNil(subject.lastActiveTime(userId: "-1"))
+    }
+
+    /// `lastActiveTime(userId:)` can be used to get the last active time for a user.
+    func test_lastActiveTime_withValue() {
+        let date1 = Date(year: 2023, month: 12, day: 1)
+        let date2 = Date(year: 2023, month: 10, day: 2)
+
+        subject.setLastActiveTime(date1, userId: "1")
+        subject.setLastActiveTime(date2, userId: "2")
+
+        XCTAssertEqual(subject.lastActiveTime(userId: "1"), date1)
+        XCTAssertEqual(subject.lastActiveTime(userId: "2"), date2)
+    }
+
     /// `migrationVersion` returns `0` if there isn't a previously stored value.
     func test_migrationVersion_isInitiallyZero() {
         XCTAssertEqual(subject.migrationVersion, 0)
@@ -191,5 +260,13 @@ class AppSettingsStoreTests: AuthenticatorTestCase {
         subject.migrationVersion = 2
         XCTAssertEqual(userDefaults.integer(forKey: "bwaPreferencesStorage:migrationVersion"), 2)
         XCTAssertEqual(subject.migrationVersion, 2)
+    }
+
+    /// `.vaultTimeout(userId:)` returns the correct vault timeout value.
+    func test_vaultTimeout() throws {
+        subject.setVaultTimeout(minutes: 60, userId: "1")
+
+        XCTAssertEqual(subject.vaultTimeout(userId: "1"), 60)
+        XCTAssertEqual(userDefaults.double(forKey: "bwaPreferencesStorage:vaultTimeout_1"), 60)
     }
 }

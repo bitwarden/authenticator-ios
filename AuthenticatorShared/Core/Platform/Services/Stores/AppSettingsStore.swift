@@ -1,7 +1,10 @@
+import CryptoKit
 import Foundation
 import OSLog
 
 // MARK: - AppSettingsStore
+
+// swiftlint:disable file_length
 
 /// A protocol for an object that persists app setting values.
 ///
@@ -18,6 +21,12 @@ protocol AppSettingsStore: AnyObject {
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
+    /// The default save location for new keys.
+    var defaultSaveOption: DefaultSaveOption { get set }
+
+    /// Whether the user has seen the default save options prompt.
+    var hasSeenDefaultSaveOptionPrompt: Bool { get }
+
     /// Whether the user has seen the welcome tutorial.
     var hasSeenWelcomeTutorial: Bool { get set }
 
@@ -26,6 +35,9 @@ protocol AppSettingsStore: AnyObject {
 
     /// The app's last data migration version.
     var migrationVersion: Int { get set }
+
+    /// The server config used prior to user authentication.
+    var preAuthServerConfig: ServerConfig? { get set }
 
     /// The system biometric integrity state `Data`, base64 encoded.
     ///
@@ -51,6 +63,29 @@ protocol AppSettingsStore: AnyObject {
     ///
     func clearClipboardValue(userId: String) -> ClearClipboardValue
 
+    /// Retrieves a feature flag value from the app's settings store.
+    ///
+    /// This method fetches the value for a specified feature flag from the app's settings store.
+    /// The value is returned as a `Bool`. If the flag does not exist or cannot be decoded,
+    /// the method returns `nil`.
+    ///
+    /// - Parameter name: The name of the feature flag to retrieve, represented as a `String`.
+    /// - Returns: The value of the feature flag as a `Bool`, or `nil` if the flag does not exist
+    ///     or cannot be decoded.
+    ///
+    func debugFeatureFlag(name: String) -> Bool?
+
+    /// Flag to identify if the user has previously synced with the named account. `true` if they have previously
+    /// synced with the named account, `false` if they have not synced previously.
+    ///
+    /// - Parameter name: The name of the account that the user has/hasn't synced with previously.
+    ///
+    /// - Returns: A `Bool` indicating if the user has synced with the named account previously.
+    ///     If `true`, the user has already synced with the named account.
+    ///     If `false`, the user has not synced with the named account.
+    ///
+    func hasSyncedAccount(name: String) -> Bool
+
     /// Get the user's Biometric Authentication Preference.
     ///
     /// - Parameter userId: The user ID associated with the biometric authentication preference.
@@ -61,12 +96,38 @@ protocol AppSettingsStore: AnyObject {
     ///
     func isBiometricAuthenticationEnabled(userId: String) -> Bool
 
+    /// The user's last active time within the app.
+    /// This value is set when the app is backgrounded.
+    ///
+    /// - Parameter userId: The user ID associated with the last active time within the app.
+    ///
+    func lastActiveTime(userId: String) -> Date?
+
+    /// Sets a feature flag value in the app's settings store.
+    ///
+    /// This method updates or removes the value for a specified feature flag in the app's settings store.
+    /// If the `value` parameter is `nil`, the feature flag is removed from the store. Otherwise, the flag
+    /// is set to the provided boolean value.
+    ///
+    /// - Parameters:
+    ///   - name: The name of the feature flag to set or remove, represented as a `String`.
+    ///   - value: The boolean value to assign to the feature flag. If `nil`, the feature flag will be removed
+    ///    from the settings store.
+    ///
+    func overrideDebugFeatureFlag(name: String, value: Bool?)
+
     /// Gets the user's secret encryption key.
     ///
     /// - Parameters:
     ///   - userId: The user ID
     ///
     func secretKey(userId: String) -> String?
+
+    /// The server configuration.
+    ///
+    /// - Parameter userId: The user ID associated with the server config.
+    /// - Returns: The server config for that user ID.
+    func serverConfig(userId: String) -> ServerConfig?
 
     /// Sets the user's Biometric Authentication Preference.
     ///
@@ -102,6 +163,21 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String)
 
+    /// Sets the flag to `true` to identify the user has previously synced with the named account.
+    ///
+    /// - Parameters:
+    ///   - name: The name of the account that the user has synced with previously.
+    ///
+    func setHasSyncedAccount(name: String)
+
+    /// Sets the last active time within the app.
+    ///
+    /// - Parameters:
+    ///   - date: The current time.
+    ///   - userId: The user ID associated with the last active time within the app.
+    ///
+    func setLastActiveTime(_ date: Date?, userId: String)
+
     /// Sets the user's secret encryption key.
     ///
     /// - Parameters:
@@ -109,18 +185,41 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID
     ///
     func setSecretKey(_ key: String, userId: String)
+
+    /// Sets the server config.
+    ///
+    /// - Parameters:
+    ///   - config: The server config for the user
+    ///   - userId: The user ID.
+    ///
+    func setServerConfig(_ config: ServerConfig?, userId: String)
+
+    /// Sets the user's session timeout, in minutes.
+    ///
+    /// - Parameters:
+    ///   - key: The session timeout, in minutes.
+    ///   - userId: The user ID associated with the session timeout.
+    ///
+    func setVaultTimeout(minutes: Int, userId: String)
+
+    /// Returns the session timeout in minutes.
+    ///
+    /// - Parameter userId: The user ID associated with the session timeout.
+    /// - Returns: The user's session timeout in minutes.
+    ///
+    func vaultTimeout(userId: String) -> Int?
 }
 
 // MARK: - DefaultAppSettingsStore
 
-/// A default `AppSetingsStore` which persists app settings in `UserDefaults`.
+/// A default `AppSettingsStore` which persists app settings in `UserDefaults`.
 ///
 class DefaultAppSettingsStore {
     // MARK: Properties
 
     let localUserId = "local"
 
-    /// The `UserDefauls` instance to persist settings.
+    /// The `UserDefaults` instance to persist settings.
     let userDefaults: UserDefaults
 
     /// The bundleId used to set values that are bundleId dependent.
@@ -232,10 +331,17 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case biometricIntegrityState(userId: String, bundleId: String)
         case cardClosedState(card: ItemListCard)
         case clearClipboardValue(userId: String)
+        case debugFeatureFlag(name: String)
+        case defaultSaveOption
         case disableWebIcons
         case hasSeenWelcomeTutorial
+        case hasSyncedAccount(name: String)
+        case lastActiveTime(userId: String)
         case migrationVersion
+        case preAuthServerConfig
         case secretKey(userId: String)
+        case serverConfig(userId: String)
+        case vaultTimeout(userId: String)
 
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
@@ -255,14 +361,28 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "cardClosedState_\(card)"
             case let .clearClipboardValue(userId):
                 key = "clearClipboard_\(userId)"
+            case let .debugFeatureFlag(name):
+                key = "debugFeatureFlag_\(name)"
+            case .defaultSaveOption:
+                key = "defaultSaveOption"
             case .disableWebIcons:
                 key = "disableFavicon"
             case .hasSeenWelcomeTutorial:
                 key = "hasSeenWelcomeTutorial"
+            case let .hasSyncedAccount(name: name):
+                key = "hasSyncedAccount_\(name)"
+            case let .lastActiveTime(userId):
+                key = "lastActiveTime_\(userId)"
             case .migrationVersion:
                 key = "migrationVersion"
+            case .preAuthServerConfig:
+                key = "preAuthServerConfig"
             case let .secretKey(userId):
                 key = "secretKey_\(userId)"
+            case let .serverConfig(userId):
+                key = "serverConfig_\(userId)"
+            case let .vaultTimeout(userId):
+                key = "vaultTimeout_\(userId)"
             }
             return "bwaPreferencesStorage:\(key)"
         }
@@ -288,6 +408,21 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .disableWebIcons) }
     }
 
+    var defaultSaveOption: DefaultSaveOption {
+        get {
+            guard let rawValue: String = fetch(for: .defaultSaveOption),
+                  let value = DefaultSaveOption(rawValue: rawValue)
+            else { return .none }
+
+            return value
+        }
+        set { store(newValue.rawValue, for: .defaultSaveOption) }
+    }
+
+    var hasSeenDefaultSaveOptionPrompt: Bool {
+        fetch(for: .defaultSaveOption) != nil
+    }
+
     var hasSeenWelcomeTutorial: Bool {
         get { fetch(for: .hasSeenWelcomeTutorial) }
         set { store(newValue, for: .hasSeenWelcomeTutorial) }
@@ -296,6 +431,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var migrationVersion: Int {
         get { fetch(for: .migrationVersion) }
         set { store(newValue, for: .migrationVersion) }
+    }
+
+    var preAuthServerConfig: ServerConfig? {
+        get { fetch(for: .preAuthServerConfig) }
+        set { store(newValue, for: .preAuthServerConfig) }
     }
 
     func biometricIntegrityState(userId: String) -> String? {
@@ -319,12 +459,32 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         return .never
     }
 
+    func debugFeatureFlag(name: String) -> Bool? {
+        fetch(for: .debugFeatureFlag(name: name))
+    }
+
+    func hasSyncedAccount(name: String) -> Bool {
+        fetch(for: .hasSyncedAccount(name: name.hexSHA256Hash))
+    }
+
     func isBiometricAuthenticationEnabled(userId: String) -> Bool {
         fetch(for: .biometricAuthEnabled(userId: userId))
     }
 
+    func lastActiveTime(userId: String) -> Date? {
+        fetch(for: .lastActiveTime(userId: userId)).map { Date(timeIntervalSince1970: $0) }
+    }
+
+    func overrideDebugFeatureFlag(name: String, value: Bool?) {
+        store(value, for: .debugFeatureFlag(name: name))
+    }
+
     func secretKey(userId: String) -> String? {
         fetch(for: .secretKey(userId: userId))
+    }
+
+    func serverConfig(userId: String) -> ServerConfig? {
+        fetch(for: .serverConfig(userId: userId))
     }
 
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {
@@ -349,8 +509,28 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(clearClipboardValue?.rawValue, for: .clearClipboardValue(userId: userId))
     }
 
+    func setHasSyncedAccount(name: String) {
+        store(true, for: .hasSyncedAccount(name: name.hexSHA256Hash))
+    }
+
+    func setLastActiveTime(_ date: Date?, userId: String) {
+        store(date?.timeIntervalSince1970, for: .lastActiveTime(userId: userId))
+    }
+
     func setSecretKey(_ key: String, userId: String) {
         store(key, for: .secretKey(userId: userId))
+    }
+
+    func setServerConfig(_ config: ServerConfig?, userId: String) {
+        store(config, for: .serverConfig(userId: userId))
+    }
+
+    func setVaultTimeout(minutes: Int, userId: String) {
+        store(minutes, for: .vaultTimeout(userId: userId))
+    }
+
+    func vaultTimeout(userId: String) -> Int? {
+        fetch(for: .vaultTimeout(userId: userId))
     }
 }
 

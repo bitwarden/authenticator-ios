@@ -11,6 +11,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     /// The types of modules used by this coordinator.
     typealias Module = AuthModule
+        & DebugMenuModule
         & ItemListModule
         & TabModule
         & TutorialModule
@@ -62,8 +63,10 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     func handleEvent(_ event: AppEvent, context: AnyObject?) async {
         switch event {
         case .didStart:
+            let hasTimeout = await services.stateService.getVaultTimeout() != .never
             let isEnabled = await (try? services.biometricsRepository.getBiometricUnlockStatus().isEnabled) ?? false
-            if isEnabled {
+
+            if isEnabled, hasTimeout {
                 showAuth(.vaultUnlock)
             } else {
                 showTab(route: .itemList(.list))
@@ -71,11 +74,17 @@ class AppCoordinator: Coordinator, HasRootNavigator {
                     showTutorial()
                 }
             }
+        case .vaultTimeout:
+            showAuth(.vaultUnlock)
         }
     }
 
     func navigate(to route: AppRoute, context _: AnyObject?) {
         switch route {
+        case .debugMenu:
+            #if DEBUG_MENU
+            showDebugMenu()
+            #endif
         case let .tab(tabRoute):
             showTab(route: tabRoute)
         }
@@ -129,9 +138,9 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.start()
             coordinator.navigate(to: route)
             childCoordinator = coordinator
-            if rootNavigator.isPresenting {
-                rootNavigator.rootViewController?.dismiss(animated: true)
-            }
+        }
+        if let rootNavigator, rootNavigator.isPresenting {
+            rootNavigator.rootViewController?.dismiss(animated: true)
         }
     }
 
@@ -147,6 +156,31 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         navigationController.modalPresentationStyle = .overFullScreen
         rootNavigator?.rootViewController?.present(navigationController, animated: false)
     }
+
+    #if DEBUG_MENU
+    /// Configures and presents the debug menu.
+    ///
+    /// Initializes feedback generator for haptic feedback. Sets up a `UINavigationController`
+    /// and creates / starts a `DebugMenuCoordinator` to manage the debug menu flow.
+    /// Presents the navigation controller and triggers haptic feedback upon completion.
+    ///
+    private func showDebugMenu() {
+        let feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
+        feedbackGenerator.prepare()
+        let stackNavigator = UINavigationController()
+        stackNavigator.navigationBar.prefersLargeTitles = true
+        stackNavigator.modalPresentationStyle = .fullScreen
+        let debugMenuCoordinator = module.makeDebugMenuCoordinator(stackNavigator: stackNavigator)
+        debugMenuCoordinator.start()
+        childCoordinator = debugMenuCoordinator
+
+        rootNavigator?.rootViewController?.topmostViewController().present(
+            stackNavigator,
+            animated: true,
+            completion: { feedbackGenerator.impactOccurred() }
+        )
+    }
+    #endif
 }
 
 // MARK: - AuthCoordinatorDelegate
