@@ -6,5 +6,5 @@ set -euo pipefail
 
 if [ "$CONFIGURATION" = "Debug" ]; then
     mint run LicensePlist license-plist \
-        --config-path .license_plist.yml
+        --config-path .license-plist-bwa.yml
 fi
