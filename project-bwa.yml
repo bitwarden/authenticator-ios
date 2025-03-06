@@ -93,7 +93,7 @@ targets:
           - "**/__Snapshots__/*"
           - "**/GoogleService-Info.*.plist"
         buildPhase: none
-      - path: README-bwa.md
+      - path: README.md
         buildPhase: none
       - path: swiftgen-bwa.yml
         buildPhase: none
