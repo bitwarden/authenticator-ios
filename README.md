@@ -1,4 +1,7 @@
-[![Github Workflow build on main](https://github.com/bitwarden/authenticator-ios/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/bitwarden/authenticator-ios/actions/workflows/build.yml?query=branch:main)
+> [!IMPORTANT]
+> The Bitwarden Authenticator app moved to [bitwarden/ios](https://github.com/bitwarden/ios)!
+
+[![Github Workflow build on main](https://github.com/bitwarden/authenticator-ios/actions/workflows/build-bwa.yml/badge.svg?branch=main)](https://github.com/bitwarden/authenticator-ios/actions/workflows/build-bwa.yml?query=branch:main)
 [![Join the chat at https://gitter.im/bitwarden/Lobby](https://badges.gitter.im/bitwarden/Lobby.svg)](https://gitter.im/bitwarden/Lobby)
 
 # Bitwarden Authenticator iOS App
